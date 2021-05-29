@@ -9,6 +9,8 @@ import snscrape.modules.twitter as snstwitter
 
 import pandas as pd
 
+from .cleaner import clean_tweet
+
 # Name of the columns for the dataframes
 columnNames = [
     'Datetime',
@@ -27,8 +29,7 @@ columnNames = [
 condition_query = '{query} since:{since} until:{until} lang:{lang}'
 
 DIRECTORY = 'data/tweets/{since}/{until}'
-FILE_NAME = DIRECTORY + '/tweet_list{status}.csv'
-FILE_NAME_FINAL = DIRECTORY + '/tweet_list.csv'
+FILE_NAME = DIRECTORY + '/tweet_list.csv'
 
 
 def format_conditional_query(query, date_from, date_until, lang):
@@ -39,25 +40,27 @@ def format_conditional_query(query, date_from, date_until, lang):
 
 def get_tweet_data(tweet):
     return [
-                tweet.date, tweet.id, tweet.content,
-                tweet.replyCount, tweet.retweetCount,
-                tweet.likeCount, tweet.retweetedTweet,
-                tweet.user.username, tweet.user.verified
-            ]
+        tweet.date,
+        tweet.id,
+        clean_tweet(tweet.content),
+        tweet.replyCount,
+        tweet.retweetCount,
+        tweet.likeCount,
+        tweet.retweetedTweet,
+        tweet.user.username,
+        tweet.user.verified
+    ]
 
 
-def get_file_names(directory, file_name, date_from, date_until, finished = False):
+def get_file_names(date_from, date_until, finished = False):
     
-    directory.format(since=str(date_from), until=str(date_until))
-    file_name.format(since=str(date_from), until=str(date_until))
-    
-    if "status" in file_name:
-        file_name.format(status = "" if finished else "_unfinished")
+    directory = DIRECTORY.format(since=str(date_from), until=str(date_until))
+    file_name = FILE_NAME.format(since=str(date_from), until=str(date_until))
     
     return directory, file_name
     
 def file_exists(date_from, date_until):
-    _ , file_name = get_file_names(DIRECTORY, FILE_NAME_FINAL, date_from, date_until)
+    _ , file_name = get_file_names(date_from, date_until)
     
     return os.path.isfile(file_name)
         
@@ -67,12 +70,12 @@ def save_file(tweet_list, date_from, date_until, max_tweets):
     """
         Saves the file if it doesn't exist
     """
-    directory, file_name = get_file_names(DIRECTORY, FILE_NAME_FINAL, date_from, date_until, max_tweets == -1)
+    directory, file_name = get_file_names(date_from, date_until, max_tweets == -1)
     
     tweet_df = pd.DataFrame(tweet_list, columns=columnNames)
     
     Path(directory).mkdir(parents=True, exist_ok=True)
-    tweet_df.to_csv(file_name, sep=',', index=False)
+    tweet_df.to_csv(file_name, sep=';', index=False)
 
 
 def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbose = False):
@@ -90,6 +93,7 @@ def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbos
     tweet_list = []
     while(date_from != date_until):
         if file_exists(date_from, date_until):
+            date_from += timedelta(days=1)
             continue
             
         if verbose:
