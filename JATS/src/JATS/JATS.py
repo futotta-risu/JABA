@@ -1,6 +1,8 @@
 import datetime
 from datetime import timedelta
 
+import json
+
 from pathlib import Path
 
 import os.path
@@ -31,6 +33,12 @@ condition_query = '{query} since:{since} until:{until} lang:{lang}'
 DIRECTORY = 'data/tweets/{since}/{until}'
 FILE_NAME = DIRECTORY + '/tweet_list.csv'
 
+
+
+def create_data_log(directory, tweet_limit):
+    data = {'tweet_limit':tweet_limit}
+    with open(directory+'/data.json', 'w') as f:
+        json.dump(data, f)
 
 def format_conditional_query(query, date_from, date_until, lang):
     """
@@ -76,7 +84,7 @@ def save_file(tweet_list, date_from, date_until, max_tweets):
     
     Path(directory).mkdir(parents=True, exist_ok=True)
     tweet_df.to_csv(file_name, sep=';', index=False)
-
+    create_data_log(directory, max_tweets)
 
 def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbose = False):
     """
