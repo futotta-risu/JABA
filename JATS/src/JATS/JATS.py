@@ -73,7 +73,7 @@ def get_file_names(date_from, date_until, finished = False):
     
     directory = DIRECTORY.format(since=str(date_from), until=str(date_until))
     file_name = FILE_NAME.format(since=str(date_from), until=str(date_until))
-    spam_file_name = FILE_NAME.format(since=str(date_from), until=str(date_until))
+    spam_file_name = SPAM_FILE_NAME.format(since=str(date_from), until=str(date_until))
     
     return directory, file_name, spam_file_name
     
@@ -97,7 +97,7 @@ def filter_spam(data):
         Spam (Pandas Dataframe) Spam filtered from the data
     """
     
-    data_dup = data[data["Text"].duplicated()] 
+    data_dup = data[data["Text"].duplicated()]['Text'].value_counts().rename_axis('unique_texts').reset_index(name='counts')
     data.drop_duplicates(subset ="Text", keep = False, inplace=True)
     
     return data, data_dup
@@ -115,14 +115,8 @@ def save_file(tweet_list, date_from, date_until, max_tweets):
     
     Path(directory).mkdir(parents=True, exist_ok=True)
     
-    print(tweet_df)
     tweet_df.to_csv(file_name, sep=';', index=False)
-    print("Guardado el tweet_df")
-    
-    print("-"*50)
-    print(tweet_df_dup)
     tweet_df_dup.to_csv(spam_file_name, sep=';', index=False)
-    print("Guardado el spam tweet_df")
     
     create_data_log(directory, max_tweets)
 
