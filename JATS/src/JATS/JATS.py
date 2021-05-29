@@ -97,7 +97,7 @@ def filter_spam(data):
         Spam (Pandas Dataframe) Spam filtered from the data
     """
     
-    data_dup = data[tweet_df["Text"].duplicated()] 
+    data_dup = data[data["Text"].duplicated()] 
     data.drop_duplicates(subset ="Text", keep = False, inplace=True)
     
     return data, data_dup
@@ -109,14 +109,20 @@ def save_file(tweet_list, date_from, date_until, max_tweets):
     """
     directory, file_name, spam_file_name = get_file_names(date_from, date_until, max_tweets == -1)
     
-    tweet_df = pd.DataFrame(tweet_list, columns=columnNames)
-    
+    tweet_df = pd.DataFrame(tweet_list, columns=column_names)
+
     tweet_df, tweet_df_dup = filter_spam(tweet_df)
     
     Path(directory).mkdir(parents=True, exist_ok=True)
     
+    print(tweet_df)
     tweet_df.to_csv(file_name, sep=';', index=False)
+    print("Guardado el tweet_df")
+    
+    print("-"*50)
+    print(tweet_df_dup)
     tweet_df_dup.to_csv(spam_file_name, sep=';', index=False)
+    print("Guardado el spam tweet_df")
     
     create_data_log(directory, max_tweets)
 
@@ -152,7 +158,7 @@ def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbos
             
             tweet_list += [get_tweet_data(tweet)]
         
-        save_file(tweet_list, date_from, date_until, tweet_limit)
+        save_file(tweet_list, date_from, date_from + timedelta(days=1), tweet_limit)
         
         date_from += timedelta(days=1)
 
