@@ -14,7 +14,7 @@ import pandas as pd
 from .cleaner import clean_tweet
 
 # Name of the columns for the dataframes
-columnNames = [
+column_names = [
     'Datetime',
     'Tweet Id',
     'Text', 
@@ -32,7 +32,7 @@ condition_query = '{query} since:{since} until:{until} lang:{lang}'
 
 DIRECTORY = 'data/tweets/{since}/{until}'
 FILE_NAME = DIRECTORY + '/tweet_list.csv'
-
+SPAM_FILE_NAME = DIRECTORY + '/spam_tweet_list.csv'
 
 
 def create_data_log(directory, tweet_limit):
@@ -47,6 +47,15 @@ def format_conditional_query(query, date_from, date_until, lang):
     return condition_query.format(query = query, since=str(date_from), until=str(date_until), lang=lang)
 
 def get_tweet_data(tweet):
+    """
+        Cleans and separates needed data from Tweet class to list.
+        
+        Parameters:
+        tweet (Tweet [snstwitter])
+        
+        Returns:
+        List of Date, ID, Tweet Text, Reply Count, Retweet Count, Like Count, Parent Tweet ID, Username, IsVerified
+    """
     return [
         tweet.date,
         tweet.id,
@@ -64,26 +73,51 @@ def get_file_names(date_from, date_until, finished = False):
     
     directory = DIRECTORY.format(since=str(date_from), until=str(date_until))
     file_name = FILE_NAME.format(since=str(date_from), until=str(date_until))
+    spam_file_name = FILE_NAME.format(since=str(date_from), until=str(date_until))
     
-    return directory, file_name
+    return directory, file_name, spam_file_name
     
 def file_exists(date_from, date_until):
-    _ , file_name = get_file_names(date_from, date_until)
+    _ , file_name, _ = get_file_names(date_from, date_until)
     
     return os.path.isfile(file_name)
         
     
-
+def filter_spam(data):
+    """
+        Filters the spam from the data.
+        
+        The data is filtered from the Text column.
+        
+        Parameters:
+        data (Pandas Dataframe): Dataframe from tweets. See column_names.
+        
+        Returns:
+        Filtered data (Pandas Dataframe) Data without the spam
+        Spam (Pandas Dataframe) Spam filtered from the data
+    """
+    
+    data_dup = data[tweet_df["Text"].duplicated()] 
+    data.drop_duplicates(subset ="Text", keep = False, inplace=True)
+    
+    return data, data_dup
+    
+    
 def save_file(tweet_list, date_from, date_until, max_tweets):
     """
         Saves the file if it doesn't exist
     """
-    directory, file_name = get_file_names(date_from, date_until, max_tweets == -1)
+    directory, file_name, spam_file_name = get_file_names(date_from, date_until, max_tweets == -1)
     
     tweet_df = pd.DataFrame(tweet_list, columns=columnNames)
     
+    tweet_df, tweet_df_dup = filter_spam(tweet_df)
+    
     Path(directory).mkdir(parents=True, exist_ok=True)
+    
     tweet_df.to_csv(file_name, sep=';', index=False)
+    tweet_df_dup.to_csv(spam_file_name, sep=';', index=False)
+    
     create_data_log(directory, max_tweets)
 
 def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbose = False):
@@ -98,8 +132,8 @@ def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbos
         Returns:
         Lista de Valores del tweet
     """
-    tweet_list = []
     while(date_from != date_until):
+        tweet_list = []
         if file_exists(date_from, date_until):
             date_from += timedelta(days=1)
             continue
