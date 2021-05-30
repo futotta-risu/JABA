@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import os.path
+import os
 
 import snscrape.modules.twitter as snstwitter
 
@@ -30,14 +31,14 @@ column_names = [
 # Condition query for data scrapping
 condition_query = '{query} since:{since} until:{until} lang:{lang}'
 
-DIRECTORY = 'data/tweets/{since}/{until}'
+DIRECTORY = 'data/tweets/{day}'
 FILE_NAME = DIRECTORY + '/tweet_list.csv'
 SPAM_FILE_NAME = DIRECTORY + '/spam_tweet_list.csv'
 
 
 def create_data_log(directory, tweet_limit):
     data = {'tweet_limit':tweet_limit}
-    with open(directory+'/data.json', 'w') as f:
+    with open(directory + '/log.json', 'w') as f:
         json.dump(data, f)
 
 def format_conditional_query(query, date_from, date_until, lang):
@@ -69,16 +70,16 @@ def get_tweet_data(tweet):
     ]
 
 
-def get_file_names(date_from, date_until, finished = False):
+def get_file_names(date):
     
-    directory = DIRECTORY.format(since=str(date_from), until=str(date_until))
-    file_name = FILE_NAME.format(since=str(date_from), until=str(date_until))
-    spam_file_name = SPAM_FILE_NAME.format(since=str(date_from), until=str(date_until))
+    directory = DIRECTORY.format(day = str(date))
+    file_name = FILE_NAME.format(day =str(date))
+    spam_file_name = SPAM_FILE_NAME.format(day = str(date))
     
     return directory, file_name, spam_file_name
     
-def file_exists(date_from, date_until):
-    _ , file_name, _ = get_file_names(date_from, date_until)
+def file_exists(date_from):
+    _ , file_name, _ = get_file_names(date_from)
     
     return os.path.isfile(file_name)
         
@@ -103,18 +104,19 @@ def filter_spam(data):
     return data, data_dup
     
     
-def save_file(tweet_list, date_from, date_until, max_tweets):
+def save_file(tweet_list, date_from, max_tweets):
     """
         Saves the file if it doesn't exist
     """
-    directory, file_name, spam_file_name = get_file_names(date_from, date_until, max_tweets == -1)
+    directory, file_name, spam_file_name = get_file_names(date_from)
     
     tweet_df = pd.DataFrame(tweet_list, columns=column_names)
-
+    tweet_df = tweet_df[ (tweet_df['Text'].notna()) & tweet_df['Text']]
+    
     tweet_df, tweet_df_dup = filter_spam(tweet_df)
     
     Path(directory).mkdir(parents=True, exist_ok=True)
-    
+
     tweet_df.to_csv(file_name, sep=';', index=False)
     tweet_df_dup.to_csv(spam_file_name, sep=';', index=False)
     
@@ -134,7 +136,7 @@ def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbos
     """
     while(date_from != date_until):
         tweet_list = []
-        if file_exists(date_from, date_until):
+        if file_exists(date_from):
             date_from += timedelta(days=1)
             continue
             
@@ -148,11 +150,11 @@ def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbos
                 break
                 
             if verbose and i%2500==0:
-                print(i , " / " , tweet_limit)
+                print(str(date_from),": ", i , " / " , tweet_limit)
             
             tweet_list += [get_tweet_data(tweet)]
         
-        save_file(tweet_list, date_from, date_from + timedelta(days=1), tweet_limit)
+        save_file(tweet_list, date_from, tweet_limit)
         
         date_from += timedelta(days=1)
 
