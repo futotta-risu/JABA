@@ -19,7 +19,7 @@ emoji_pattern = re.compile("["
         u"\u200d"
         u"\u2640-\u2642"
         "]+", flags=re.UNICODE)
-
+stop_words = set(stopwords.words('english'))
 
 def clean_tweet(tweet, method="basic"):
     """
@@ -47,6 +47,8 @@ def clean_tweet(tweet, method="basic"):
     tweet = re.sub(r"(?:\@|http?\://|https?\://|www)\S+", "", tweet) #Remove http links
     tweet = re.sub(r"@\S+", "", tweet)
     
+    tweet = re.sub(r"(-?)[0-9][0-9,\.]+(%?)", "", tweet)
+    
     # We don't use the emoji library since its really slow
     tweet = emoji_pattern.sub(r'', tweet)
     tweet = " ".join(tweet.split())
@@ -55,4 +57,5 @@ def clean_tweet(tweet, method="basic"):
 
 
 def total_clean(text):
+    text = " ".join([w for w in text.split() if not w in stop_words])
     return re.sub(r'[\W.,:() ]', ' ', text)
