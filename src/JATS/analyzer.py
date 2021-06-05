@@ -1,12 +1,13 @@
 import os
 
 import pandas as pd
+import numpy as np
+import string
 
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 
 from .cleaner import *
-
 
 nltk.download([     
     "names",
@@ -20,6 +21,11 @@ nltk.download([
 ])
 
 from textblob import TextBlob
+
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.cluster import DBSCAN
+
 
 class Analyzer:
     
@@ -129,3 +135,29 @@ class Analyzer:
             sep=';', 
             index=False
         )
+    
+
+    def get_cosine_similarity(self, cleaned_texts):
+        """
+            Calculates the Cosine Similarity of Strings given a list of them.
+            Texts must be cleaned before the analisis
+        """
+        
+        vectorizer = CountVectorizer().fit_transform(cleaned_texts)
+        vectors = vectorizer.toarray()
+        
+        return cosine_similarity(vectors)
+    
+    def analyze_similarity(self, tweet_df):
+        """
+            Insert a new column with the clustered group number into the given dataframe of tweets.
+            The column is called 'Prediction'
+        """
+        tweet_df = tweet_df.dropna(axis=0, subset=['Text'])
+        csim = self.get_cosine_similarity(tweet_df['Text'])
+        clustering = DBSCAN(eps=1.04, min_samples=5).fit(csim)
+        unique_elements, counts_elements = np.unique(clustering.labels_, return_counts=True)
+        tweet_df['Prediction'] = clustering.labels_.tolist()
+        
+        return tweet_df
+        
