@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QMainWindow,  QWidget 
 from PyQt5.QtWidgets import QGridLayout, QVBoxLayout, QScrollArea, QSplitter
-from PyQt5.QtWidgets import QPushButton, QFileDialog, QCalendarWidget, QLabel, QComboBox
-from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QFileDialog, QCalendarWidget, QLabel, QComboBox, QAction, QMenuBar, QMenu
+from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot, QSettings
 from PyQt5 import QtCore, QtGui, Qt
 
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
 
+from .configuration_view import ConfigurationDialog
 active_thread_str = "There are {threads} running threads."
 
 class MainView(QMainWindow):
@@ -23,13 +24,14 @@ class MainView(QMainWindow):
         self._controller = controller
         
         self._load_window_properties()
+        self._create_menu_bar()
         self._load_window_components()
         self._connect_window_components()
         
         self._init_window()
         
     def _load_window_properties(self):
-        self.setWindowTitle("My App")
+        self.setWindowTitle("JABA")
         
     def _load_window_components(self):        
         self.top_layout = QGridLayout()
@@ -108,7 +110,22 @@ class MainView(QMainWindow):
         self.setCentralWidget(self.container)
         
         self.show()
+    
+    def _create_menu_bar(self):
+        menu_bar = QMenuBar(self)
         
+        self.open_parameters = QAction("&Parameters", self)
+        self.open_parameters.triggered.connect(self.open_configuration)
+        configuration_menu = QMenu("&Configuration", self)
+        configuration_menu.addAction(self.open_parameters)
+        
+        help_menu = QMenu("&Help",self)
+        menu_bar.addMenu(configuration_menu)
+        menu_bar.addMenu(help_menu)
+        
+        self.setMenuBar(menu_bar)
+
+    
     def _connect_window_components(self):
         
         self.sentiment_plot_button.clicked.connect(self.load_graph)
@@ -167,10 +184,6 @@ class MainView(QMainWindow):
         index, sentiment, dist_index, distribution = self._controller.get_sentiment_plot_data(date, algorithm)
         sample = self._controller.get_message_sample_with_sentiment(date, algorithm)
         
-        print("X")
-        print(dist_index)
-        print("-Y"*50)
-        print(distribution)
         
         self.graphWidget.clear()
         self.graphWidget.plot(index, sentiment)
@@ -184,3 +197,8 @@ class MainView(QMainWindow):
             label.setWordWrap(True)  
             self.message_sample.addWidget(label)
             
+    def open_configuration(self):
+        settings = self._controller.get_settings()
+        configuration_dialog = ConfigurationDialog(self._controller)
+        configuration_dialog.exec_()
+        

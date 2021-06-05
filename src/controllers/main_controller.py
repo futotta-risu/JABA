@@ -1,13 +1,10 @@
-from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot, QDate
+from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot, QDate, QSettings
 
 from JATS.JATS import *
 from JATS.cleaner import *
 from JATS.analyzer import Analyzer
 
 DATE_FORMAT = "yyyy-MM-dd"
-
-INITIAL_DATE = QDate.fromString("2017-01-01", DATE_FORMAT)
-
 
 base_dir = "data/tweets/"
 
@@ -29,18 +26,42 @@ class AnalyzeDateWorker(QRunnable):
         
 
 class MainController(QObject):
+    
     def __init__(self, model):
         super().__init__()
         
+        self.settings = QSettings('JABA', 'JABA_Settings')
+        
+        try:
+            self.settings.value('loaded_settings')
+        except:
+            self._init_settings()
+        
         self._model = model
+        
+        self._init_local_vars()
         
         self.threadpool = QThreadPool()
         
-        self.actual_scrapper_date = QDate.fromString("2017-01-01", DATE_FORMAT)
-        
         self.scrapped_dates = set()
         self._get_scrapped_dates()
-        
+    
+    def _init_settings(self):
+        self.settings.setValue('initial_date', QDate.fromString("2017-01-01", DATE_FORMAT))
+        self.settings.setValue('loaded_settings', True)
+        self.settings.sync()
+    
+    def set_settings(self, new_settings):
+        self.settings = new_settings
+        self.actual_scrapper_date = self.settings.value('initial_date')
+        self.settings.sync()
+    
+    def get_settings(self):
+        return self.settings
+    
+    def _init_local_vars(self):
+        self.actual_scrapper_date = self.settings.value('initial_date', type=QDate)
+    
     def _get_scrapped_dates(self):
         for path in os.listdir( base_dir ):
             date = QDate.fromString(path, DATE_FORMAT)
