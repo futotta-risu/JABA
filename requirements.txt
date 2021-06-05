@@ -1,6 +1,7 @@
 anyio==2.2.0
 argon2-cffi==20.1.0
 async-generator==1.10
+atomicwrites==1.4.0
 attrs==21.2.0
 Babel==2.9.1
 backcall==0.2.0
@@ -20,6 +21,7 @@ emoji==1.2.0
 entrypoints==0.3
 idna==2.10
 importlib-metadata==3.10.0
+iniconfig==1.1.1
 ipykernel==5.3.4
 ipython==7.22.0
 ipython-genutils==0.2.0
@@ -59,8 +61,10 @@ parso==0.8.2
 pickleshare==0.7.5
 Pillow==8.2.0
 pip==21.1.1
+pluggy==0.13.1
 prometheus-client==0.10.1
 prompt-toolkit==3.0.17
+py==1.10.0
 pycparser==2.20
 Pygments==2.9.0
 pyOpenSSL==20.0.1
@@ -71,6 +75,7 @@ PyQt5-sip==12.9.0
 pyqtgraph==0.12.1
 pyrsistent==0.17.3
 PySocks==1.7.1
+pytest==6.2.4
 python-dateutil==2.8.1
 pytz==2021.1
 pywin32==227
@@ -90,6 +95,7 @@ soupsieve==2.2.1
 terminado==0.9.4
 testpath==0.4.4
 textblob==0.15.3
+toml==0.10.2
 tornado==6.1
 tqdm==4.59.0
 traitlets==5.0.5
