@@ -2,10 +2,14 @@
 
 Dashboard for social network sentiment tracking.
 
-| Description        | Status           | 
-| ------------- |:-------------:| 
-| Main Build & Test      | ![main](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg) | 
-| Development Build & Test    | ![development](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg?branch=development)      | 
+
+## Status
+
+* Main Build & Test: ![main](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg) 
+* Development Build & Test: ![development](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg?branch=development)    
+
+* Maintainability: [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=futotta-risu_JABA&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=futotta-risu_JABA)
+* Reliability: [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=futotta-risu_JABA&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=futotta-risu_JABA)
 
 
 ## Execution
