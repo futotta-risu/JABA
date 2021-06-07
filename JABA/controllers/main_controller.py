@@ -1,8 +1,11 @@
 from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot, QDate
 
-from JATS.JATS import *
-from JATS.cleaner import *
-from JATS.analyzer import Analyzer
+from service.scrapper.scrapper import *
+from service.scrapper.ScrapService import ScrapService
+from service.scrapper.cleaner import *
+from service.scrapper.analyzer import Analyzer
+
+from service.visualization.PlotService import PlotService
 
 DATE_FORMAT = "yyyy-MM-dd"
 
@@ -109,7 +112,6 @@ class MainController(QObject):
         
         sentiment_dist["sentiment"] = sentiment_dist["sentiment"]/total_vals
         
-        print(sum(sentiment_dist["sentiment"] ))
         return sentiment_df.index, sentiment_df["sentiment"], sentiment_dist.index.tolist(), sentiment_dist["sentiment"].tolist()
     
     def _refresh_thread_count(self):
@@ -149,3 +151,24 @@ class MainController(QObject):
             tweets += [(text, sentiment)]
         
         return tweets
+    
+    def create_plot(self, dataCategory, indexType, dataType):
+        plotService = PlotService()
+        return plotService.createPlotConfig(indexType, dataType,"round", "count", {"round_var": "min"})
+        
+    
+    def get_plot_data(self, dataCategory, plotConfig, args):
+        """
+            Returns the scrapped data prepared to be plotted
+        """
+        
+        if "date" in args:
+            args["date"] = args["date"].toString(DATE_FORMAT)
+        
+        scrapService = ScrapService()
+        data = scrapService.get_data_by_category(dataCategory, args)
+        
+        
+        plotService = PlotService()
+        return plotService.prepareData(data, plotConfig)
+        

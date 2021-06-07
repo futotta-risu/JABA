@@ -16,6 +16,8 @@ class MainView(QMainWindow):
         "sentiment" : "blue"
     }
     
+    plot_list = {}
+    
     def __init__(self, model, controller):
         super().__init__()
         
@@ -76,9 +78,9 @@ class MainView(QMainWindow):
         
         self.top_container = QWidget()
         self.top_container.setLayout(self.top_layout)
+        self.center_layout = QVBoxLayout()
         
-        self.graphWidget = pg.PlotWidget()
-        self.graphWidget.setYRange(-1,1)
+        self.add_plot("Tweet",2 , 1)
         
         self.graphWidgetHist = pg.PlotWidget()
         self.graphWidgetHist.setYRange(-0.1,1.1)
@@ -86,9 +88,8 @@ class MainView(QMainWindow):
         self.thread_count_label = QLabel(active_thread_str.format(threads="0"))
         
         
-        self.center_layout = QVBoxLayout()
+        
         self.center_layout.addWidget(self.top_container)
-        self.center_layout.addWidget(self.graphWidget)
         self.center_layout.addWidget(self.graphWidgetHist)
         
         self.center_widget = QWidget()
@@ -167,13 +168,6 @@ class MainView(QMainWindow):
         index, sentiment, dist_index, distribution = self._controller.get_sentiment_plot_data(date, algorithm)
         sample = self._controller.get_message_sample_with_sentiment(date, algorithm)
         
-        print("X")
-        print(dist_index)
-        print("-Y"*50)
-        print(distribution)
-        
-        self.graphWidget.clear()
-        self.graphWidget.plot(index, sentiment)
         self.graphWidgetHist.clear()
         self.graphWidgetHist.plot(dist_index, distribution)
         self.graphWidgetHist.setYRange(-0.1,max(distribution) +0.1)
@@ -183,4 +177,40 @@ class MainView(QMainWindow):
             label = QLabel(f"{text} ({sentiment})")
             label.setWordWrap(True)  
             self.message_sample.addWidget(label)
+        
+        self.update_plot()
+        
+    def update_plot(self):
+        
+        for _, params in self.plot_list.items():
+            index, data = self._controller.get_plot_data(
+                params["category"],
+                params["plotConfig"],
+                {"date":  self.calendar.selectedDate()}
+            )
+            params["widget"].clear()
+            params["widget"].plot(index, data)
+        
+    
+    def add_plot(self, data_category, indexType, dataType):
+        """
+            Adds a plot to the layout and appends the information to the
+            plot_list dict.
             
+            Parameters:
+                plot_category(string): Category of the plot (Sentiment, Tweet, ...)
+                plot_type(string): Type of the plot (Distribution, Lineplot, ...)
+                plot_timeframe(string): Timeframe of the plot (Day, Year, ...)
+        """
+        
+        id, plotConfig, widget = self._controller.create_plot(data_category, indexType, dataType)
+        
+        self.plot_list[ id ] = {
+            "category" : data_category,
+            "plotConfig" : plotConfig,
+            "widget": widget
+        }
+        
+        self.center_layout.addWidget(widget)
+        
+        

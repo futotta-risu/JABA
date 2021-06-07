@@ -122,17 +122,20 @@ def save_file(tweet_list, date_from, max_tweets):
     
     create_data_log(directory, max_tweets)
 
+def get_tweet_from_file(date):
+    _, file_name, _ = get_file_names(date)
+    tweet_df = pd.read_csv(file_name, sep=';')
+    tweet_df["Datetime"] = pd.to_datetime(tweet_df["Datetime"])
+    return tweet_df
+    
 def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbose = False):
     """
-        Function to scrap tweet between dates
+        Function to scrap tweet between dates and save them
         
         Parameters:
         date_from (datetime.date): Fecha de comienzo del scrapping
         date_until (datetime.date): Fecha hasta la que se realiza el scrapping. Fecha no incluida.
         tweet_limit (int): Limite de tweets al dia. -1 si no se quiere limite
-        
-        Returns:
-        Lista de Valores del tweet
     """
     while(date_from != date_until):
         tweet_list = []
@@ -158,4 +161,4 @@ def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbos
         
         date_from += timedelta(days=1)
 
-    return tweet_list
+
