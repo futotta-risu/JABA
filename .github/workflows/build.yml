@@ -22,6 +22,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip3 install git+https://github.com/JustAnotherArchivist/snscrape.git
+      - name: Install JABA package
+        run: |
+          pip install -e .
       - name: Test with pytest
         run: |
           pytest

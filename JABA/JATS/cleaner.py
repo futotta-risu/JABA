@@ -21,7 +21,7 @@ emoji_pattern = re.compile("["
         "]+", flags=re.UNICODE)
 stop_words = set(stopwords.words('english'))
 
-def clean_tweet(tweet, method="basic"):
+def clean_tweet(tweet):
     """
         Clean function for tweets.
         
