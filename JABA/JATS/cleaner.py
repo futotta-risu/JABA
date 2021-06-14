@@ -1,4 +1,5 @@
 import re
+
 from nltk.corpus import stopwords
 from nltk.tokenize import TweetTokenizer
 
@@ -19,9 +20,10 @@ emoji_pattern = re.compile("["
         u"\u200d"
         u"\u2640-\u2642"
         "]+", flags=re.UNICODE)
+
 stop_words = set(stopwords.words('english'))
 
-def clean_tweet(tweet, method="basic"):
+def clean_tweet(tweet):
     """
         Clean function for tweets.
         
