@@ -13,6 +13,8 @@ class ScrapService:
         data = None
         if dataModel == "Tweet":
             data = get_tweet_from_file(args["date"])
+        elif dataModel == "Sentiment":
+            data = get_sentiment_from_file(args["date"], args["algorithm"])
         else:
             raise NoDataAvailableException("No data detected")
         

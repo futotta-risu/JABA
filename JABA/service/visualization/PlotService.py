@@ -27,7 +27,7 @@ class PlotService:
     def prepareData(self, data, plotConfig):
         
         dataFunction = plotConfig.getDataFunction()
-        return_index, return_data = [], []
+        return_index, return_data = data.index, data
         dataKey = 'data'
         
         if plotConfig.getIndexFunction() == "round":

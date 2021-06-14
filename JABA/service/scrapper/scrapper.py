@@ -29,136 +29,158 @@ column_names = [
 
 
 # Condition query for data scrapping
-condition_query = '{query} since:{since} until:{until} lang:{lang}'
-
-DIRECTORY = 'data/tweets/{day}'
-FILE_NAME = DIRECTORY + '/tweet_list.csv'
-SPAM_FILE_NAME = DIRECTORY + '/spam_tweet_list.csv'
 
 
-def create_data_log(directory, tweet_limit):
-    data = {'tweet_limit':tweet_limit}
-    with open(directory + '/log.json', 'w') as f:
-        json.dump(data, f)
 
-def format_conditional_query(query, date_from, date_until, lang):
-    """
-        Formats the conditional query
-    """
-    return condition_query.format(query = query, since=str(date_from), until=str(date_until), lang=lang)
 
-def get_tweet_data(tweet):
-    """
-        Cleans and separates needed data from Tweet class to list.
+
+
+class ScrapperFileManager(FileManagerInterface):
+    self.FILE_NAME = self.DIRECTORY + '/tweet_list.csv'
+    self.SPAM_FILE_NAME = self.DIRECTORY + '/spam_tweet_list.csv'
+    
+    def get_file_name(self, args: dict):
+        """
+            Returns the file names of the scrapper class
+            
+            Returns:
+            FILE_NAME, SPAM_FILE_NAME
+        """
+        return self.FILE_NAME, self.SPAM_FILE_NAME
+
+    def open_file(self, date):
+        """
+            Returns the dataframe from the scrapper class
+        """
+        file_name, _ = get_file_names(date)
+        tweet_df = pd.read_csv(file_name, sep=';')
+        tweet_df["Datetime"] = pd.to_datetime(tweet_df["Datetime"])
         
-        Parameters:
-        tweet (Tweet [snstwitter])
+        return tweet_df
+    
+    def save_file(self, data, date, status):
+        """
+            Saves the file if it doesn't exist
+        """
+        file_names = self.get_file_names(date_from)
         
-        Returns:
-        List of Date, ID, Tweet Text, Reply Count, Retweet Count, Like Count, Parent Tweet ID, Username, IsVerified
-    """
-    return [
-        tweet.date,
-        tweet.id,
-        clean_tweet(tweet.content),
-        tweet.replyCount,
-        tweet.retweetCount,
-        tweet.likeCount,
-        tweet.retweetedTweet,
-        tweet.user.username,
-        tweet.user.verified
-    ]
+        Path(self.DIRECTORY).mkdir(parents=True, exist_ok=True)
+        
+        for index, file_name in enumerate(file_names):
+            data[index].to_csv(file_name, sep=';', index=False)
+            
+        self.create_data_log(status)
+    
+    def create_data_log(self, status):
+        with open(self.DIRECTORY + '/log.json', 'w') as f:
+            json.dump(status, f)
+    
+class IScrapper:
+    
+    # Namespace for the scrapper in order to save files
+    namespace = "IScrapper"
+    
+    # Query to be scrapped from the page
+    query = "default_query"
+    
+    # Conditions of the query
+    condition_query = "default_conditional_query"
+    
+    def scrap(self, date_from, date_until, limit = -1, lang="en", verbose = False):
+        pass
+    
+class TwitterScrapper(IScrapper):
+    namespace = "twitter"
+    query = '"BTC" OR "bitcoin" since:{since} until:{until} lang:{lang}"
+    
+    def __init__(self):
+        self.fileManager = ScrapperFileManager()
+    
+    def scrap(self, date_from, date_until, limit = -1, lang="en", verbose = False):
+         """
+            Function to scrap tweet between dates and save them
 
+            Parameters:
+            date_from (datetime.date): Fecha de comienzo del scrapping
+            date_until (datetime.date): Fecha hasta la que se realiza el scrapping. Fecha no incluida.
+            tweet_limit (int): Limite de tweets al dia. -1 si no se quiere limite
+        """
+        while(date_from != date_until):
+            tweet_list = []
+            if self.fileManager.file_exists(date_from):
+                date_from += timedelta(days=1)
+                continue
 
-def get_file_names(date):
-    
-    directory = DIRECTORY.format(day = str(date))
-    file_name = FILE_NAME.format(day =str(date))
-    spam_file_name = SPAM_FILE_NAME.format(day = str(date))
-    
-    return directory, file_name, spam_file_name
-    
-def file_exists(date_from):
-    _ , file_name, _ = get_file_names(date_from)
-    
-    return os.path.isfile(file_name)
-        
-    
-def filter_spam(data):
-    """
-        Filters the spam from the data.
-        
-        The data is filtered from the Text column.
-        
-        Parameters:
-        data (Pandas Dataframe): Dataframe from tweets. See column_names.
-        
-        Returns:
-        Filtered data (Pandas Dataframe) Data without the spam
-        Spam (Pandas Dataframe) Spam filtered from the data
-    """
-    
-    data_dup = data[data["Text"].duplicated()]['Text'].value_counts().rename_axis('unique_texts').reset_index(name='counts')
-    data.drop_duplicates(subset ="Text", keep = False, inplace=True)
-    
-    return data, data_dup
-    
-    
-def save_file(tweet_list, date_from, max_tweets):
-    """
-        Saves the file if it doesn't exist
-    """
-    directory, file_name, spam_file_name = get_file_names(date_from)
-    
-    tweet_df = pd.DataFrame(tweet_list, columns=column_names)
-    tweet_df = tweet_df[ (tweet_df['Text'].notna()) & tweet_df['Text']]
-    
-    tweet_df, tweet_df_dup = filter_spam(tweet_df)
-    
-    Path(directory).mkdir(parents=True, exist_ok=True)
+            if verbose:
+                print("Day " + str(date_from))
 
-    tweet_df.to_csv(file_name, sep=';', index=False)
-    tweet_df_dup.to_csv(spam_file_name, sep=';', index=False)
-    
-    create_data_log(directory, max_tweets)
+            format_string = self.format_conditional_query(date_from, date_from + timedelta(days=1), lang)
 
-def get_tweet_from_file(date):
-    _, file_name, _ = get_file_names(date)
-    tweet_df = pd.read_csv(file_name, sep=';')
-    tweet_df["Datetime"] = pd.to_datetime(tweet_df["Datetime"])
-    return tweet_df
-    
-def get_tweets(query, date_from, date_until, tweet_limit = -1, lang="en", verbose = False):
-    """
-        Function to scrap tweet between dates and save them
-        
-        Parameters:
-        date_from (datetime.date): Fecha de comienzo del scrapping
-        date_until (datetime.date): Fecha hasta la que se realiza el scrapping. Fecha no incluida.
-        tweet_limit (int): Limite de tweets al dia. -1 si no se quiere limite
-    """
-    while(date_from != date_until):
-        tweet_list = []
-        if file_exists(date_from):
+            for i, tweet in enumerate(snstwitter.TwitterSearchScraper(format_string).get_items()):
+                if limit != -1:
+                    if i >= limit:
+                        break
+
+                if verbose and i%2500==0:
+                    print(str(date_from),": ", i , " / " , tweet_limit)
+
+                tweet_list += [self.get_tweet_data(tweet)]
+            
+            tweets, spam_tweets = self.filter_spam(tweet_list) 
+            
+            self.fileManager.save_file([tweets, spam_tweets], date_from, tweet_limit)
+
             date_from += timedelta(days=1)
-            continue
-            
-        if verbose:
-            print("Day " + str(date_from))
+    
+    def filter_spam(data):
+        """
+            Filters the spam from the data.
 
-        format_string = format_conditional_query(query, date_from, date_from + timedelta(days=1), lang)
-        
-        for i, tweet in enumerate(snstwitter.TwitterSearchScraper(format_string).get_items()):
-            if i >= tweet_limit and tweet_limit != -1:
-                break
-                
-            if verbose and i%2500==0:
-                print(str(date_from),": ", i , " / " , tweet_limit)
-            
-            tweet_list += [get_tweet_data(tweet)]
-        
-        save_file(tweet_list, date_from, tweet_limit)
-        
-        date_from += timedelta(days=1)
+            The data is filtered from the Text column.
 
+            Parameters:
+            data (Pandas Dataframe): Dataframe from tweets. See column_names.
 
+            Returns:
+            Filtered data (Pandas Dataframe) Data without the spam
+            Spam (Pandas Dataframe) Spam filtered from the data
+        """
+        
+        data = pd.DataFrame(tweet_list, columns=column_names)
+        data = data[ (data['Text'].notna()) & data['Text']]
+
+        data_spam = data[data["Text"].duplicated()]['Text'].value_counts().rename_axis('unique_texts').reset_index(name='counts')
+        
+        data.drop_duplicates(subset ="Text", keep = False, inplace=True)
+        
+        return data, data_spam
+    
+    def get_tweet_data(self, tweet):
+        """
+            Cleans and separates needed data from Tweet class to list.
+
+            Parameters:
+            tweet (Tweet [snstwitter])
+
+            Returns:
+            List of Date, ID, Tweet Text, Reply Count, 
+                Retweet Count, Like Count, Parent Tweet ID, Username, IsVerified
+        """
+        return [
+            tweet.date,
+            tweet.id,
+            clean_tweet(tweet.content),
+            tweet.replyCount,
+            tweet.retweetCount,
+            tweet.likeCount,
+            tweet.retweetedTweet,
+            tweet.user.username,
+            tweet.user.verified
+        ]
+    
+    def format_conditional_query(date_from, date_until, lang):
+        """
+            Formats the conditional query
+        """
+        
+        return self.query.format(since=str(date_from), until=str(date_until), lang=lang)

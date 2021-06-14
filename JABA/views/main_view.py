@@ -80,17 +80,23 @@ class MainView(QMainWindow):
         self.top_container.setLayout(self.top_layout)
         self.center_layout = QVBoxLayout()
         
-        self.add_plot("Tweet",2 , 1)
         
         self.graphWidgetHist = pg.PlotWidget()
         self.graphWidgetHist.setYRange(-0.1,1.1)
         
         self.thread_count_label = QLabel(active_thread_str.format(threads="0"))
         
+        self.plot_list_layout = QVBoxLayout()
         
+        self.plot_L_widget = QWidget()
+        self.plot_L_widget.setLayout(self.plot_list_layout)
+        self.plot_list_layout.addWidget(self.graphWidgetHist)
         
         self.center_layout.addWidget(self.top_container)
-        self.center_layout.addWidget(self.graphWidgetHist)
+        self.center_layout.addWidget(self.plot_L_widget)
+        
+        
+        self.add_plot("Tweet",2 , 1)
         
         self.center_widget = QWidget()
         self.center_widget.setLayout(self.center_layout)
@@ -211,6 +217,6 @@ class MainView(QMainWindow):
             "widget": widget
         }
         
-        self.center_layout.addWidget(widget)
+        self.plot_list_layout.addWidget(widget)
         
         
