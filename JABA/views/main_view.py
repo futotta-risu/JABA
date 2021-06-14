@@ -1,22 +1,36 @@
-from PyQt5.QtWidgets import QMainWindow,  QWidget
+from PyQt5.QtWidgets import QMainWindow, QWidget
 from PyQt5.QtWidgets import QGridLayout, QVBoxLayout, QScrollArea, QSplitter
-from PyQt5.QtWidgets import QPushButton, QFileDialog, QCalendarWidget, QLabel, QComboBox, QAction, QMenuBar, QMenu
-from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot, QSettings
+from PyQt5.QtWidgets import (
+    QPushButton,
+    QFileDialog,
+    QCalendarWidget,
+    QLabel,
+    QComboBox,
+    QAction,
+    QMenuBar,
+    QMenu,
+)
+from PyQt5.QtCore import (
+    QObject,
+    QThreadPool,
+    pyqtSignal,
+    QRunnable,
+    pyqtSlot,
+    QSettings,
+)
 from PyQt5 import QtCore, QtGui, Qt
 
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
 
 from .configuration_view import ConfigurationDialog
+
 active_thread_str = "There are {threads} running threads."
 
 
 class MainView(QMainWindow):
 
-    calendar_colors = {
-        "data": "green",
-        "sentiment": "blue"
-    }
+    calendar_colors = {"data": "green", "sentiment": "blue"}
 
     def __init__(self, model, controller):
         super().__init__()
@@ -42,9 +56,9 @@ class MainView(QMainWindow):
         self.combo_sentiment_algorithm.addItem("nltk")
         self.combo_sentiment_algorithm.addItem("textblob")
 
-        self.sentiment_plot_button = QPushButton('Plot Sentiment')
-        self.analyze_date_button = QPushButton('Analyze Day')
-        self.auto_scrap = QPushButton('Auto Scrap')
+        self.sentiment_plot_button = QPushButton("Plot Sentiment")
+        self.analyze_date_button = QPushButton("Analyze Day")
+        self.auto_scrap = QPushButton("Auto Scrap")
 
         self.button_menu_layout.addWidget(self.combo_sentiment_algorithm)
         self.button_menu_layout.addWidget(self.sentiment_plot_button)
@@ -64,9 +78,11 @@ class MainView(QMainWindow):
         self.message_sample_scroll.setFixedWidth(600)
         self.message_sample_scroll.setWidgetResizable(True)
         self.message_sample_scroll.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOff)
+            QtCore.Qt.ScrollBarAlwaysOff
+        )
         self.message_sample_scroll.setVerticalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOn)
+            QtCore.Qt.ScrollBarAlwaysOn
+        )
 
         self.message_sample_widget = QWidget()
 
@@ -133,8 +149,7 @@ class MainView(QMainWindow):
         self.auto_scrap.clicked.connect(self.automatic_scrapper)
 
         self._model.thread_count_changed.connect(self.on_thread_count_changed)
-        self._model.thread_count_changed.connect(
-            self._controller.automatic_scrapper)
+        self._model.thread_count_changed.connect(self._controller.automatic_scrapper)
 
     def _init_window(self):
         self._reset_calendar_color()
@@ -146,8 +161,7 @@ class MainView(QMainWindow):
         cell_format = QtGui.QTextCharFormat()
 
         for date, status in date_colors:
-            cell_format.setBackground(
-                QtGui.QColor(self.calendar_colors[status]))
+            cell_format.setBackground(QtGui.QColor(self.calendar_colors[status]))
 
             if date.isValid():
                 self.calendar.setDateTextFormat(date, cell_format)
@@ -155,9 +169,7 @@ class MainView(QMainWindow):
     @pyqtSlot(int)
     def on_thread_count_changed(self, value):
         self.thread_count_label.setText(
-            active_thread_str.format(
-                threads=self._model.thread_count_str
-            )
+            active_thread_str.format(threads=self._model.thread_count_str)
         )
 
     def automatic_scrapper(self):
@@ -176,16 +188,19 @@ class MainView(QMainWindow):
 
     def load_graph(self):
         """
-            Draw sentiment graph
+        Draw sentiment graph
         """
 
         date = self.calendar.selectedDate()
         algorithm = str(self.combo_sentiment_algorithm.currentText())
 
-        index, sentiment, dist_index, distribution = self._controller.get_sentiment_plot_data(
-            date, algorithm)
-        sample = self._controller.get_message_sample_with_sentiment(
-            date, algorithm)
+        (
+            index,
+            sentiment,
+            dist_index,
+            distribution,
+        ) = self._controller.get_sentiment_plot_data(date, algorithm)
+        sample = self._controller.get_message_sample_with_sentiment(date, algorithm)
 
         self.graphWidget.clear()
         self.graphWidget.plot(index, sentiment)

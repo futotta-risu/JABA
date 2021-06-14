@@ -1,4 +1,12 @@
-from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot, QDate, QSettings
+from PyQt5.QtCore import (
+    QObject,
+    QThreadPool,
+    pyqtSignal,
+    QRunnable,
+    pyqtSlot,
+    QDate,
+    QSettings,
+)
 
 from JATS.JATS import *
 from JATS.cleaner import *
@@ -23,20 +31,20 @@ class AnalyzeDateWorker(QRunnable):
         self.date_from = date_from
 
     def run(self):
-        get_tweets(query, self.date_from, self.date_from +
-                   timedelta(days=1), verbose=True)
+        get_tweets(
+            query, self.date_from, self.date_from + timedelta(days=1), verbose=True
+        )
         self.signal.finished.emit()
 
 
 class MainController(QObject):
-
     def __init__(self, model):
         super().__init__()
 
-        self.settings = QSettings('JABA', 'JABA_Settings')
+        self.settings = QSettings("JABA", "JABA_Settings")
 
         try:
-            self.settings.value('loaded_settings')
+            self.settings.value("loaded_settings")
         except:
             self._init_settings()
 
@@ -51,21 +59,21 @@ class MainController(QObject):
 
     def _init_settings(self):
         self.settings.setValue(
-            'initial_date', QDate.fromString("2017-01-01", DATE_FORMAT))
-        self.settings.setValue('loaded_settings', True)
+            "initial_date", QDate.fromString("2017-01-01", DATE_FORMAT)
+        )
+        self.settings.setValue("loaded_settings", True)
         self.settings.sync()
 
     def set_settings(self, new_settings):
         self.settings = new_settings
-        self.actual_scrapper_date = self.settings.value('initial_date')
+        self.actual_scrapper_date = self.settings.value("initial_date")
         self.settings.sync()
 
     def get_settings(self):
         return self.settings
 
     def _init_local_vars(self):
-        self.actual_scrapper_date = self.settings.value(
-            'initial_date', type=QDate)
+        self.actual_scrapper_date = self.settings.value("initial_date", type=QDate)
 
     def _get_scrapped_dates(self):
         for path in os.listdir(base_dir):
@@ -95,44 +103,49 @@ class MainController(QObject):
 
     def get_sentiment_plot_data(self, date, algorithm):
         """
-            Returns the index and sentiment column of a date
+        Returns the index and sentiment column of a date
         """
 
         date = date.toString(DATE_FORMAT)
         directory = os.path.join(base_dir, date)
 
         sentiment_file_name = os.path.join(
-            base_dir, date, "sentiment_file_" + algorithm + ".csv")
+            base_dir, date, "sentiment_file_" + algorithm + ".csv"
+        )
         sentiment_tweet_file_name = os.path.join(
-            base_dir, date, "tweet_sentiment_" + algorithm + ".csv")
+            base_dir, date, "tweet_sentiment_" + algorithm + ".csv"
+        )
 
         if not os.path.isfile(sentiment_file_name):
             tweet_file_name = os.path.join(base_dir, date, "tweet_list.csv")
 
-            tweet_df = pd.read_csv(tweet_file_name, sep=';')
+            tweet_df = pd.read_csv(tweet_file_name, sep=";")
             tweet_df["Datetime"] = pd.to_datetime(tweet_df["Datetime"])
 
             analyzer = Analyzer()
-            analyzer.analyze(tweet_df, directory,
-                             algorithm=algorithm, verbose=True)
+            analyzer.analyze(tweet_df, directory, algorithm=algorithm, verbose=True)
 
-        sentiment_df = pd.read_csv(sentiment_file_name, sep=';')
+        sentiment_df = pd.read_csv(sentiment_file_name, sep=";")
 
         sentiment_df["round_time"] = pd.to_datetime(sentiment_df["round_time"])
 
-        sentiment_dist = pd.read_csv(sentiment_tweet_file_name, sep=';')
+        sentiment_dist = pd.read_csv(sentiment_tweet_file_name, sep=";")
 
         sentiment_dist = sentiment_dist[sentiment_dist["sentiment"] != 0]
         sentiment_dist["sentiment"] = sentiment_dist["sentiment"].round(1)
 
         total_vals = sentiment_dist.shape[0]
-        sentiment_dist = sentiment_dist.groupby(
-            'sentiment').agg({'sentiment': 'count'})
+        sentiment_dist = sentiment_dist.groupby("sentiment").agg({"sentiment": "count"})
 
-        sentiment_dist["sentiment"] = sentiment_dist["sentiment"]/total_vals
+        sentiment_dist["sentiment"] = sentiment_dist["sentiment"] / total_vals
 
         print(sum(sentiment_dist["sentiment"]))
-        return sentiment_df.index, sentiment_df["sentiment"], sentiment_dist.index.tolist(), sentiment_dist["sentiment"].tolist()
+        return (
+            sentiment_df.index,
+            sentiment_df["sentiment"],
+            sentiment_dist.index.tolist(),
+            sentiment_dist["sentiment"].tolist(),
+        )
 
     def _refresh_thread_count(self):
         self._model.thread_count = self.threadpool.activeThreadCount()
@@ -148,7 +161,8 @@ class MainController(QObject):
         if self.threadpool.activeThreadCount() < 5:
             self.analyze_date(self.actual_scrapper_date.toPyDate())
             self.actual_scrapper_date = self.actual_scrapper_date.addDays(
-                1)  # Add day to avoid same day analyze
+                1
+            )  # Add day to avoid same day analyze
             self.automatic_scrapper()
 
     def get_message_sample_with_sentiment(self, date, algorithm):
@@ -157,11 +171,11 @@ class MainController(QObject):
         directory = os.path.join(base_dir, date)
         tweet_file_name = os.path.join(base_dir, date, "tweet_list.csv")
 
-        tweet_df = pd.read_csv(tweet_file_name, sep=';')
+        tweet_df = pd.read_csv(tweet_file_name, sep=";")
 
         tweets = []
 
-        tweet_list = tweet_df['Text'].sample(n=50)
+        tweet_list = tweet_df["Text"].sample(n=50)
 
         analyzer = Analyzer()
 
