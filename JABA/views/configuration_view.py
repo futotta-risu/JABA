@@ -60,7 +60,8 @@ class ConfigurationDialog(QDialog):
         container.setLayout(form_layout)
 
     def _set_settings_values(self):
-        self.initial_date_pick.setDate(self.settings.value("initial_date", type=QDate))
+        self.initial_date_pick.setDate(
+            self.settings.value("initial_date", type=QDate))
 
     def save_settings(self):
         self.settings.setValue("initial_date", self.initial_date_pick.date())

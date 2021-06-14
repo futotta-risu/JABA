@@ -13,18 +13,16 @@ from textblob import TextBlob
 
 from .cleaner import *
 
-nltk.download(
-    [
-        "names",
-        "stopwords",
-        "state_union",
-        "twitter_samples",
-        "movie_reviews",
-        "averaged_perceptron_tagger",
-        "vader_lexicon",
-        "punkt",
-    ]
-)
+nltk.download([
+    "names",
+    "stopwords",
+    "state_union",
+    "twitter_samples",
+    "movie_reviews",
+    "averaged_perceptron_tagger",
+    "vader_lexicon",
+    "punkt",
+])
 
 
 class Analyzer:
@@ -87,7 +85,12 @@ class Analyzer:
 
         return sentiment
 
-    def analyze(self, data, ubication, round="min", algorithm="nltk", verbose=False):
+    def analyze(self,
+                data,
+                ubication,
+                round="min",
+                algorithm="nltk",
+                verbose=False):
         """
         Analyzes temporal data and saves it to a file.
 
@@ -105,8 +108,7 @@ class Analyzer:
                     print(f"Actual analyzed index: {index}")
 
             data.loc[index, "sentiment"] = self.get_sentiment(
-                data["Text"].iloc[index], algorithm
-            )
+                data["Text"].iloc[index], algorithm)
 
         data["sentiment"].to_csv(
             os.path.join(ubication, "tweet_sentiment_" + algorithm + ".csv"),
@@ -124,8 +126,7 @@ class Analyzer:
         data = data[data["sentiment"] != 0]
 
         sentiment_frame = data.groupby("round_time", as_index=False).agg(
-            {"sentiment": "mean"}
-        )
+            {"sentiment": "mean"})
 
         sentiment_frame.to_csv(
             os.path.join(ubication, "sentiment_file_" + algorithm + ".csv"),
@@ -153,9 +154,8 @@ class Analyzer:
         tweet_df = tweet_df.dropna(axis=0, subset=["Text"])
         csim = self.get_cosine_similarity(tweet_df["Text"])
         clustering = DBSCAN(eps=1.04, min_samples=5).fit(csim)
-        unique_elements, counts_elements = np.unique(
-            clustering.labels_, return_counts=True
-        )
+        unique_elements, counts_elements = np.unique(clustering.labels_,
+                                                     return_counts=True)
         tweet_df["Prediction"] = clustering.labels_.tolist()
 
         return tweet_df
