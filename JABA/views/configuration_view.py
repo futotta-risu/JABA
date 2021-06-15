@@ -1,25 +1,12 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QDialog
-from PyQt5.QtWidgets import (
-    QGridLayout,
-    QVBoxLayout,
-    QScrollArea,
-    QSplitter,
-    QFormLayout,
-)
-from PyQt5.QtWidgets import QPushButton, QFileDialog, QLabel, QComboBox, QDateEdit
-from PyQt5.QtCore import (
-    QObject,
-    QThreadPool,
-    pyqtSignal,
-    QRunnable,
-    pyqtSlot,
-    QSettings,
-    QDate,
-)
-from PyQt5 import QtCore, QtGui, Qt
-
-from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
+from PyQt5 import Qt, QtCore, QtGui
+from PyQt5.QtCore import (QDate, QObject, QRunnable, QSettings, QThreadPool,
+                          pyqtSignal, pyqtSlot)
+from PyQt5.QtWidgets import (QComboBox, QDateEdit, QDialog, QFileDialog,
+                             QFormLayout, QGridLayout, QLabel, QMainWindow,
+                             QPushButton, QScrollArea, QSplitter, QVBoxLayout,
+                             QWidget)
+from pyqtgraph import PlotWidget, plot
 
 
 class ConfigurationDialog(QDialog):
