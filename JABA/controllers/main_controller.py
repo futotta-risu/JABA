@@ -13,7 +13,6 @@ DATE_FORMAT = "yyyy-MM-dd"
 
 base_dir = "data/tweets/"
 
-
 query = '"BTC" OR "bitcoin"'
 
 
@@ -28,9 +27,10 @@ class AnalyzeDateWorker(QRunnable):
         self.date_from = date_from
 
     def run(self):
-        get_tweets(
-            query, self.date_from, self.date_from + timedelta(days=1), verbose=True
-        )
+        get_tweets(query,
+                   self.date_from,
+                   self.date_from + timedelta(days=1),
+                   verbose=True)
         self.signal.finished.emit()
 
 
@@ -55,9 +55,8 @@ class MainController(QObject):
         self._get_scrapped_dates()
 
     def _init_settings(self):
-        self.settings.setValue(
-            "initial_date", QDate.fromString("2017-01-01", DATE_FORMAT)
-        )
+        self.settings.setValue("initial_date",
+                               QDate.fromString("2017-01-01", DATE_FORMAT))
         self.settings.setValue("loaded_settings", True)
         self.settings.sync()
 
@@ -70,7 +69,8 @@ class MainController(QObject):
         return self.settings
 
     def _init_local_vars(self):
-        self.actual_scrapper_date = self.settings.value("initial_date", type=QDate)
+        self.actual_scrapper_date = self.settings.value("initial_date",
+                                                        type=QDate)
 
     def _get_scrapped_dates(self):
         for path in os.listdir(base_dir):
@@ -107,11 +107,9 @@ class MainController(QObject):
         directory = os.path.join(base_dir, date)
 
         sentiment_file_name = os.path.join(
-            base_dir, date, "sentiment_file_" + algorithm + ".csv"
-        )
+            base_dir, date, "sentiment_file_" + algorithm + ".csv")
         sentiment_tweet_file_name = os.path.join(
-            base_dir, date, "tweet_sentiment_" + algorithm + ".csv"
-        )
+            base_dir, date, "tweet_sentiment_" + algorithm + ".csv")
 
         if not os.path.isfile(sentiment_file_name):
             tweet_file_name = os.path.join(base_dir, date, "tweet_list.csv")
@@ -120,7 +118,10 @@ class MainController(QObject):
             tweet_df["Datetime"] = pd.to_datetime(tweet_df["Datetime"])
 
             analyzer = Analyzer()
-            analyzer.analyze(tweet_df, directory, algorithm=algorithm, verbose=True)
+            analyzer.analyze(tweet_df,
+                             directory,
+                             algorithm=algorithm,
+                             verbose=True)
 
         sentiment_df = pd.read_csv(sentiment_file_name, sep=";")
 
@@ -132,7 +133,8 @@ class MainController(QObject):
         sentiment_dist["sentiment"] = sentiment_dist["sentiment"].round(1)
 
         total_vals = sentiment_dist.shape[0]
-        sentiment_dist = sentiment_dist.groupby("sentiment").agg({"sentiment": "count"})
+        sentiment_dist = sentiment_dist.groupby("sentiment").agg(
+            {"sentiment": "count"})
 
         sentiment_dist["sentiment"] = sentiment_dist["sentiment"] / total_vals
 
@@ -158,8 +160,7 @@ class MainController(QObject):
         if self.threadpool.activeThreadCount() < 5:
             self.analyze_date(self.actual_scrapper_date.toPyDate())
             self.actual_scrapper_date = self.actual_scrapper_date.addDays(
-                1
-            )  # Add day to avoid same day analyze
+                1)  # Add day to avoid same day analyze
             self.automatic_scrapper()
 
     def get_message_sample_with_sentiment(self, date, algorithm):
