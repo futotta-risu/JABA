@@ -7,6 +7,7 @@ from JATS.analyzer import Analyzer
 DATE_FORMAT = "yyyy-MM-dd"
 
 base_dir = "data/tweets/"
+base_dir_btc = "data/bitcoin/"
 
 
 query = '"BTC" OR "bitcoin"'
@@ -45,7 +46,8 @@ class MainController(QObject):
         
         self.scrapped_dates = set()
         self._get_scrapped_dates()
-    
+        
+        
     def _init_settings(self):
         self.settings.setValue('initial_date', QDate.fromString("2017-01-01", DATE_FORMAT))
         self.settings.setValue('loaded_settings', True)
@@ -132,6 +134,33 @@ class MainController(QObject):
         
         print(sum(sentiment_dist["sentiment"] ))
         return sentiment_df.index, sentiment_df["sentiment"], sentiment_dist.index.tolist(), sentiment_dist["sentiment"].tolist()
+    
+    def get_btc_price_plot_data(self, date, plotType):
+        """
+            Returns the subset of the bitcoin historial dataset given a date for creating a chart
+        """                             
+        btc_df = self.get_btc_price_subdf(date)
+
+        return btc_df.index, btc_df["timestamp"], range(0,1440) , btc_df[plotType].tolist()
+    
+    
+    def get_btc_price_subdf(self, date):
+        """
+            Returns the subset of the bitcoin historial dataset given a date
+        """
+        nextDay = date.addDays(1).toString(DATE_FORMAT)
+        date = date.toString(DATE_FORMAT)
+        directory = os.path.join(base_dir_btc, date)
+        
+        bitcoin_dataset_file_name = os.path.join(base_dir_btc, "BTCUSDT-1m-data.csv")
+                
+        btc_df = pd.read_csv(bitcoin_dataset_file_name, sep=',')
+        
+        btc_df["timestamp"] = pd.to_datetime(btc_df["timestamp"])
+                               
+        btc_df = btc_df[(btc_df.timestamp >= date) & (btc_df.timestamp < nextDay)]
+
+        return btc_df
     
     def _refresh_thread_count(self):
         self._model.thread_count = self.threadpool.activeThreadCount()

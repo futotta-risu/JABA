@@ -2,10 +2,14 @@ from PyQt5.QtWidgets import QMainWindow,  QWidget
 from PyQt5.QtWidgets import QGridLayout, QVBoxLayout, QScrollArea, QSplitter
 from PyQt5.QtWidgets import QPushButton, QFileDialog, QCalendarWidget, QLabel, QComboBox, QAction, QMenuBar, QMenu
 from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot, QSettings
-from PyQt5 import QtCore, QtGui, Qt
+from PyQt5 import QtCore, QtGui, Qt, QtWidgets
 
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import seaborn as sns
 
 from .configuration_view import ConfigurationDialog
 active_thread_str = "There are {threads} running threads."
@@ -41,7 +45,7 @@ class MainView(QMainWindow):
         self.combo_sentiment_algorithm.addItem("nltk")
         self.combo_sentiment_algorithm.addItem("textblob")
         
-        self.sentiment_plot_button = QPushButton('Plot Sentiment')
+        self.sentiment_plot_button = QPushButton('Plot Sentiment and BTC price')
         self.analyze_date_button = QPushButton('Analyze Day')
         self.auto_scrap = QPushButton('Auto Scrap')
         
@@ -85,14 +89,37 @@ class MainView(QMainWindow):
         self.graphWidgetHist = pg.PlotWidget()
         self.graphWidgetHist.setYRange(-0.1,1.1)
         
+        self.graphWidgetBTC = pg.PlotWidget()
+        self.graphWidgetBTC.setYRange(0, 10000)
+            
+        
+        self.combo_plot = QComboBox(self)
+        self.combo_plot.addItem("open")
+        self.combo_plot.addItem("close")
+        self.combo_plot.addItem("high")
+        self.combo_plot.addItem("low")
+        self.combo_plot.activated.connect(self.load_graphs)
+
+
+        
+        self.fig = Figure()
+        self.axes= self.fig.add_subplot()
+        self.canvas = FigureCanvas(self.fig)
+        self.canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.canvas.updateGeometry()
+      
+    
         self.thread_count_label = QLabel(active_thread_str.format(threads="0"))
         
-        
+
         self.center_layout = QVBoxLayout()
         self.center_layout.addWidget(self.top_container)
         self.center_layout.addWidget(self.graphWidget)
         self.center_layout.addWidget(self.graphWidgetHist)
-        
+        self.center_layout.addWidget(self.combo_plot)
+        self.center_layout.addWidget(self.graphWidgetBTC)
+        self.center_layout.addWidget(self.canvas)
+   
         self.center_widget = QWidget()
         self.center_widget.setLayout(self.center_layout)
         
@@ -128,7 +155,7 @@ class MainView(QMainWindow):
     
     def _connect_window_components(self):
         
-        self.sentiment_plot_button.clicked.connect(self.load_graph)
+        self.sentiment_plot_button.clicked.connect(self.load_graphs)
         
         self.analyze_date_button.clicked.connect(self.analyze_date)
         self.auto_scrap.clicked.connect(self.automatic_scrapper)
@@ -173,17 +200,23 @@ class MainView(QMainWindow):
             
         self.message_sample.addWidget(QLabel("Sample tweets from the day"))
     
-    def load_graph(self):
+    def load_graphs(self):
         """
-            Draw sentiment graph
+            Load all the graphs of the dashboard
         """
-        
         date =  self.calendar.selectedDate()
+        self.load_sentiment_graph(date)
+        self.load_btc_price_graph(date)
+
+      
+    def load_sentiment_graph(self, date):
+        """
+            Draw sentiment of twitter graph in a given date
+        """
         algorithm = str(self.combo_sentiment_algorithm.currentText())
         
         index, sentiment, dist_index, distribution = self._controller.get_sentiment_plot_data(date, algorithm)
         sample = self._controller.get_message_sample_with_sentiment(date, algorithm)
-        
         
         self.graphWidget.clear()
         self.graphWidget.plot(index, sentiment)
@@ -196,6 +229,24 @@ class MainView(QMainWindow):
             label = QLabel(f"{text} ({sentiment})")
             label.setWordWrap(True)  
             self.message_sample.addWidget(label)
+
+
+    def load_btc_price_graph(self, date):
+        """
+            Draw btc price graph in a given date
+        """
+        plotType = str(self.combo_plot.currentText())
+        index_BTC, price_BTC, dist_index_BTC, distribution_BTC = self._controller.get_btc_price_plot_data(date, plotType)
+        self.graphWidgetBTC.clear()
+        self.graphWidgetBTC.plot(dist_index_BTC, distribution_BTC)
+        self.graphWidgetBTC.setYRange(min(distribution_BTC), max(distribution_BTC))
+
+        btc_df = self._controller.get_btc_price_subdf(date)
+        self.axes.clear()
+        sns.boxplot(x=plotType, data=btc_df, ax=self.axes)
+        
+        self.fig.canvas.draw_idle()
+
             
     def open_configuration(self):
         settings = self._controller.get_settings()
