@@ -2,7 +2,8 @@
 import math
 import os.path
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 
 import pandas as pd
 from binance.client import Client
