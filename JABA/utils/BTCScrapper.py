@@ -1,10 +1,11 @@
 # IMPORTS
-import pandas as pd
 import math
 import os.path
 import time
+from datetime import datetime, timedelta
+
+import pandas as pd
 from binance.client import Client
-from datetime import timedelta, datetime
 from dateutil import parser
 from tqdm import tqdm_notebook  # (Optional, used for progress-bars)
 

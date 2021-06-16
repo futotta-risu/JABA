@@ -1,16 +1,8 @@
-from PyQt5.QtCore import (
-    QObject,
-    QThreadPool,
-    pyqtSignal,
-    QRunnable,
-    pyqtSlot,
-    QDate,
-    QSettings,
-)
-
-from JATS.JATS import *
-from JATS.cleaner import *
 from JATS.analyzer import Analyzer
+from JATS.cleaner import *
+from JATS.JATS import *
+from PyQt5.QtCore import (QDate, QObject, QRunnable, QSettings, QThreadPool,
+                          pyqtSignal, pyqtSlot)
 
 DATE_FORMAT = "yyyy-MM-dd"
 
