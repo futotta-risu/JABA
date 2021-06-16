@@ -1,5 +1,8 @@
 beautifulsoup4==4.9.3
+binance==0.3
+bleach==3.3.0
 certifi==2021.5.30
+cffi==1.14.5
 chardet==4.0.0
 click==8.0.1
 colorama==0.4.4
