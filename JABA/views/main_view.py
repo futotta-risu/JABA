@@ -7,6 +7,8 @@ from PyQt5 import QtCore, QtGui, Qt
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
 
+from .plot_config import PlotConfigure
+
 active_thread_str = "There are {threads} running threads."
 
 class MainView(QMainWindow):
@@ -44,11 +46,13 @@ class MainView(QMainWindow):
         self.sentiment_plot_button = QPushButton('Plot Sentiment')
         self.analyze_date_button = QPushButton('Analyze Day')
         self.auto_scrap = QPushButton('Auto Scrap')
+        self.configure_button = QPushButton('Configrue')
         
         self.button_menu_layout.addWidget(self.combo_sentiment_algorithm)
         self.button_menu_layout.addWidget(self.sentiment_plot_button)
         self.button_menu_layout.addWidget(self.analyze_date_button)
         self.button_menu_layout.addWidget(self.auto_scrap)
+        self.button_menu_layout.addWidget(self.configure_button)
         
         self.button_menu_container = QWidget()
         self.button_menu_container.setLayout(self.button_menu_layout)
@@ -122,6 +126,7 @@ class MainView(QMainWindow):
         
         self.analyze_date_button.clicked.connect(self.analyze_date)
         self.auto_scrap.clicked.connect(self.automatic_scrapper)
+        self.configure_button.clicked.connect(self.open_configure)
         
         self._model.thread_count_changed.connect(self.on_thread_count_changed)
         self._model.thread_count_changed.connect(self._controller.automatic_scrapper)
@@ -218,5 +223,9 @@ class MainView(QMainWindow):
         }
         
         self.plot_list_layout.addWidget(widget)
+    
+    def open_configure(self):
+        self.config_window = PlotConfigure("Tweet")
+        self.config_window.show()
         
         

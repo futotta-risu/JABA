@@ -13,7 +13,7 @@ import snscrape.modules.twitter as snstwitter
 import pandas as pd
 
 from .cleaner import clean_tweet
-
+from .file_manager import *
 # Name of the columns for the dataframes
 column_names = [
     'Datetime',
@@ -28,16 +28,11 @@ column_names = [
 ]
 
 
-# Condition query for data scrapping
-
-
-
-
-
-
 class ScrapperFileManager(FileManagerInterface):
-    self.FILE_NAME = self.DIRECTORY + '/tweet_list.csv'
-    self.SPAM_FILE_NAME = self.DIRECTORY + '/spam_tweet_list.csv'
+    
+    def __init__(self):
+        self.FILE_NAME = self.DIRECTORY + '/tweet_list.csv'
+        self.SPAM_FILE_NAME = self.DIRECTORY + '/spam_tweet_list.csv'
     
     def get_file_name(self, args: dict):
         """
@@ -91,13 +86,13 @@ class IScrapper:
     
 class TwitterScrapper(IScrapper):
     namespace = "twitter"
-    query = '"BTC" OR "bitcoin" since:{since} until:{until} lang:{lang}"
+    query = '"BTC" OR "bitcoin" since:{since} until:{until} lang:{lang}'
     
     def __init__(self):
         self.fileManager = ScrapperFileManager()
     
     def scrap(self, date_from, date_until, limit = -1, lang="en", verbose = False):
-         """
+        """
             Function to scrap tweet between dates and save them
 
             Parameters:

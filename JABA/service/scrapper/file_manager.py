@@ -5,7 +5,7 @@ import os
 
 class FileManagerInterface:
     
-    self.DIRECTORY = 'data/tweets/{day}'
+    DIRECTORY = 'data/tweets/{day}'
     
     def get_file_name(self, date):
         pass
