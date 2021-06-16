@@ -4,7 +4,6 @@ import string
 import nltk
 import numpy as np
 import pandas as pd
-from Levenshtein import distance
 from nltk.sentiment import SentimentIntensityAnalyzer
 from sklearn.cluster import DBSCAN
 from sklearn.feature_extraction.text import CountVectorizer
