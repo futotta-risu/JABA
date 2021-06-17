@@ -111,12 +111,17 @@ class MainView(QMainWindow):
         self.graphWidgetBTC = pg.PlotWidget()
         self.graphWidgetBTC.setYRange(0, 10000)
 
-        self.combo_plot = QComboBox(self)
-        self.combo_plot.addItem("open")
-        self.combo_plot.addItem("close")
-        self.combo_plot.addItem("high")
-        self.combo_plot.addItem("low")
-        self.combo_plot.activated.connect(self.load_graphs)
+        self.combo_plotX = QComboBox(self)
+        self.combo_plotX.addItem("open")
+        self.combo_plotX.addItem("close")
+        self.combo_plotX.addItem("high")
+        self.combo_plotX.addItem("low")
+        self.combo_plotX.activated.connect(self.load_graphs)
+        
+        self.combo_plotType = QComboBox(self)
+        self.combo_plotType.addItem("boxplot")
+        self.combo_plotType.addItem("violinplot")
+        self.combo_plotType.activated.connect(self.load_graphs)
 
         self.fig = Figure()
         self.axes = self.fig.add_subplot()
@@ -131,8 +136,9 @@ class MainView(QMainWindow):
         self.center_layout.addWidget(self.top_container)
         self.center_layout.addWidget(self.graphWidget)
         self.center_layout.addWidget(self.graphWidgetHist)
-        self.center_layout.addWidget(self.combo_plot)
+        self.center_layout.addWidget(self.combo_plotX)
         self.center_layout.addWidget(self.graphWidgetBTC)
+        self.center_layout.addWidget(self.combo_plotType)
         self.center_layout.addWidget(self.canvas)
 
         self.center_widget = QWidget()
@@ -253,13 +259,14 @@ class MainView(QMainWindow):
         """
         Draw btc price graph in a given date
         """
-        plotType = str(self.combo_plot.currentText())
+        plotX = str(self.combo_plotX.currentText())
+        plotType = str(self.combo_plotType.currentText())
         (
             index_BTC,
             price_BTC,
             dist_index_BTC,
             distribution_BTC,
-        ) = self._controller.get_btc_price_plot_data(date, plotType)
+        ) = self._controller.get_btc_price_plot_data(date, plotX)
         self.graphWidgetBTC.clear()
         self.graphWidgetBTC.plot(dist_index_BTC, distribution_BTC)
         self.graphWidgetBTC.setYRange(min(distribution_BTC),
@@ -267,7 +274,11 @@ class MainView(QMainWindow):
 
         btc_df = self._controller.get_btc_price_subdf(date)
         self.axes.clear()
-        sns.boxplot(x=plotType, data=btc_df, ax=self.axes)
+        
+        if(plotType == "boxplot"):
+            sns.boxplot(x=plotX, data=btc_df, ax=self.axes)
+        elif(plotType == "violinplot"):
+            sns.violinplot(x=plotX, data=btc_df, ax=self.axes)
 
         self.fig.canvas.draw_idle()
 

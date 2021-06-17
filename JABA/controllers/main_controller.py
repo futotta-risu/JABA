@@ -156,7 +156,7 @@ class MainController(QObject):
         return (
             btc_df.index,
             btc_df["timestamp"],
-            range(0, 1440),
+            range(0, btc_df.shape[0]),
             btc_df[plotType].tolist(),
         )
 
