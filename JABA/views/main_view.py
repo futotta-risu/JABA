@@ -3,14 +3,32 @@ import seaborn as sns
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import (QObject, QRunnable, QSettings, QThreadPool,
-                          pyqtSignal, pyqtSlot)
-from PyQt5.QtWidgets import (QAction, QCalendarWidget, QComboBox, QFileDialog,
-                             QGridLayout, QLabel, QMainWindow, QMenu, QMenuBar,
-                             QPushButton, QScrollArea, QSplitter, QVBoxLayout,
-                             QWidget)
-from pyqtgraph import PlotWidget, plot
+from PyQt5 import Qt
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QRunnable
+from PyQt5.QtCore import QSettings
+from PyQt5.QtCore import QThreadPool
+from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QCalendarWidget
+from PyQt5.QtWidgets import QComboBox
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMenu
+from PyQt5.QtWidgets import QMenuBar
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QScrollArea
+from PyQt5.QtWidgets import QSplitter
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget
+from pyqtgraph import plot
+from pyqtgraph import PlotWidget
 
 from .configuration_view import ConfigurationDialog
 
