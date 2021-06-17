@@ -1,10 +1,16 @@
 from model.Tweet import Tweet
+from model.Sentiment import Sentiment
 
 import pandas as pd
 
 def createModelFrame(type):
+    model = None
     if type == "Tweet":
-        tweet = Tweet()
-        return tweet.createModelFrame()
+        model = Tweet()
+    elif type == "Sentiment":
+        model = Sentiment()
     
-    return pd.DataFrame()
+    if model == None:
+        return pd.DataFrame()
+    
+    return model.createModelFrame()

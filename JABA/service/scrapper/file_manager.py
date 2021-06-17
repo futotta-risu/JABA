@@ -7,7 +7,7 @@ class FileManagerInterface:
     
     DIRECTORY = 'data/tweets/{day}'
     
-    def get_file_name(self, date):
+    def get_file_name(self, args : dict):
         pass
     
     def open_file(self, date):

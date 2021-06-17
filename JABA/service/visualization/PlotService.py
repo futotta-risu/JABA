@@ -40,3 +40,15 @@ class PlotService:
             return_data = data['round_time'].to_list()
 
         return return_index, return_data
+
+    def applyPlotMaps(self, data, plotConfig):
+        
+        for fmap in plotConfig.map_list:
+            data = fmap.apply(data)
+        
+        if plotConfig.index == "NewEmpty":
+            return range(len(data)), data[plotConfig.data]
+        else:
+            return data[plotConfig.index], data[plotConfig.data]
+        
+        

@@ -7,7 +7,6 @@ from PyQt5 import QtCore, QtGui, Qt
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
 
-from .plot_config import PlotConfigure
 
 active_thread_str = "There are {threads} running threads."
 
@@ -40,18 +39,19 @@ class MainView(QMainWindow):
         self.button_menu_layout = QVBoxLayout()
         
         self.combo_sentiment_algorithm = QComboBox(self)
-        self.combo_sentiment_algorithm.addItem("nltk")
-        self.combo_sentiment_algorithm.addItem("textblob")
+        self.combo_sentiment_algorithm.addItems(["nltk", "textblob"])
         
         self.sentiment_plot_button = QPushButton('Plot Sentiment')
         self.analyze_date_button = QPushButton('Analyze Day')
         self.auto_scrap = QPushButton('Auto Scrap')
+        self.update_plot_button = QPushButton('Update Plot')
         self.configure_button = QPushButton('Configrue')
         
         self.button_menu_layout.addWidget(self.combo_sentiment_algorithm)
         self.button_menu_layout.addWidget(self.sentiment_plot_button)
         self.button_menu_layout.addWidget(self.analyze_date_button)
         self.button_menu_layout.addWidget(self.auto_scrap)
+        self.button_menu_layout.addWidget(self.update_plot_button)
         self.button_menu_layout.addWidget(self.configure_button)
         
         self.button_menu_container = QWidget()
@@ -85,22 +85,18 @@ class MainView(QMainWindow):
         self.center_layout = QVBoxLayout()
         
         
-        self.graphWidgetHist = pg.PlotWidget()
-        self.graphWidgetHist.setYRange(-0.1,1.1)
-        
         self.thread_count_label = QLabel(active_thread_str.format(threads="0"))
         
         self.plot_list_layout = QVBoxLayout()
         
         self.plot_L_widget = QWidget()
         self.plot_L_widget.setLayout(self.plot_list_layout)
-        self.plot_list_layout.addWidget(self.graphWidgetHist)
+        
         
         self.center_layout.addWidget(self.top_container)
         self.center_layout.addWidget(self.plot_L_widget)
         
         
-        self.add_plot("Tweet",2 , 1)
         
         self.center_widget = QWidget()
         self.center_widget.setLayout(self.center_layout)
@@ -127,6 +123,7 @@ class MainView(QMainWindow):
         self.analyze_date_button.clicked.connect(self.analyze_date)
         self.auto_scrap.clicked.connect(self.automatic_scrapper)
         self.configure_button.clicked.connect(self.open_configure)
+        self.update_plot_button.clicked.connect(self.update_plot)
         
         self._model.thread_count_changed.connect(self.on_thread_count_changed)
         self._model.thread_count_changed.connect(self._controller.automatic_scrapper)
@@ -192,40 +189,13 @@ class MainView(QMainWindow):
         self.update_plot()
         
     def update_plot(self):
-        
-        for _, params in self.plot_list.items():
-            index, data = self._controller.get_plot_data(
-                params["category"],
-                params["plotConfig"],
-                {"date":  self.calendar.selectedDate()}
-            )
-            params["widget"].clear()
-            params["widget"].plot(index, data)
-        
+        self._controller.update_plots(
+            self.calendar.selectedDate().toPyDate(),
+            self.combo_sentiment_algorithm.currentText()
+        )
     
-    def add_plot(self, data_category, indexType, dataType):
-        """
-            Adds a plot to the layout and appends the information to the
-            plot_list dict.
-            
-            Parameters:
-                plot_category(string): Category of the plot (Sentiment, Tweet, ...)
-                plot_type(string): Type of the plot (Distribution, Lineplot, ...)
-                plot_timeframe(string): Timeframe of the plot (Day, Year, ...)
-        """
-        
-        id, plotConfig, widget = self._controller.create_plot(data_category, indexType, dataType)
-        
-        self.plot_list[ id ] = {
-            "category" : data_category,
-            "plotConfig" : plotConfig,
-            "widget": widget
-        }
-        
-        self.plot_list_layout.addWidget(widget)
     
     def open_configure(self):
-        self.config_window = PlotConfigure("Tweet")
-        self.config_window.show()
-        
-        
+        id, widget = self._controller.open_configure()
+        self.plot_list[ id ] = widget
+        self.plot_list_layout.addWidget(widget)

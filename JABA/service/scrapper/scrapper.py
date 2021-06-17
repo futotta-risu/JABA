@@ -41,30 +41,34 @@ class ScrapperFileManager(FileManagerInterface):
             Returns:
             FILE_NAME, SPAM_FILE_NAME
         """
-        return self.FILE_NAME, self.SPAM_FILE_NAME
+        
+        file_name = self.FILE_NAME.format(day = args['date'])
+        spam_file_name = self.SPAM_FILE_NAME.format(day = args['date'])
+        
+        return file_name, spam_file_name
 
-    def open_file(self, date):
+    def open_file(self, args : dict):
         """
             Returns the dataframe from the scrapper class
         """
-        file_name, _ = get_file_names(date)
-        tweet_df = pd.read_csv(file_name, sep=';')
-        tweet_df["Datetime"] = pd.to_datetime(tweet_df["Datetime"])
+        file_name, _ = self.get_file_name(args)
+        data = pd.read_csv(file_name, sep=';')
+        data["Datetime"] = pd.to_datetime(data["Datetime"])
         
-        return tweet_df
+        return data
     
-    def save_file(self, data, date, status):
+    def save_file(self, data, args : dict):
         """
             Saves the file if it doesn't exist
         """
-        file_names = self.get_file_names(date_from)
+        file_names = self.get_file_name(args)
         
         Path(self.DIRECTORY).mkdir(parents=True, exist_ok=True)
         
         for index, file_name in enumerate(file_names):
             data[index].to_csv(file_name, sep=';', index=False)
             
-        self.create_data_log(status)
+        self.create_data_log(args['status'])
     
     def create_data_log(self, status):
         with open(self.DIRECTORY + '/log.json', 'w') as f:

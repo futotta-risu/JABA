@@ -1,11 +1,15 @@
 from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot, QDate
 
+from pyqtgraph import PlotWidget
+
 from service.scrapper.scrapper import *
 from service.scrapper.ScrapService import ScrapService
 from service.scrapper.cleaner import *
 from service.scrapper.analyzer import Analyzer
 
 from service.visualization.PlotService import PlotService
+from views.plot_config import PlotConfigure
+
 
 DATE_FORMAT = "yyyy-MM-dd"
 
@@ -36,6 +40,10 @@ class MainController(QObject):
         super().__init__()
         
         self._model = model
+        
+        self.plot_configurations = []
+        
+        self.plotService = PlotService()
         
         self.threadpool = QThreadPool()
         
@@ -152,11 +160,6 @@ class MainController(QObject):
         
         return tweets
     
-    def create_plot(self, dataCategory, indexType, dataType):
-        plotService = PlotService()
-        return plotService.createPlotConfig(indexType, dataType,"round", "count", {"round_var": "min"})
-        
-    
     def get_plot_data(self, dataCategory, plotConfig, args):
         """
             Returns the scrapped data prepared to be plotted
@@ -171,4 +174,40 @@ class MainController(QObject):
         
         plotService = PlotService()
         return plotService.prepareData(data, plotConfig)
+    
+    def open_configure(self):
+        config_window = PlotConfigure(self)
+        config_window.show()
+        config_window.exec_()
         
+        if config_window.is_saved():
+            plotConfig = config_window.getPlotConfiguration()
+            widget =  PlotWidget()
+            id = self.plotService.getPlotID()
+            self.plot_configurations += [
+                {'id' : id, 'config' : plotConfig, 'widget' : widget}
+            ]
+            
+            return id, widget
+        
+        return None, None
+        
+    def update_plots(self, date, algorithm):
+        plots = []
+        
+        scrapService = ScrapService()
+        plotService = PlotService()
+        
+        for plot_config in self.plot_configurations:
+            id, plotConfig, widget = plot_config['id'], plot_config['config'], plot_config['widget']
+            
+            data = scrapService.get_data_by_category(
+                plotConfig.variable_type,
+                {'date': date, 'algorithm': algorithm}
+            )
+            
+            print(data.head())
+            
+            index, data = plotService.applyPlotMaps(data, plotConfig)
+            widget.clear()
+            widget.plot(index, data)
