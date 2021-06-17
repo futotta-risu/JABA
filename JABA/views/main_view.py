@@ -117,7 +117,7 @@ class MainView(QMainWindow):
         self.combo_plotX.addItem("high")
         self.combo_plotX.addItem("low")
         self.combo_plotX.activated.connect(self.load_graphs)
-        
+
         self.combo_plotType = QComboBox(self)
         self.combo_plotType.addItem("boxplot")
         self.combo_plotType.addItem("violinplot")
@@ -274,7 +274,7 @@ class MainView(QMainWindow):
 
         btc_df = self._controller.get_btc_price_subdf(date)
         self.axes.clear()
-        
+
         if(plotType == "boxplot"):
             sns.boxplot(x=plotX, data=btc_df, ax=self.axes)
         elif(plotType == "violinplot"):
