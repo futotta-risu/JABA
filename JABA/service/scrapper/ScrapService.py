@@ -1,6 +1,5 @@
-from .scrapper import *
 from .analyzer import *
-
+from .scrapper import *
 
 query = '"BTC" OR "bitcoin"'
 

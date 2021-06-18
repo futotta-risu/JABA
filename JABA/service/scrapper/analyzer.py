@@ -1,14 +1,12 @@
-from textblob import TextBlob
 import os
 
-import pandas as pd
-
 import nltk
+import pandas as pd
 from nltk.sentiment import SentimentIntensityAnalyzer
+from textblob import TextBlob
 
 from .cleaner import *
 from .file_manager import FileManagerInterface
-
 from .scrapper import ScrapperFileManager
 
 nltk.download(

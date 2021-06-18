@@ -1,15 +1,12 @@
-from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot, QDate
-
+from PyQt5.QtCore import (QDate, QObject, QRunnable, QThreadPool, pyqtSignal,
+                          pyqtSlot)
 from pyqtgraph import PlotWidget
-
+from service.scrapper.analyzer import Analyzer
+from service.scrapper.cleaner import *
 from service.scrapper.scrapper import *
 from service.scrapper.ScrapService import ScrapService
-from service.scrapper.cleaner import *
-from service.scrapper.analyzer import Analyzer
-
 from service.visualization.PlotService import PlotService
 from views.plot_config import PlotConfigure
-
 
 DATE_FORMAT = "yyyy-MM-dd"
 

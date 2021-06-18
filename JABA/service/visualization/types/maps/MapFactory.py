@@ -1,13 +1,12 @@
 # To load classes in memory to be available to use, import them
-from service.visualization.types.maps.general.CountMap import CountMap
-
-from service.visualization.types.maps.numeric.SqrtMap import SqrtMap
-from service.visualization.types.maps.numeric.GroupByMeanMap import GroupByMeanMap
-from service.visualization.types.maps.numeric.GroupByCountMap import GroupByCountMap
-
 from service.visualization.types.maps.datetime.RoundDateMap import RoundDateMap
-
+from service.visualization.types.maps.general.CountMap import CountMap
 from service.visualization.types.maps.GenericMap import GenericMap
+from service.visualization.types.maps.numeric.GroupByCountMap import \
+    GroupByCountMap
+from service.visualization.types.maps.numeric.GroupByMeanMap import \
+    GroupByMeanMap
+from service.visualization.types.maps.numeric.SqrtMap import SqrtMap
 
 
 class MapFactory:

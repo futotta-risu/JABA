@@ -1,7 +1,6 @@
-from model.Tweet import Tweet
-from model.Sentiment import Sentiment
-
 import pandas as pd
+from model.Sentiment import Sentiment
+from model.Tweet import Tweet
 
 
 def createModelFrame(type):

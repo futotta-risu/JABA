@@ -1,12 +1,10 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget
-from PyQt5.QtWidgets import QGridLayout, QVBoxLayout, QScrollArea, QSplitter
-from PyQt5.QtWidgets import QPushButton, QFileDialog, QCalendarWidget, QLabel, QComboBox
-from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QRunnable, pyqtSlot
-from PyQt5 import QtCore, QtGui, Qt
-
-from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
-
+from PyQt5 import Qt, QtCore, QtGui
+from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import (QCalendarWidget, QComboBox, QFileDialog,
+                             QGridLayout, QLabel, QMainWindow, QPushButton,
+                             QScrollArea, QSplitter, QVBoxLayout, QWidget)
+from pyqtgraph import PlotWidget, plot
 
 active_thread_str = "There are {threads} running threads."
 

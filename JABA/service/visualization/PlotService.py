@@ -1,5 +1,6 @@
-from .PlotConfig import PlotConfig
 from pyqtgraph import PlotWidget, plot
+
+from .PlotConfig import PlotConfig
 
 
 class PlotService:
