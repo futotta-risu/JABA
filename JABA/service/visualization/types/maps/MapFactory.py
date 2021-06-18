@@ -25,8 +25,7 @@ class MapFactory:
         return map_list[0]
 
     def getAttrsWithTypes(self, dtype):
-        fmap = self.__get_map(dtype)
-        return fmap.getAttrsWithTypes()
+        return self.__get_map(dtype).getAttrsWithTypes()
 
     def apply(self, dtype, frame, args=None):
 

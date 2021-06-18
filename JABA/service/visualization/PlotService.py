@@ -54,7 +54,7 @@ class PlotService:
             print(data.head())
             data = fmap.apply(data)
 
-        if plotConfig.index == "NewEmpty":
+        if plotConfig.index == "Range Index":
             return range(len(data)), data[plotConfig.data]
         else:
             return data[plotConfig.index], data[plotConfig.data]

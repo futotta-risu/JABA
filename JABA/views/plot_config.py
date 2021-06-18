@@ -7,7 +7,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QCalendarWidget
-from PyQt5.QtWidgets import QComboBox
+from PyQt5.QtWidgets import QComboBox, QGraphicsDropShadowEffect
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QGridLayout
@@ -16,11 +16,13 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QScrollArea
 from PyQt5.QtWidgets import QSplitter
-from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QVBoxLayout, QFormLayout
+from PyQt5.QtWidgets import QWidget, QLineEdit
 from service.visualization.types.maps.MapFactory import MapFactory
 from service.visualization.types.PlotConfiguration import PlotConfiguration
 
+
+from views.component.QCoolContainer import QCoolContainer
 
 class PlotConfigure(QDialog):
     def __init__(self, parent):
@@ -32,7 +34,10 @@ class PlotConfigure(QDialog):
         self.__saved = False
         self.__configuration = None
         self.map_list = []
-
+        
+        self.attrs_types = {}
+        self.attrs_widgets = {}
+        
         self.loadWidget()
         self.__load_data_model()
 
@@ -40,12 +45,16 @@ class PlotConfigure(QDialog):
 
     def loadWidget(self):
 
+        self.styleSheet = """"""
+        
         self.main_layout = QVBoxLayout()
-
+        
+        self.setStyleSheet(self.styleSheet)
+        
         self.bottom_pane_l = QHBoxLayout()
         self.bottom_pane_w = QWidget()
         self.bottom_pane_w.setLayout(self.bottom_pane_l)
-
+        
         self.closeButton = QPushButton("Save")
         self.closeButton.clicked.connect(lambda: self.__save_and_exit())
 
@@ -61,7 +70,7 @@ class PlotConfigure(QDialog):
         self.configureMenu_l.addWidget(self.config_menu_1_w, 1, 1)
 
         self.data_model_l = QHBoxLayout()
-        self.data_model_w = QWidget()
+        self.data_model_w = QCoolContainer()
         self.data_model_w.setLayout(self.data_model_l)
 
         self.data_model_combobox = QComboBox()
@@ -73,7 +82,9 @@ class PlotConfigure(QDialog):
         self.data_model_l.addWidget(self.data_model_combobox)
         self.data_model_l.addWidget(self.data_model_load)
 
+        
         self.config_menu_1_l.addWidget(self.data_model_w)
+        
 
         self.model_desc_l = QHBoxLayout()
         self.model_desc_w = QWidget()
@@ -91,21 +102,30 @@ class PlotConfigure(QDialog):
 
         self.config_menu_1_l.addWidget(self.model_desc_w)
 
+        self.dataPick_w = QCoolContainer()
+        self.dataPick_l = QFormLayout()
+        self.dataPick_w.setLayout(self.dataPick_l)
+        
         self.index_combo = QComboBox()
-        self.config_menu_1_l.addWidget(QLabel("Index"))
-        self.config_menu_1_l.addWidget(self.index_combo)
-
         self.data_combo = QComboBox()
-        self.config_menu_1_l.addWidget(QLabel("Data"))
-        self.config_menu_1_l.addWidget(self.data_combo)
+        
+        self.dataPick_l.addRow(QLabel("Index"), self.index_combo)
+        self.dataPick_l.addRow(QLabel("Data"), self.data_combo)
 
+        self.config_menu_1_l.addWidget(self.dataPick_w)
+        
+        self.mapping_hist_p_w = QCoolContainer()
+        self.mapping_hist_p_l = QVBoxLayout()
+        self.mapping_hist_p_w.setLayout(self.mapping_hist_p_l)
+        
         self.mapping_hist_label = QLabel("Mapping History")
-        self.config_menu_1_l.addWidget(self.mapping_hist_label)
+        self.mapping_hist_p_l.addWidget(self.mapping_hist_label)
 
         self.mapping_hist_l = QVBoxLayout()
         self.mapping_hist_w = QWidget()
         self.mapping_hist_w.setLayout(self.mapping_hist_l)
-        self.config_menu_1_l.addWidget(self.mapping_hist_w)
+        self.mapping_hist_p_l.addWidget(self.mapping_hist_w)
+        self.config_menu_1_l.addWidget(self.mapping_hist_p_w)
 
         self.config_menu_2_l = QVBoxLayout()
         self.config_menu_2_w = QWidget()
@@ -119,7 +139,13 @@ class PlotConfigure(QDialog):
 
         self.variable_pick = QComboBox()
         self.config_menu_3_l.addWidget(self.variable_pick)
-
+        
+        self.attr_edit_l = QFormLayout()
+        self.attr_edit_w = QWidget()
+        self.attr_edit_w.setLayout(self.attr_edit_l)
+        self.config_menu_3_l.addWidget(self.attr_edit_w)
+        
+        
         self.save_map_button = QPushButton("Save")
         self.config_menu_3_l.addWidget(self.save_map_button)
 
@@ -177,7 +203,6 @@ class PlotConfigure(QDialog):
 
             map_button = QPushButton("Exec")
 
-            print("La variable " + map_function)
             map_button.clicked.connect(
                 lambda _, dtype=map_function: self.__load_map_config(dtype))
             map_button.clicked.connect(
@@ -194,11 +219,24 @@ class PlotConfigure(QDialog):
         self.data_combo.clear()
 
         self.index_combo.addItems(self.final_frame.columns.to_list())
-        self.index_combo.addItem("NewEmpty")
+        self.index_combo.addItem("Range Index")
         self.data_combo.addItems(self.final_frame.columns.to_list())
 
+    def __get_attrs(self):
+        temp_attrs = {}
+        print("WIDGETS")
+        print(self.attrs_widgets)
+        print("TYPES")
+        print(self.attrs_types)
+        for key in self.attrs_widgets:
+            if self.attrs_types[key][0] == 'Text':
+                temp_attrs[key] = self.attrs_widgets[key].text()
+            elif self.attrs_types[key][0] == 'Variable':
+                temp_attrs[key] = self.attrs_widgets[key].currentText()
+        
+        return temp_attrs
+    
     def __load_map_config(self, map_function):
-        print("Loading with map " + str(map_function))
         self.variable_pick.clear()
         self.variable_pick.addItems(self.final_frame.columns.to_list())
 
@@ -208,21 +246,35 @@ class PlotConfigure(QDialog):
         except Exception:
             pass
 
-        # strategy = MapFactory()
+        strategy = MapFactory()
 
-        # attrs_types = strategy.getAttrsWithTypes(map_function)
-
-        # TODO Iter tools
+        self.attrs_types = strategy.getAttrsWithTypes(map_function)
+        self.attrs_widgets = {}
+        
+        for i in reversed(range(self.attr_edit_l.count())):
+            self.attr_edit_l.itemAt(i).widget().setParent(None)
+            
+        for key in self.attrs_types:
+            if self.attrs_types[key][0] == 'Text':
+                temp_widget = QLineEdit()
+                temp_widget.setText(self.attrs_types[key][1])
+            elif self.attrs_types[key][0] == 'Variable':
+                temp_widget = QComboBox()
+                temp_widget.addItems(self.final_frame.columns.to_list())
+            
+            self.attrs_widgets[key] = temp_widget
+            self.attr_edit_l.addRow(QLabel(key), temp_widget)
+            
 
         self.save_map_button.clicked.connect(
             lambda: self.transform_map(map_function))
 
     def transform_map(self, map_function):
-        print("Loading2 with map " + str(map_function))
         strategy = MapFactory()
-
-        args = {"variable": self.variable_pick.currentText()}
-
+        
+        args = self.__get_attrs()
+        args["variable"] = self.variable_pick.currentText()
+        
         self.final_frame, fmap = strategy.apply(map_function, self.final_frame,
                                                 args)
 
