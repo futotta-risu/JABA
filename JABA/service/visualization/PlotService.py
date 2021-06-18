@@ -39,7 +39,6 @@ class PlotService:
 
         if plotConfig.getIndexFunction() == "round":
             round_var = plotConfig.getArgs()["round_var"]
-            print(data.dtypes)
             data["round_time"] = data["Datetime"].round(round_var)
 
             data = data.groupby("round_time").agg({"round_time": dataFunction})
@@ -51,7 +50,6 @@ class PlotService:
     def applyPlotMaps(self, data, plotConfig):
 
         for fmap in plotConfig.map_list:
-            print(data.head())
             data = fmap.apply(data)
 
         if plotConfig.index == "Range Index":

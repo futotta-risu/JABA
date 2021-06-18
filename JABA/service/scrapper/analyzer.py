@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import nltk
 import pandas as pd
@@ -94,6 +95,7 @@ class Analyzer:
     }
 
     def __init__(self):
+        self.file_manager = AnalyzerFileManager()
         self.sia = SentimentIntensityAnalyzer()
         self.sia.lexicon.update(self.bitcoin_dict)
 
@@ -118,8 +120,8 @@ class Analyzer:
         return sentiment
 
     def analyze(self,
-                data,
-                ubication,
+                date, 
+                data_file_manager,
                 round="min",
                 algorithm="nltk",
                 verbose=False):
@@ -133,7 +135,9 @@ class Analyzer:
         ubication (String): Path to the folder for the new file
         round (String): Where to approximate the "DateTime" column
         """
-
+        args = {'date': date, 'algorithm': algorithm }
+        data = data_file_manager.open_file(args)
+        
         for index, row in data.iterrows():
             if verbose:
                 if index % 1000 == 0:
@@ -142,26 +146,4 @@ class Analyzer:
             data.loc[index, "sentiment"] = self.get_sentiment(
                 data["Text"].iloc[index], algorithm)
 
-        data["sentiment"].to_csv(
-            os.path.join(ubication, "tweet_sentiment_" + algorithm + ".csv"),
-            sep=";",
-            index=False,
-        )
-
-        data["round_time"] = ""
-        data["round_time"] = pd.to_datetime(data["round_time"])
-
-        data["round_time"] = data["Datetime"].round(round)
-
-        # We remove the zeros because they dont give any information.
-        # Neutrality is normaly due to inconsisten sentiment analisys
-        data = data[data["sentiment"] != 0]
-
-        sentiment_frame = data.groupby("round_time", as_index=False).agg(
-            {"sentiment": "mean"})
-
-        sentiment_frame.to_csv(
-            os.path.join(ubication, "sentiment_file_" + algorithm + ".csv"),
-            sep=";",
-            index=False,
-        )
+        self.file_manager.save_file(data["sentiment"], args = args)

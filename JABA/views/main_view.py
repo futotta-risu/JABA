@@ -9,7 +9,7 @@ from PyQt5.QtCore import QRunnable
 from PyQt5.QtCore import QThreadPool
 from PyQt5.QtWidgets import QCalendarWidget
 from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QTableWidgetItem, QTableWidget
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QMainWindow
@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QScrollArea
 from PyQt5.QtWidgets import QSplitter
 from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QHeaderView
 from pyqtgraph import plot
 from pyqtgraph import PlotWidget
 
@@ -43,7 +43,7 @@ class MainView(QMainWindow):
         self._init_window()
 
     def _load_window_properties(self):
-        self.setWindowTitle("My App")
+        self.setWindowTitle("JABA")
 
     def _load_window_components(self):
         self.top_layout = QGridLayout()
@@ -52,14 +52,12 @@ class MainView(QMainWindow):
         self.combo_sentiment_algorithm = QComboBox(self)
         self.combo_sentiment_algorithm.addItems(["nltk", "textblob"])
 
-        self.sentiment_plot_button = QPushButton("Plot Sentiment")
         self.analyze_date_button = QPushButton("Analyze Day")
         self.auto_scrap = QPushButton("Auto Scrap")
         self.update_plot_button = QPushButton("Update Plot")
-        self.configure_button = QPushButton("Configrue")
+        self.configure_button = QPushButton("Add Plot")
 
         self.button_menu_layout.addWidget(self.combo_sentiment_algorithm)
-        self.button_menu_layout.addWidget(self.sentiment_plot_button)
         self.button_menu_layout.addWidget(self.analyze_date_button)
         self.button_menu_layout.addWidget(self.auto_scrap)
         self.button_menu_layout.addWidget(self.update_plot_button)
@@ -75,6 +73,19 @@ class MainView(QMainWindow):
 
         self.message_sample.addWidget(QLabel("Sample tweets from the day "))
 
+        self.message_sample_table = QTableWidget()
+        
+        
+        
+        self.message_sample_table.setRowCount(1) 
+        self.message_sample_table.setColumnCount(2)
+        
+        self.message_sample_table.setHorizontalHeaderItem(0, QTableWidgetItem('Text'))
+        self.message_sample_table.setHorizontalHeaderItem(1, QTableWidgetItem('Sentiment'))
+        self.message_sample_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch) 
+        
+        self.message_sample.addWidget(self.message_sample_table)
+        
         self.message_sample_scroll.setFixedWidth(600)
         self.message_sample_scroll.setWidgetResizable(True)
         self.message_sample_scroll.setHorizontalScrollBarPolicy(
@@ -123,9 +134,38 @@ class MainView(QMainWindow):
 
         self.show()
 
+    def __refresh_table(self, data):
+        while (self.message_sample_table.rowCount() > 1):
+            self.message_sample_table.removeRow(1)
+        
+        for text, sentiment in data:
+            rowPosition = self.message_sample_table.rowCount()
+            self.message_sample_table.insertRow(rowPosition)
+            
+            self.message_sample_table.setItem(
+                rowPosition-1, 
+                0,
+                QtGui.QTableWidgetItem(text)
+            )
+            
+            sentiment_item = QTableWidgetItem("{:.2f}".format(sentiment))
+            sentiment_item.setTextAlignment(QtCore.Qt.AlignCenter)
+            sentiment_item.setBackground(
+                QtGui.QColor(
+                    (1 - sentiment) / 2 * 255,
+                    (1 + sentiment) / 2 * 255,
+                    0
+                ) 
+            )
+            
+            
+            self.message_sample_table.setItem(
+                rowPosition-1,
+                1,
+                sentiment_item
+            )
+        
     def _connect_window_components(self):
-
-        self.sentiment_plot_button.clicked.connect(self.load_graph)
 
         self.analyze_date_button.clicked.connect(self.analyze_date)
         self.auto_scrap.clicked.connect(self.automatic_scrapper)
@@ -138,7 +178,7 @@ class MainView(QMainWindow):
 
     def _init_window(self):
         self._reset_calendar_color()
-        self._reset_sample()
+        self.__refresh_table([])
 
     def _reset_calendar_color(self):
         date_colors = self._controller.get_date_properties(
@@ -166,42 +206,16 @@ class MainView(QMainWindow):
         date = self.calendar.selectedDate()
         self._controller.analyze_date(date.toPyDate())
 
-    def _reset_sample(self):
-        for i in reversed(range(self.message_sample.count())):
-            self.message_sample.itemAt(i).widget().deleteLater()
-
-        self.message_sample.addWidget(QLabel("Sample tweets from the day"))
-
-    def load_graph(self):
-        """
-        Draw sentiment graph
-        """
-
+    def update_plot(self):
+        
         date = self.calendar.selectedDate()
         algorithm = str(self.combo_sentiment_algorithm.currentText())
-
-        (
-            index,
-            sentiment,
-            dist_index,
-            distribution,
-        ) = self._controller.get_sentiment_plot_data(date, algorithm)
+        
         sample = self._controller.get_message_sample_with_sentiment(
             date, algorithm)
-
-        self.graphWidgetHist.clear()
-        self.graphWidgetHist.plot(dist_index, distribution)
-        self.graphWidgetHist.setYRange(-0.1, max(distribution) + 0.1)
-
-        self._reset_sample()
-        for text, sentiment in sample:
-            label = QLabel(f"{text} ({sentiment})")
-            label.setWordWrap(True)
-            self.message_sample.addWidget(label)
-
-        self.update_plot()
-
-    def update_plot(self):
+        
+        self.__refresh_table(sample)
+            
         self._controller.update_plots(
             self.calendar.selectedDate().toPyDate(),
             self.combo_sentiment_algorithm.currentText(),

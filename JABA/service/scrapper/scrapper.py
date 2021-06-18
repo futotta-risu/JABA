@@ -57,14 +57,18 @@ class ScrapperFileManager(FileManagerInterface):
         Saves the file if it doesn't exist
         """
         file_names = self.get_file_name(args)
-
+        self.DIRECTORY = self.DIRECTORY.format(day=args["date"])
         Path(self.DIRECTORY).mkdir(parents=True, exist_ok=True)
-
+        
         for index, file_name in enumerate(file_names):
             data[index].to_csv(file_name, sep=";", index=False)
 
         self.create_data_log(args["status"])
 
+    def file_exists(self, date):
+        file_name, _ = self.get_file_name({'date': date})
+        return os.path.isfile(file_name)
+    
     def create_data_log(self, status):
         with open(self.DIRECTORY + "/log.json", "w") as f:
             json.dump(status, f)
@@ -121,18 +125,17 @@ class TwitterScrapper(IScrapper):
                         break
 
                 if verbose and i % 2500 == 0:
-                    print(str(date_from), ": ", i, " / ", tweet_limit)
+                    print(str(date_from), ": ", i, " / ", limit)
 
                 tweet_list += [self.get_tweet_data(tweet)]
 
             tweets, spam_tweets = self.filter_spam(tweet_list)
 
-            self.fileManager.save_file([tweets, spam_tweets], date_from,
-                                       tweet_limit)
+            self.fileManager.save_file([tweets, spam_tweets], {'date' : date_from, 'status' :limit} )
 
             date_from += timedelta(days=1)
 
-    def filter_spam(data):
+    def filter_spam(self, data):
         """
         Filters the spam from the data.
 
@@ -146,7 +149,7 @@ class TwitterScrapper(IScrapper):
         Spam (Pandas Dataframe) Spam filtered from the data
         """
 
-        data = pd.DataFrame(tweet_list, columns=column_names)
+        data = pd.DataFrame(data, columns=column_names)
         data = data[(data["Text"].notna()) & data["Text"]]
 
         data_spam = (data[data["Text"].duplicated()]["Text"].value_counts().
@@ -179,7 +182,7 @@ class TwitterScrapper(IScrapper):
             tweet.user.verified,
         ]
 
-    def format_conditional_query(date_from, date_until, lang):
+    def format_conditional_query(self, date_from, date_until, lang):
         """
         Formats the conditional query
         """

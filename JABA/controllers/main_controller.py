@@ -32,10 +32,12 @@ class AnalyzeDateWorker(QRunnable):
         self.date_from = date_from
 
     def run(self):
-        get_tweets(query,
-                   self.date_from,
-                   self.date_from + timedelta(days=1),
-                   verbose=True)
+        scrapper = TwitterScrapper()
+        analyzer = Analyzer()
+        
+        scrapper.scrap(self.date_from, self.date_from + timedelta(days=1), verbose=True)
+        analyzer.analyze(self.date_from, ScrapperFileManager())
+        
         self.signal.finished.emit()
 
 
@@ -82,53 +84,6 @@ class MainController(QObject):
 
         return date_list
 
-    def get_sentiment_plot_data(self, date, algorithm):
-        """
-        Returns the index and sentiment column of a date
-        """
-
-        date = date.toString(DATE_FORMAT)
-        directory = os.path.join(base_dir, date)
-
-        sentiment_file_name = os.path.join(
-            base_dir, date, "sentiment_file_" + algorithm + ".csv")
-        sentiment_tweet_file_name = os.path.join(
-            base_dir, date, "tweet_sentiment_" + algorithm + ".csv")
-
-        if not os.path.isfile(sentiment_file_name):
-            tweet_file_name = os.path.join(base_dir, date, "tweet_list.csv")
-
-            tweet_df = pd.read_csv(tweet_file_name, sep=";")
-            tweet_df["Datetime"] = pd.to_datetime(tweet_df["Datetime"])
-
-            analyzer = Analyzer()
-            analyzer.analyze(tweet_df,
-                             directory,
-                             algorithm=algorithm,
-                             verbose=True)
-
-        sentiment_df = pd.read_csv(sentiment_file_name, sep=";")
-
-        sentiment_df["round_time"] = pd.to_datetime(sentiment_df["round_time"])
-
-        sentiment_dist = pd.read_csv(sentiment_tweet_file_name, sep=";")
-
-        sentiment_dist = sentiment_dist[sentiment_dist["sentiment"] != 0]
-        sentiment_dist["sentiment"] = sentiment_dist["sentiment"].round(1)
-
-        total_vals = sentiment_dist.shape[0]
-        sentiment_dist = sentiment_dist.groupby("sentiment").agg(
-            {"sentiment": "count"})
-
-        sentiment_dist["sentiment"] = sentiment_dist["sentiment"] / total_vals
-
-        return (
-            sentiment_df.index,
-            sentiment_df["sentiment"],
-            sentiment_dist.index.tolist(),
-            sentiment_dist["sentiment"].tolist(),
-        )
-
     def _refresh_thread_count(self):
         self._model.thread_count = self.threadpool.activeThreadCount()
 
@@ -168,20 +123,6 @@ class MainController(QObject):
 
         return tweets
 
-    def get_plot_data(self, dataCategory, plotConfig, args):
-        """
-        Returns the scrapped data prepared to be plotted
-        """
-
-        if "date" in args:
-            args["date"] = args["date"].toString(DATE_FORMAT)
-
-        scrapService = ScrapService()
-        data = scrapService.get_data_by_category(dataCategory, args)
-
-        plotService = PlotService()
-        return plotService.prepareData(data, plotConfig)
-
     def open_configure(self):
         config_window = PlotConfigure(self)
         config_window.show()
@@ -207,21 +148,13 @@ class MainController(QObject):
         scrapService = ScrapService()
         plotService = PlotService()
 
-        for plot_config in self.plot_configurations:
-            id, plotConfig, widget = (
-                plot_config["id"],
-                plot_config["config"],
-                plot_config["widget"],
-            )
+        for config in self.plot_configurations:
+            id, pConfig, widget = config["id"], config["config"], config["widget"],
+            
+            args = {"date": date, "algorithm": algorithm }
+            data = scrapService.get_data_by_category(pConfig.variable_type, args)
 
-            data = scrapService.get_data_by_category(plotConfig.variable_type,
-                                                     {
-                                                         "date": date,
-                                                         "algorithm": algorithm
-                                                     })
-
-            print(data.head())
-
-            index, data = plotService.applyPlotMaps(data, plotConfig)
+            index, data = plotService.applyPlotMaps(data, pConfig)
+            
             widget.clear()
             widget.plot(index, data)
