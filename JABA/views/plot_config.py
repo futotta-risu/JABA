@@ -1,10 +1,23 @@
 import pandas as pd
 from model.modelFactory import createModelFrame
-from PyQt5 import Qt, QtCore, QtGui
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import (QCalendarWidget, QComboBox, QDialog, QFileDialog,
-                             QGridLayout, QHBoxLayout, QLabel, QPushButton,
-                             QScrollArea, QSplitter, QVBoxLayout, QWidget)
+from PyQt5 import Qt
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QObject
+from PyQt5.QtWidgets import QCalendarWidget
+from PyQt5.QtWidgets import QComboBox
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QScrollArea
+from PyQt5.QtWidgets import QSplitter
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget
 from service.visualization.types.maps.MapFactory import MapFactory
 from service.visualization.types.PlotConfiguration import PlotConfiguration
 

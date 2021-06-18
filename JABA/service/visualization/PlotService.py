@@ -1,4 +1,5 @@
-from pyqtgraph import PlotWidget, plot
+from pyqtgraph import plot
+from pyqtgraph import PlotWidget
 
 from .PlotConfig import PlotConfig
 

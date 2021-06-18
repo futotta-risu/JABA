@@ -1,5 +1,9 @@
-from PyQt5.QtCore import (QDate, QObject, QRunnable, QThreadPool, pyqtSignal,
-                          pyqtSlot)
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QDate
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QRunnable
+from PyQt5.QtCore import QThreadPool
 from pyqtgraph import PlotWidget
 from service.scrapper.analyzer import Analyzer
 from service.scrapper.cleaner import *
