@@ -1,5 +1,11 @@
-from PyQt5.QtWidgets import QDialog,  QWidget
-from PyQt5.QtWidgets import QGridLayout, QVBoxLayout, QHBoxLayout,  QScrollArea, QSplitter
+from PyQt5.QtWidgets import QDialog, QWidget
+from PyQt5.QtWidgets import (
+    QGridLayout,
+    QVBoxLayout,
+    QHBoxLayout,
+    QScrollArea,
+    QSplitter,
+)
 from PyQt5.QtWidgets import QPushButton, QFileDialog, QCalendarWidget, QLabel, QComboBox
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt5 import QtCore, QtGui, Qt
@@ -12,7 +18,6 @@ import pandas as pd
 
 
 class PlotConfigure(QDialog):
-
     def __init__(self, parent):
         super(PlotConfigure, self).__init__()
 
@@ -134,29 +139,25 @@ class PlotConfigure(QDialog):
 
         intial_types = self.initial_frame.dtypes.reset_index(name="type")
 
-        intial_types['type'] = intial_types['type'].astype('str')
+        intial_types["type"] = intial_types["type"].astype("str")
 
         for i in reversed(range(self.model_initial_desc_l.count())):
             self.model_initial_desc_l.itemAt(i).widget().setParent(None)
 
         for index, row in intial_types.iterrows():
-            self.model_initial_desc_l.addWidget(
-                QLabel(str(row["index"])), index+1, 1)
-            self.model_initial_desc_l.addWidget(
-                QLabel(str(row["type"])), index+1, 2)
+            self.model_initial_desc_l.addWidget(QLabel(str(row["index"])), index + 1, 1)
+            self.model_initial_desc_l.addWidget(QLabel(str(row["type"])), index + 1, 2)
 
         final_types = self.final_frame.dtypes.reset_index(name="type")
 
-        final_types['type'] = final_types['type'].astype('str')
+        final_types["type"] = final_types["type"].astype("str")
 
         for i in reversed(range(self.model_final_desc_l.count())):
             self.model_final_desc_l.itemAt(i).widget().setParent(None)
 
         for index, row in final_types.iterrows():
-            self.model_final_desc_l.addWidget(
-                QLabel(str(row["index"])), index+1, 1)
-            self.model_final_desc_l.addWidget(
-                QLabel(str(row["type"])), index+1, 2)
+            self.model_final_desc_l.addWidget(QLabel(str(row["index"])), index + 1, 1)
+            self.model_final_desc_l.addWidget(QLabel(str(row["type"])), index + 1, 2)
 
     def __load_frame_map(self):
 
@@ -169,9 +170,9 @@ class PlotConfigure(QDialog):
 
             print("La variable " + map_function)
             map_button.clicked.connect(
-                lambda _, dtype=map_function: self.__load_map_config(dtype))
-            map_button.clicked.connect(
-                lambda _, dtype=map_function: print(dtype))
+                lambda _, dtype=map_function: self.__load_map_config(dtype)
+            )
+            map_button.clicked.connect(lambda _, dtype=map_function: print(dtype))
 
             mapRow_l.addWidget(QLabel(map_function))
             mapRow_l.addWidget(map_button)
@@ -198,23 +199,21 @@ class PlotConfigure(QDialog):
         except Exception:
             pass
 
-        #strategy = MapFactory()
+        # strategy = MapFactory()
 
-        #attrs_types = strategy.getAttrsWithTypes(map_function)
+        # attrs_types = strategy.getAttrsWithTypes(map_function)
 
         # TODO Iter tools
 
-        self.save_map_button.clicked.connect(
-            lambda: self.transform_map(map_function))
+        self.save_map_button.clicked.connect(lambda: self.transform_map(map_function))
 
     def transform_map(self, map_function):
         print("Loading2 with map " + str(map_function))
         strategy = MapFactory()
 
-        args = {'variable': self.variable_pick.currentText()}
+        args = {"variable": self.variable_pick.currentText()}
 
-        self.final_frame, fmap = strategy.apply(
-            map_function, self.final_frame, args)
+        self.final_frame, fmap = strategy.apply(map_function, self.final_frame, args)
 
         self.map_list += [fmap]
 
@@ -222,8 +221,7 @@ class PlotConfigure(QDialog):
         self.__load_map_history()
 
     def __load_data_model(self):
-        self.initial_frame = createModelFrame(
-            self.data_model_combobox.currentText())
+        self.initial_frame = createModelFrame(self.data_model_combobox.currentText())
         self.final_frame = self.initial_frame.copy(deep=True)
         self.__load_frame_descriptions()
 
@@ -235,9 +233,12 @@ class PlotConfigure(QDialog):
 
     def __save_and_exit(self):
         self.__configuration = PlotConfiguration(
-            self.initial_frame, self.final_frame,
-            self.map_list, self.data_model_combobox.currentText(),
-            self.index_combo.currentText(), self.data_combo.currentText()
+            self.initial_frame,
+            self.final_frame,
+            self.map_list,
+            self.data_model_combobox.currentText(),
+            self.index_combo.currentText(),
+            self.data_combo.currentText(),
         )
 
         self.__saved = True

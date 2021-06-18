@@ -11,13 +11,15 @@ from service.visualization.types.maps.GenericMap import GenericMap
 
 
 class MapFactory:
-
     def getMapList(self):
         return [q.__name__ for q in GenericMap.__subclasses__()]
 
     def __get_map(self, dtype, args=None):
-        map_list = [map_class(args) for map_class in GenericMap.__subclasses__(
-        ) if map_class.__name__ == dtype]
+        map_list = [
+            map_class(args)
+            for map_class in GenericMap.__subclasses__()
+            if map_class.__name__ == dtype
+        ]
 
         if not map_list:
             raise NotImplementedError()

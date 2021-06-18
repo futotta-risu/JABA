@@ -1,6 +1,7 @@
 class PlotConfig:
-
-    def __init__(self, indexType, dataType, indexFunction, dataFunction, index, data, args=None):
+    def __init__(
+        self, indexType, dataType, indexFunction, dataFunction, index, data, args=None
+    ):
         self.indexType = indexType
         self.dataType = dataType
         self.indexFunction = indexFunction

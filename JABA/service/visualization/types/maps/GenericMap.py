@@ -1,8 +1,6 @@
-
-
 class GenericMap:
     """
-        Interface for Mapping functions
+    Interface for Mapping functions
     """
 
     def __init__(self, name, attrs):

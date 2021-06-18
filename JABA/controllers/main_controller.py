@@ -33,8 +33,9 @@ class AnalyzeDateWorker(QRunnable):
         self.date_from = date_from
 
     def run(self):
-        get_tweets(query, self.date_from, self.date_from +
-                   timedelta(days=1), verbose=True)
+        get_tweets(
+            query, self.date_from, self.date_from + timedelta(days=1), verbose=True
+        )
         self.signal.finished.emit()
 
 
@@ -83,43 +84,48 @@ class MainController(QObject):
 
     def get_sentiment_plot_data(self, date, algorithm):
         """
-            Returns the index and sentiment column of a date
+        Returns the index and sentiment column of a date
         """
 
         date = date.toString(DATE_FORMAT)
         directory = os.path.join(base_dir, date)
 
         sentiment_file_name = os.path.join(
-            base_dir, date, "sentiment_file_" + algorithm + ".csv")
+            base_dir, date, "sentiment_file_" + algorithm + ".csv"
+        )
         sentiment_tweet_file_name = os.path.join(
-            base_dir, date, "tweet_sentiment_" + algorithm + ".csv")
+            base_dir, date, "tweet_sentiment_" + algorithm + ".csv"
+        )
 
         if not os.path.isfile(sentiment_file_name):
             tweet_file_name = os.path.join(base_dir, date, "tweet_list.csv")
 
-            tweet_df = pd.read_csv(tweet_file_name, sep=';')
+            tweet_df = pd.read_csv(tweet_file_name, sep=";")
             tweet_df["Datetime"] = pd.to_datetime(tweet_df["Datetime"])
 
             analyzer = Analyzer()
-            analyzer.analyze(tweet_df, directory,
-                             algorithm=algorithm, verbose=True)
+            analyzer.analyze(tweet_df, directory, algorithm=algorithm, verbose=True)
 
-        sentiment_df = pd.read_csv(sentiment_file_name, sep=';')
+        sentiment_df = pd.read_csv(sentiment_file_name, sep=";")
 
         sentiment_df["round_time"] = pd.to_datetime(sentiment_df["round_time"])
 
-        sentiment_dist = pd.read_csv(sentiment_tweet_file_name, sep=';')
+        sentiment_dist = pd.read_csv(sentiment_tweet_file_name, sep=";")
 
         sentiment_dist = sentiment_dist[sentiment_dist["sentiment"] != 0]
         sentiment_dist["sentiment"] = sentiment_dist["sentiment"].round(1)
 
         total_vals = sentiment_dist.shape[0]
-        sentiment_dist = sentiment_dist.groupby(
-            'sentiment').agg({'sentiment': 'count'})
+        sentiment_dist = sentiment_dist.groupby("sentiment").agg({"sentiment": "count"})
 
-        sentiment_dist["sentiment"] = sentiment_dist["sentiment"]/total_vals
+        sentiment_dist["sentiment"] = sentiment_dist["sentiment"] / total_vals
 
-        return sentiment_df.index, sentiment_df["sentiment"], sentiment_dist.index.tolist(), sentiment_dist["sentiment"].tolist()
+        return (
+            sentiment_df.index,
+            sentiment_df["sentiment"],
+            sentiment_dist.index.tolist(),
+            sentiment_dist["sentiment"].tolist(),
+        )
 
     def _refresh_thread_count(self):
         self._model.thread_count = self.threadpool.activeThreadCount()
@@ -135,7 +141,8 @@ class MainController(QObject):
         if self.threadpool.activeThreadCount() < 5:
             self.analyze_date(self.actual_scrapper_date.toPyDate())
             self.actual_scrapper_date = self.actual_scrapper_date.addDays(
-                1)  # Add day to avoid same day analyze
+                1
+            )  # Add day to avoid same day analyze
             self.automatic_scrapper()
 
     def get_message_sample_with_sentiment(self, date, algorithm):
@@ -144,11 +151,11 @@ class MainController(QObject):
         directory = os.path.join(base_dir, date)
         tweet_file_name = os.path.join(base_dir, date, "tweet_list.csv")
 
-        tweet_df = pd.read_csv(tweet_file_name, sep=';')
+        tweet_df = pd.read_csv(tweet_file_name, sep=";")
 
         tweets = []
 
-        tweet_list = tweet_df['Text'].sample(n=50)
+        tweet_list = tweet_df["Text"].sample(n=50)
 
         analyzer = Analyzer()
 
@@ -162,7 +169,7 @@ class MainController(QObject):
 
     def get_plot_data(self, dataCategory, plotConfig, args):
         """
-            Returns the scrapped data prepared to be plotted
+        Returns the scrapped data prepared to be plotted
         """
 
         if "date" in args:
@@ -184,7 +191,7 @@ class MainController(QObject):
             widget = PlotWidget()
             id = self.plotService.getPlotID()
             self.plot_configurations += [
-                {'id': id, 'config': plotConfig, 'widget': widget}
+                {"id": id, "config": plotConfig, "widget": widget}
             ]
 
             return id, widget
@@ -198,11 +205,14 @@ class MainController(QObject):
         plotService = PlotService()
 
         for plot_config in self.plot_configurations:
-            id, plotConfig, widget = plot_config['id'], plot_config['config'], plot_config['widget']
+            id, plotConfig, widget = (
+                plot_config["id"],
+                plot_config["config"],
+                plot_config["widget"],
+            )
 
             data = scrapService.get_data_by_category(
-                plotConfig.variable_type,
-                {'date': date, 'algorithm': algorithm}
+                plotConfig.variable_type, {"date": date, "algorithm": algorithm}
             )
 
             print(data.head())

@@ -10,7 +10,6 @@ class NoDataAvailableException(Exception):
 
 
 class ScrapService:
-
     def get_data_by_category(self, dataModel, args):
         data = None
         if dataModel == "Tweet":
