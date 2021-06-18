@@ -1,3 +1,4 @@
+from textblob import TextBlob
 import os
 
 import pandas as pd
@@ -10,7 +11,7 @@ from .file_manager import FileManagerInterface
 
 from .scrapper import ScrapperFileManager
 
-nltk.download([     
+nltk.download([
     "names",
     "stopwords",
     "state_union",
@@ -21,61 +22,60 @@ nltk.download([
     "punkt",
 ])
 
-from textblob import TextBlob
-
 
 class AnalyzerFileManager(FileManagerInterface):
-    
+
     def __init__(self):
         super().__init__()
-        
-        self.FILE_NAME = os.path.join(self.DIRECTORY, "tweet_sentiment_{algorithm}.csv")
-    
-    def get_file_name(self, args : dict):
-        return self.FILE_NAME.format(day = args['date'], algorithm = args['algorithm'])
-    
-    def open_file(self, args : dict):
+
+        self.FILE_NAME = os.path.join(
+            self.DIRECTORY, "tweet_sentiment_{algorithm}.csv")
+
+    def get_file_name(self, args: dict):
+        return self.FILE_NAME.format(day=args['date'], algorithm=args['algorithm'])
+
+    def open_file(self, args: dict):
         """
             Returns the dataframe from the scrapper class
         """
         scrappeFM = ScrapperFileManager()
         tweet_df = scrappeFM.open_file(args)
-        
+
         file_name = self.get_file_name(args)
         data = pd.read_csv(file_name, sep=';')
         data["sentiment"] = pd.to_numeric(data["sentiment"])
-        
+
         data = tweet_df.join(data)
-        
+
         return data
-    
-    def save_file(self, data, args : dict):
+
+    def save_file(self, data, args: dict):
         """
             Saves the file if it doesn't exist
         """
         file_name = self.get_file_name(args)
-        
+
         Path(self.DIRECTORY).mkdir(parents=True, exist_ok=True)
         data.to_csv(file_name, sep=';', index=False)
 
 
 class Analyzer:
-    
+
     bitcoin_dict = {
         'down': -2,
         'up': +2,
-        'bounce' : +3,
+        'bounce': +3,
         'shitcoin': -3,
         'moon': +3,
         'sell': -3.5,
         'selling': -3.5,
-        'sold':-3.5,
-        'buy':+3.5,
-        'buying':+3.5,
-        'bought':+3.5,
+        'sold': -3.5,
+        'buy': +3.5,
+        'buying': +3.5,
+        'bought': +3.5,
         'profit': +5,
         'bearish': -5,
-        'bullish':+5,
+        'bullish': +5,
         'dump': -5,
         'pump': +5,
         'dip': -3,
@@ -88,21 +88,20 @@ class Analyzer:
         'hold': +2,
         'hodl': +3,
         'liquidation': -5,
-        'drop':-2,
-        'dropped':-3,
-        'carbon':-2,
+        'drop': -2,
+        'dropped': -3,
+        'carbon': -2,
         'inflation': +2,
         'rally': +3
-        
+
 
     }
-    
+
     def __init__(self):
         self.sia = SentimentIntensityAnalyzer()
         self.sia.lexicon.update(self.bitcoin_dict)
-        
-        
-    def get_sentiment(self, text, algorithm = "nltk"):
+
+    def get_sentiment(self, text, algorithm="nltk"):
         """
             Analyzes text.
 
@@ -119,14 +118,13 @@ class Analyzer:
             sentiment = self.sia.polarity_scores(text)['compound']
         elif algorithm == "textblob":
             sentiment = TextBlob(text).sentiment.polarity
-        
+
         return sentiment
-        
-        
-    def analyze(self, data, ubication, round = "min", algorithm="nltk", verbose=False):
+
+    def analyze(self, data, ubication, round="min", algorithm="nltk", verbose=False):
         """
             Analyzes temporal data and saves it to a file.
-            
+
             Parameters:
             data (Pandas DataFrame): DataFrame with at least the following columns
                 - "DateTime": Time of the data
@@ -134,36 +132,35 @@ class Analyzer:
             ubication (String): Path to the folder for the new file
             round (String): Where to approximate the "DateTime" column
         """
-        
-        
-        
+
         for index, row in data.iterrows():
             if verbose:
-                if index%1000 == 0:
+                if index % 1000 == 0:
                     print(f"Actual analyzed index: {index}")
-                    
-            data.loc[index, 'sentiment'] = self.get_sentiment(data['Text'].iloc[index], algorithm)
-        
+
+            data.loc[index, 'sentiment'] = self.get_sentiment(
+                data['Text'].iloc[index], algorithm)
+
         data['sentiment'].to_csv(
             os.path.join(ubication, "tweet_sentiment_" + algorithm + ".csv"),
             sep=';',
             index=False
         )
-        
+
         data['round_time'] = ""
         data["round_time"] = pd.to_datetime(data["round_time"])
-        
+
         data['round_time'] = data['Datetime'].round(round)
-        
-        
-        # We remove the zeros because they dont give any information. 
+
+        # We remove the zeros because they dont give any information.
         # Neutrality is normaly due to inconsisten sentiment analisys
-        data = data[data["sentiment"] != 0] 
-        
-        sentiment_frame = data.groupby('round_time', as_index=False).agg({'sentiment':'mean'})
-        
+        data = data[data["sentiment"] != 0]
+
+        sentiment_frame = data.groupby(
+            'round_time', as_index=False).agg({'sentiment': 'mean'})
+
         sentiment_frame.to_csv(
-            os.path.join(ubication, "sentiment_file_" + algorithm + ".csv"), 
-            sep=';', 
+            os.path.join(ubication, "sentiment_file_" + algorithm + ".csv"),
+            sep=';',
             index=False
         )
