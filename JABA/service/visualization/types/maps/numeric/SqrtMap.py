@@ -8,6 +8,6 @@ class SqrtMap(GenericMap):
     def apply(self, data):
         variable = self.getAttrs()["variable"]
 
-        data[variable] = data[variable] ** 0.5
+        data[variable] = data[variable]**0.5
 
         return data

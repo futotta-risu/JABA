@@ -16,13 +16,17 @@ class PlotService:
         self.id += 1
         return self.id
 
-    def createPlotConfig(
-        self, indexType, dataType, indexFunction, dataFunction, args=None
-    ):
+    def createPlotConfig(self,
+                         indexType,
+                         dataType,
+                         indexFunction,
+                         dataFunction,
+                         args=None):
         """
         Returns id and plot widget and config dict.
         """
-        plotConfig = PlotConfig(indexType, dataType, indexFunction, dataFunction, args)
+        plotConfig = PlotConfig(indexType, dataType, indexFunction,
+                                dataFunction, args)
         widget = PlotWidget()
 
         return self.getPlotID(), plotConfig, widget

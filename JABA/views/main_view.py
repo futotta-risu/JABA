@@ -78,11 +78,9 @@ class MainView(QMainWindow):
         self.message_sample_scroll.setFixedWidth(600)
         self.message_sample_scroll.setWidgetResizable(True)
         self.message_sample_scroll.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOff
-        )
+            QtCore.Qt.ScrollBarAlwaysOff)
         self.message_sample_scroll.setVerticalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOn
-        )
+            QtCore.Qt.ScrollBarAlwaysOn)
 
         self.message_sample_widget = QWidget()
 
@@ -135,19 +133,22 @@ class MainView(QMainWindow):
         self.update_plot_button.clicked.connect(self.update_plot)
 
         self._model.thread_count_changed.connect(self.on_thread_count_changed)
-        self._model.thread_count_changed.connect(self._controller.automatic_scrapper)
+        self._model.thread_count_changed.connect(
+            self._controller.automatic_scrapper)
 
     def _init_window(self):
         self._reset_calendar_color()
         self._reset_sample()
 
     def _reset_calendar_color(self):
-        date_colors = self._controller.get_date_properties()  # TODO Add this function
+        date_colors = self._controller.get_date_properties(
+        )  # TODO Add this function
 
         cell_format = QtGui.QTextCharFormat()
 
         for date, status in date_colors:
-            cell_format.setBackground(QtGui.QColor(self.calendar_colors[status]))
+            cell_format.setBackground(
+                QtGui.QColor(self.calendar_colors[status]))
 
             if date.isValid():
                 self.calendar.setDateTextFormat(date, cell_format)
@@ -155,8 +156,7 @@ class MainView(QMainWindow):
     @pyqtSlot(int)
     def on_thread_count_changed(self, value):
         self.thread_count_label.setText(
-            active_thread_str.format(threads=self._model.thread_count_str)
-        )
+            active_thread_str.format(threads=self._model.thread_count_str))
 
     def automatic_scrapper(self):
         self._model.scrapping = True
@@ -186,7 +186,8 @@ class MainView(QMainWindow):
             dist_index,
             distribution,
         ) = self._controller.get_sentiment_plot_data(date, algorithm)
-        sample = self._controller.get_message_sample_with_sentiment(date, algorithm)
+        sample = self._controller.get_message_sample_with_sentiment(
+            date, algorithm)
 
         self.graphWidgetHist.clear()
         self.graphWidgetHist.plot(dist_index, distribution)

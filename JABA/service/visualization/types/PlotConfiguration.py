@@ -9,9 +9,8 @@ class PlotConfiguration:
 
     index, data = None, None
 
-    def __init__(
-        self, initial_frame, final_frame, map_list, variable_type, index, data
-    ):
+    def __init__(self, initial_frame, final_frame, map_list, variable_type,
+                 index, data):
         self.initial_frame = initial_frame
         self.final_frame = final_frame
         self.map_list = map_list

@@ -2,7 +2,6 @@ class GenericMap:
     """
     Interface for Mapping functions
     """
-
     def __init__(self, name, attrs):
         self.attrs = attrs
         self.name = name

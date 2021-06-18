@@ -9,28 +9,28 @@ from .cleaner import *
 from .file_manager import FileManagerInterface
 from .scrapper import ScrapperFileManager
 
-nltk.download(
-    [
-        "names",
-        "stopwords",
-        "state_union",
-        "twitter_samples",
-        "movie_reviews",
-        "averaged_perceptron_tagger",
-        "vader_lexicon",
-        "punkt",
-    ]
-)
+nltk.download([
+    "names",
+    "stopwords",
+    "state_union",
+    "twitter_samples",
+    "movie_reviews",
+    "averaged_perceptron_tagger",
+    "vader_lexicon",
+    "punkt",
+])
 
 
 class AnalyzerFileManager(FileManagerInterface):
     def __init__(self):
         super().__init__()
 
-        self.FILE_NAME = os.path.join(self.DIRECTORY, "tweet_sentiment_{algorithm}.csv")
+        self.FILE_NAME = os.path.join(self.DIRECTORY,
+                                      "tweet_sentiment_{algorithm}.csv")
 
     def get_file_name(self, args: dict):
-        return self.FILE_NAME.format(day=args["date"], algorithm=args["algorithm"])
+        return self.FILE_NAME.format(day=args["date"],
+                                     algorithm=args["algorithm"])
 
     def open_file(self, args: dict):
         """
@@ -117,7 +117,12 @@ class Analyzer:
 
         return sentiment
 
-    def analyze(self, data, ubication, round="min", algorithm="nltk", verbose=False):
+    def analyze(self,
+                data,
+                ubication,
+                round="min",
+                algorithm="nltk",
+                verbose=False):
         """
         Analyzes temporal data and saves it to a file.
 
@@ -135,8 +140,7 @@ class Analyzer:
                     print(f"Actual analyzed index: {index}")
 
             data.loc[index, "sentiment"] = self.get_sentiment(
-                data["Text"].iloc[index], algorithm
-            )
+                data["Text"].iloc[index], algorithm)
 
         data["sentiment"].to_csv(
             os.path.join(ubication, "tweet_sentiment_" + algorithm + ".csv"),
@@ -154,8 +158,7 @@ class Analyzer:
         data = data[data["sentiment"] != 0]
 
         sentiment_frame = data.groupby("round_time", as_index=False).agg(
-            {"sentiment": "mean"}
-        )
+            {"sentiment": "mean"})
 
         sentiment_frame.to_csv(
             os.path.join(ubication, "sentiment_file_" + algorithm + ".csv"),

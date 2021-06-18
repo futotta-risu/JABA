@@ -111,12 +111,11 @@ class TwitterScrapper(IScrapper):
                 print("Day " + str(date_from))
 
             format_string = self.format_conditional_query(
-                date_from, date_from + timedelta(days=1), lang
-            )
+                date_from, date_from + timedelta(days=1), lang)
 
             for i, tweet in enumerate(
-                snstwitter.TwitterSearchScraper(format_string).get_items()
-            ):
+                    snstwitter.TwitterSearchScraper(
+                        format_string).get_items()):
                 if limit != -1:
                     if i >= limit:
                         break
@@ -128,7 +127,8 @@ class TwitterScrapper(IScrapper):
 
             tweets, spam_tweets = self.filter_spam(tweet_list)
 
-            self.fileManager.save_file([tweets, spam_tweets], date_from, tweet_limit)
+            self.fileManager.save_file([tweets, spam_tweets], date_from,
+                                       tweet_limit)
 
             date_from += timedelta(days=1)
 
@@ -149,12 +149,8 @@ class TwitterScrapper(IScrapper):
         data = pd.DataFrame(tweet_list, columns=column_names)
         data = data[(data["Text"].notna()) & data["Text"]]
 
-        data_spam = (
-            data[data["Text"].duplicated()]["Text"]
-            .value_counts()
-            .rename_axis("unique_texts")
-            .reset_index(name="counts")
-        )
+        data_spam = (data[data["Text"].duplicated()]["Text"].value_counts().
+                     rename_axis("unique_texts").reset_index(name="counts"))
 
         data.drop_duplicates(subset="Text", keep=False, inplace=True)
 
@@ -188,4 +184,6 @@ class TwitterScrapper(IScrapper):
         Formats the conditional query
         """
 
-        return self.query.format(since=str(date_from), until=str(date_until), lang=lang)
+        return self.query.format(since=str(date_from),
+                                 until=str(date_until),
+                                 lang=lang)

@@ -15,8 +15,7 @@ class MapFactory:
 
     def __get_map(self, dtype, args=None):
         map_list = [
-            map_class(args)
-            for map_class in GenericMap.__subclasses__()
+            map_class(args) for map_class in GenericMap.__subclasses__()
             if map_class.__name__ == dtype
         ]
 
