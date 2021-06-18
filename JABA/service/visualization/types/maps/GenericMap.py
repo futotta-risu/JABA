@@ -17,6 +17,9 @@ class GenericMap:
     
     def getAttrs(self):
         return self.attrs
+    
+    def getAttrsWithTypes(self):
+        return {}
         
     def setAttrs(self, attrs: dict):
         self.attrs = attrs

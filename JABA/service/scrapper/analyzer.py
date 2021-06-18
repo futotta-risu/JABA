@@ -8,6 +8,8 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from .cleaner import *
 from .file_manager import FileManagerInterface
 
+from .scrapper import ScrapperFileManager
+
 nltk.download([     
     "names",
     "stopwords",
@@ -27,7 +29,7 @@ class AnalyzerFileManager(FileManagerInterface):
     def __init__(self):
         super().__init__()
         
-        self.FILE_NAME = os.path.join(self.DIRECTORY, "sentiment_file_{algorithm}.csv")
+        self.FILE_NAME = os.path.join(self.DIRECTORY, "tweet_sentiment_{algorithm}.csv")
     
     def get_file_name(self, args : dict):
         return self.FILE_NAME.format(day = args['date'], algorithm = args['algorithm'])
@@ -36,10 +38,14 @@ class AnalyzerFileManager(FileManagerInterface):
         """
             Returns the dataframe from the scrapper class
         """
+        scrappeFM = ScrapperFileManager()
+        tweet_df = scrappeFM.open_file(args)
+        
         file_name = self.get_file_name(args)
         data = pd.read_csv(file_name, sep=';')
-        data["round_time"] = pd.to_datetime(data["round_time"])
         data["sentiment"] = pd.to_numeric(data["sentiment"])
+        
+        data = tweet_df.join(data)
         
         return data
     

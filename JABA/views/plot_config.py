@@ -189,6 +189,7 @@ class PlotConfigure(QDialog):
     
     def __load_map_config(self, map_function):
         print("Loading with map " + str(map_function))
+        self.variable_pick.clear()
         self.variable_pick.addItems(self.final_frame.columns.to_list())
         
         # We don't check the Exception since it happends if not connected to anything
@@ -196,6 +197,13 @@ class PlotConfigure(QDialog):
             self.save_map_button.clicked.disconnect() 
         except Exception: 
             pass 
+        
+        
+        #strategy = MapFactory()
+        
+        #attrs_types = strategy.getAttrsWithTypes(map_function)
+        
+        # TODO Iter tools
         
         self.save_map_button.clicked.connect(lambda:self.transform_map(map_function))
     

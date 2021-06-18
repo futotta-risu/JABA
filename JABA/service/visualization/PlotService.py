@@ -44,6 +44,7 @@ class PlotService:
     def applyPlotMaps(self, data, plotConfig):
         
         for fmap in plotConfig.map_list:
+            print(data.head())
             data = fmap.apply(data)
         
         if plotConfig.index == "NewEmpty":
