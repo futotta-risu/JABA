@@ -68,12 +68,15 @@ class MainView(QMainWindow):
 
         self._model = model
         self._controller = controller
-
+        print("T-1")
         self._load_window_properties()
+        print("T-2")
         self._create_menu_bar()
+        print("T-3")
         self._load_window_components()
+        print("T-4")
         self._connect_window_components()
-
+        print("T-5")
         self._init_window()
 
     def _load_window_properties(self):
@@ -144,26 +147,13 @@ class MainView(QMainWindow):
         self.top_container = QWidget()
         self.top_container.setLayout(self.top_layout)
 
-        self.graphWidget = pg.PlotWidget()
-        self.graphWidget.setYRange(-1, 1)
-
-        self.graphWidgetHist = pg.PlotWidget()
-        self.graphWidgetHist.setYRange(-0.1, 1.1)
-
         self.graphWidgetBTC = pg.PlotWidget()
         self.graphWidgetBTC.setYRange(0, 10000)
 
-        self.combo_plotX = QComboBox(self)
-        self.combo_plotX.addItem("open")
-        self.combo_plotX.addItem("close")
-        self.combo_plotX.addItem("high")
-        self.combo_plotX.addItem("low")
-        self.combo_plotX.activated.connect(self.load_graphs)
 
         self.combo_plotType = QComboBox(self)
         self.combo_plotType.addItem("boxplot")
         self.combo_plotType.addItem("violinplot")
-        self.combo_plotType.activated.connect(self.load_graphs)
 
         self.fig = Figure()
         self.axes = self.fig.add_subplot()
@@ -188,9 +178,6 @@ class MainView(QMainWindow):
 
         self.center_layout.addWidget(self.plot_L_widget)
 
-        self.center_layout.addWidget(self.graphWidget)
-        self.center_layout.addWidget(self.graphWidgetHist)
-        self.center_layout.addWidget(self.combo_plotX)
         self.center_layout.addWidget(self.graphWidgetBTC)
         self.center_layout.addWidget(self.combo_plotType)
         self.center_layout.addWidget(self.canvas)
@@ -247,12 +234,19 @@ class MainView(QMainWindow):
             )
         
     def _connect_window_components(self):
-
+        print("Prueba")
         self.analyze_date_button.clicked.connect(self.analyze_date)
+        print("Prueba")
         self.auto_scrap.clicked.connect(self.automatic_scrapper)
+        print("Prueba")
         self.configure_button.clicked.connect(self.open_configure)
+        print("Prueba")
         self.update_plot_button.clicked.connect(self.update_plot)
-
+        
+        self._model.thread_count_changed.connect(self.on_thread_count_changed)
+        self._model.thread_count_changed.connect(
+            self._controller.automatic_scrapper)
+        
     def _create_menu_bar(self):
         menu_bar = QMenuBar(self)
 
@@ -267,16 +261,6 @@ class MainView(QMainWindow):
 
         self.setMenuBar(menu_bar)
 
-    def _connect_window_components(self):
-
-        self.sentiment_plot_button.clicked.connect(self.load_graphs)
-
-        self.analyze_date_button.clicked.connect(self.analyze_date)
-        self.auto_scrap.clicked.connect(self.automatic_scrapper)
-
-        self._model.thread_count_changed.connect(self.on_thread_count_changed)
-        self._model.thread_count_changed.connect(
-            self._controller.automatic_scrapper)
 
     def _init_window(self):
         self._reset_calendar_color()
@@ -312,7 +296,7 @@ class MainView(QMainWindow):
 
 
     def update_plot(self):
-        
+        print("Going in")
         date = self.calendar.selectedDate()
         algorithm = str(self.combo_sentiment_algorithm.currentText())
         
@@ -320,7 +304,9 @@ class MainView(QMainWindow):
             date, algorithm)
         
         self.__refresh_table(sample)
-            
+        
+        self.load_btc_price_graph(date)
+        
         self._controller.update_plots(
             self.calendar.selectedDate().toPyDate(),
             self.combo_sentiment_algorithm.currentText(),
@@ -337,53 +323,22 @@ class MainView(QMainWindow):
 
         self.message_sample.addWidget(QLabel("Sample tweets from the day"))
 
-    def load_graphs(self):
-        """
-        Load all the graphs of the dashboard
-        """
-        date = self.calendar.selectedDate()
-        self.load_sentiment_graph(date)
-        self.load_btc_price_graph(date)
-
-    def load_sentiment_graph(self, date):
-        """
-        Draw sentiment of twitter graph in a given date
-        """
-        algorithm = str(self.combo_sentiment_algorithm.currentText())
-
-        (
-            index,
-            sentiment,
-            dist_index,
-            distribution,
-        ) = self._controller.get_sentiment_plot_data(date, algorithm)
-        sample = self._controller.get_message_sample_with_sentiment(
-            date, algorithm)
-
-        self.graphWidget.clear()
-        self.graphWidget.plot(index, sentiment)
-        self.graphWidgetHist.clear()
-        self.graphWidgetHist.plot(dist_index, distribution)
-        self.graphWidgetHist.setYRange(-0.1, max(distribution) + 0.1)
-
-        self._reset_sample()
-        for text, sentiment in sample:
-            label = QLabel(f"{text} ({sentiment})")
-            label.setWordWrap(True)
-            self.message_sample.addWidget(label)
+  
 
     def load_btc_price_graph(self, date):
         """
         Draw btc price graph in a given date
         """
-        plotX = str(self.combo_plotX.currentText())
+        print("Going in")
+        plotX = str("open")
         plotType = str(self.combo_plotType.currentText())
         (
             index_BTC,
-            price_BTC,
-            dist_index_BTC,
-            distribution_BTC,
+            price_BTC,_ ,_
         ) = self._controller.get_btc_price_plot_data(date, plotX)
+        
+        print(index_BTC)
+        print("Going out")
         self.graphWidgetBTC.clear()
         self.graphWidgetBTC.plot(dist_index_BTC, distribution_BTC)
         self.graphWidgetBTC.setYRange(min(distribution_BTC),

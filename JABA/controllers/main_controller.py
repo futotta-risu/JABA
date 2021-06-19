@@ -1,7 +1,5 @@
 
-from JATS.analyzer import Analyzer
-from JATS.cleaner import *
-from JATS.JATS import *
+
 
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
