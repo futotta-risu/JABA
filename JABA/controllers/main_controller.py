@@ -133,9 +133,7 @@ class MainController(QObject):
 
         return (
             btc_df.index,
-            btc_df["timestamp"],
-            range(0, btc_df.shape[0]),
-            btc_df[plotType].tolist(),
+            btc_df[plotType].tolist()
         )
 
     def get_btc_price_subdf(self, date):
@@ -150,12 +148,17 @@ class MainController(QObject):
                                                  "BTCUSDT-1m-data.csv")
 
         btc_df = pd.read_csv(bitcoin_dataset_file_name, sep=",")
-
+        
+        print(btc_df)
+        
         btc_df["timestamp"] = pd.to_datetime(btc_df["timestamp"])
 
         btc_df = btc_df[(btc_df.timestamp >= date)
                         & (btc_df.timestamp < nextDay)]
-
+        
+        print("-"*30)
+        print(btc_df)
+        
         return btc_df
 
 

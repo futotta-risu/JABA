@@ -148,7 +148,6 @@ class MainView(QMainWindow):
         self.top_container.setLayout(self.top_layout)
 
         self.graphWidgetBTC = pg.PlotWidget()
-        self.graphWidgetBTC.setYRange(0, 10000)
 
 
         self.combo_plotType = QComboBox(self)
@@ -323,8 +322,6 @@ class MainView(QMainWindow):
 
         self.message_sample.addWidget(QLabel("Sample tweets from the day"))
 
-  
-
     def load_btc_price_graph(self, date):
         """
         Draw btc price graph in a given date
@@ -333,17 +330,12 @@ class MainView(QMainWindow):
         plotX = str("open")
         plotType = str(self.combo_plotType.currentText())
         (
-            index_BTC,
-            price_BTC,_ ,_
+            index_BTC, price_BTC
         ) = self._controller.get_btc_price_plot_data(date, plotX)
         
-        print(index_BTC)
-        print("Going out")
         self.graphWidgetBTC.clear()
-        self.graphWidgetBTC.plot(dist_index_BTC, distribution_BTC)
-        self.graphWidgetBTC.setYRange(min(distribution_BTC),
-                                      max(distribution_BTC))
-
+        self.graphWidgetBTC.plot(range(1,1+len(index_BTC)), price_BTC)
+        
         btc_df = self._controller.get_btc_price_subdf(date)
         self.axes.clear()
 
