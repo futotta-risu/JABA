@@ -54,3 +54,17 @@ def get_complete_df(dateFrom, dateTo):
     final_df.insert(1, "Open", temp_btc_df["open"].values, True)
 
     return final_df
+
+def train_test_split(X, Y, test_size):
+    X_train, X_test, y_train, y_test = train_test_split(X, 
+                                                        Y, 
+                                                        test_size = 0.2, 
+                                                        random_state = 0)
+
+    X_train = X_train.values.reshape(-1, 1)
+    X_test = X_test.values.reshape(-1, 1)
+
+    print("Training set has {} samples.".format(X_train.shape[0]))
+    print("Testing set has {} samples.".format(X_test.shape[0]))
+    
+    return X_train, X_test, y_train, y_test
