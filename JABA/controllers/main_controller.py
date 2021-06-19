@@ -1,11 +1,29 @@
+
 from JATS.analyzer import Analyzer
 from JATS.cleaner import *
 from JATS.JATS import *
+
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QDate
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QRunnable
+
+from PyQt5.QtCore import QThreadPool
+from pyqtgraph import PlotWidget
+from service.scrapper.analyzer import Analyzer
+from service.scrapper.cleaner import *
+from service.scrapper.scrapper import *
+from service.scrapper.ScrapService import ScrapService
+from service.visualization.PlotService import PlotService
+from views.plot_config import PlotConfigure
+
+DATE_FORMAT = "yyyy-MM-dd"
+
+INITIAL_DATE = QDate.fromString("2017-01-01", DATE_FORMAT)
+
+base_dir = "data/tweets/"
+
 from PyQt5.QtCore import QSettings
 from PyQt5.QtCore import QThreadPool
 
@@ -13,6 +31,7 @@ DATE_FORMAT = "yyyy-MM-dd"
 
 base_dir = "data/tweets/"
 base_dir_btc = "data/bitcoin/"
+
 
 query = '"BTC" OR "bitcoin"'
 
@@ -28,16 +47,31 @@ class AnalyzeDateWorker(QRunnable):
         self.date_from = date_from
 
     def run(self):
-        get_tweets(query,
-                   self.date_from,
-                   self.date_from + timedelta(days=1),
-                   verbose=True)
+        scrapper = TwitterScrapper()
+        analyzer = Analyzer()
+        
+        scrapper.scrap(self.date_from, self.date_from + timedelta(days=1), verbose=True)
+        analyzer.analyze(self.date_from, ScrapperFileManager())
         self.signal.finished.emit()
 
 
 class MainController(QObject):
     def __init__(self, model):
         super().__init__()
+
+        self._model = model
+
+        self.plot_configurations = []
+
+        self.plotService = PlotService()
+
+        self.threadpool = QThreadPool()
+
+        self.actual_scrapper_date = QDate.fromString("2017-01-01", DATE_FORMAT)
+
+        self.scrapped_dates = set()
+        self._get_scrapped_dates()
+
 
         self.settings = QSettings("JABA", "JABA_Settings")
 
@@ -46,14 +80,7 @@ class MainController(QObject):
         except:
             self._init_settings()
 
-        self._model = model
-
-        self._init_local_vars()
-
-        self.threadpool = QThreadPool()
-
-        self.scrapped_dates = set()
-        self._get_scrapped_dates()
+        
 
     def _init_settings(self):
         self.settings.setValue("initial_date",
@@ -99,53 +126,6 @@ class MainController(QObject):
 
         return date_list
 
-    def get_sentiment_plot_data(self, date, algorithm):
-        """
-        Returns the index and sentiment column of a date
-        """
-
-        date = date.toString(DATE_FORMAT)
-        directory = os.path.join(base_dir, date)
-
-        sentiment_file_name = os.path.join(
-            base_dir, date, "sentiment_file_" + algorithm + ".csv")
-        sentiment_tweet_file_name = os.path.join(
-            base_dir, date, "tweet_sentiment_" + algorithm + ".csv")
-
-        if not os.path.isfile(sentiment_file_name):
-            tweet_file_name = os.path.join(base_dir, date, "tweet_list.csv")
-
-            tweet_df = pd.read_csv(tweet_file_name, sep=";")
-            tweet_df["Datetime"] = pd.to_datetime(tweet_df["Datetime"])
-
-            analyzer = Analyzer()
-            analyzer.analyze(tweet_df,
-                             directory,
-                             algorithm=algorithm,
-                             verbose=True)
-
-        sentiment_df = pd.read_csv(sentiment_file_name, sep=";")
-
-        sentiment_df["round_time"] = pd.to_datetime(sentiment_df["round_time"])
-
-        sentiment_dist = pd.read_csv(sentiment_tweet_file_name, sep=";")
-
-        sentiment_dist = sentiment_dist[sentiment_dist["sentiment"] != 0]
-        sentiment_dist["sentiment"] = sentiment_dist["sentiment"].round(1)
-
-        total_vals = sentiment_dist.shape[0]
-        sentiment_dist = sentiment_dist.groupby("sentiment").agg(
-            {"sentiment": "count"})
-
-        sentiment_dist["sentiment"] = sentiment_dist["sentiment"] / total_vals
-
-        print(sum(sentiment_dist["sentiment"]))
-        return (
-            sentiment_df.index,
-            sentiment_df["sentiment"],
-            sentiment_dist.index.tolist(),
-            sentiment_dist["sentiment"].tolist(),
-        )
 
     def get_btc_price_plot_data(self, date, plotType):
         """
@@ -179,6 +159,7 @@ class MainController(QObject):
                         & (btc_df.timestamp < nextDay)]
 
         return btc_df
+
 
     def _refresh_thread_count(self):
         self._model.thread_count = self.threadpool.activeThreadCount()
@@ -218,3 +199,40 @@ class MainController(QObject):
             tweets += [(text, sentiment)]
 
         return tweets
+
+    def open_configure(self):
+        config_window = PlotConfigure(self)
+        config_window.show()
+        config_window.exec_()
+
+        if config_window.is_saved():
+            plotConfig = config_window.getPlotConfiguration()
+            widget = PlotWidget()
+            id = self.plotService.getPlotID()
+            self.plot_configurations += [{
+                "id": id,
+                "config": plotConfig,
+                "widget": widget
+            }]
+
+            return id, widget
+
+        return None, None
+
+    def update_plots(self, date, algorithm):
+        plots = []
+
+        scrapService = ScrapService()
+        plotService = PlotService()
+
+        for config in self.plot_configurations:
+            id, pConfig, widget = config["id"], config["config"], config["widget"],
+            
+            args = {"date": date, "algorithm": algorithm }
+            data = scrapService.get_data_by_category(pConfig.variable_type, args)
+
+            index, data = plotService.applyPlotMaps(data, pConfig)
+            
+            widget.clear()
+            widget.plot(index, data)
+
