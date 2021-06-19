@@ -18,7 +18,7 @@ class RoundDateMap(GenericMap):
         variable = self.getAttrs()["variable"]
         round = self.getAttrs()["round"]
 
-        data["round_" + variable] = data[variable].round(round)
+        data["round_" + variable] = data[variable].floor(round)
 
         return data
 
