@@ -1,6 +1,6 @@
 import pytest
 
-from JABA.JATS.cleaner import *
+from JABA.service.scrapper.cleaner.py import *
 
 def test_clean_tweet_lowers_case():
 	
