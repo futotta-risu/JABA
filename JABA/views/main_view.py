@@ -1,13 +1,11 @@
 import pyqtgraph as pg
 
-from PyQt5 import Qt
-from PyQt5 import QtCore
-from PyQt5 import QtGui
 
 import seaborn as sns
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+
 from PyQt5 import Qt
 from PyQt5 import QtCore
 from PyQt5 import QtGui
@@ -17,37 +15,26 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QRunnable
-
 from PyQt5.QtCore import QThreadPool
-from PyQt5.QtWidgets import QCalendarWidget
-from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtWidgets import QFileDialog, QTableWidgetItem, QTableWidget
-from PyQt5.QtWidgets import QGridLayout
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QMainWindow
-
 from PyQt5.QtCore import QSettings
-from PyQt5.QtCore import QThreadPool
-from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QCalendarWidget
 from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtWidgets import QTableWidget
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QMenuBar
-
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QScrollArea
 from PyQt5.QtWidgets import QSplitter
 from PyQt5.QtWidgets import QVBoxLayout
-
-from PyQt5.QtWidgets import QWidget, QHeaderView
-from pyqtgraph import plot
-from pyqtgraph import PlotWidget
-
+from PyQt5.QtWidgets import QHeaderView
 from PyQt5.QtWidgets import QWidget
+
 from pyqtgraph import plot
 from pyqtgraph import PlotWidget
 
@@ -68,15 +55,10 @@ class MainView(QMainWindow):
 
         self._model = model
         self._controller = controller
-        print("T-1")
         self._load_window_properties()
-        print("T-2")
         self._create_menu_bar()
-        print("T-3")
         self._load_window_components()
-        print("T-4")
         self._connect_window_components()
-        print("T-5")
         self._init_window()
 
     def _load_window_properties(self):
@@ -233,15 +215,10 @@ class MainView(QMainWindow):
             )
         
     def _connect_window_components(self):
-        print("Prueba")
         self.analyze_date_button.clicked.connect(self.analyze_date)
-        print("Prueba")
         self.auto_scrap.clicked.connect(self.automatic_scrapper)
-        print("Prueba")
         self.configure_button.clicked.connect(self.open_configure)
-        print("Prueba")
         self.update_plot_button.clicked.connect(self.update_plot)
-        
         self._model.thread_count_changed.connect(self.on_thread_count_changed)
         self._model.thread_count_changed.connect(
             self._controller.automatic_scrapper)
@@ -295,7 +272,6 @@ class MainView(QMainWindow):
 
 
     def update_plot(self):
-        print("Going in")
         date = self.calendar.selectedDate()
         algorithm = str(self.combo_sentiment_algorithm.currentText())
         
@@ -310,7 +286,7 @@ class MainView(QMainWindow):
             self.calendar.selectedDate().toPyDate(),
             self.combo_sentiment_algorithm.currentText(),
         )
-
+        
     def open_configure(self):
         id, widget = self._controller.open_configure()
         self.plot_list[id] = widget
@@ -326,7 +302,6 @@ class MainView(QMainWindow):
         """
         Draw btc price graph in a given date
         """
-        print("Going in")
         plotX = str("open")
         plotType = str(self.combo_plotType.currentText())
         (

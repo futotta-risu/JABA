@@ -1,6 +1,3 @@
-
-
-
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QDate
@@ -13,6 +10,8 @@ from service.scrapper.analyzer import Analyzer
 from service.scrapper.cleaner import *
 from service.scrapper.scrapper import *
 from service.scrapper.ScrapService import ScrapService
+from service.scrapper.bitcoin import BitcoinFileManager
+
 from service.visualization.PlotService import PlotService
 from views.plot_config import PlotConfigure
 
@@ -140,26 +139,12 @@ class MainController(QObject):
         """
         Returns the subset of the bitcoin historial dataset given a date
         """
-        nextDay = date.addDays(1).toString(DATE_FORMAT)
-        date = date.toString(DATE_FORMAT)
-        directory = os.path.join(base_dir_btc, date)
+        
+        bitcoinFM = BitcoinFileManager()
 
-        bitcoin_dataset_file_name = os.path.join(base_dir_btc,
-                                                 "BTCUSDT-1m-data.csv")
-
-        btc_df = pd.read_csv(bitcoin_dataset_file_name, sep=",")
+        args = {'date': date.toString(DATE_FORMAT)}
         
-        print(btc_df)
-        
-        btc_df["timestamp"] = pd.to_datetime(btc_df["timestamp"])
-
-        btc_df = btc_df[(btc_df.timestamp >= date)
-                        & (btc_df.timestamp < nextDay)]
-        
-        print("-"*30)
-        print(btc_df)
-        
-        return btc_df
+        return bitcoinFM.open_file(args)
 
 
     def _refresh_thread_count(self):
@@ -222,7 +207,7 @@ class MainController(QObject):
 
     def update_plots(self, date, algorithm):
         plots = []
-
+        
         scrapService = ScrapService()
         plotService = PlotService()
 
@@ -231,9 +216,8 @@ class MainController(QObject):
             
             args = {"date": date, "algorithm": algorithm }
             data = scrapService.get_data_by_category(pConfig.variable_type, args)
-
+            
             index, data = plotService.applyPlotMaps(data, pConfig)
             
             widget.clear()
             widget.plot(index, data)
-

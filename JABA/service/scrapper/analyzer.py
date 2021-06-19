@@ -37,14 +37,32 @@ class AnalyzerFileManager(FileManagerInterface):
         """
         Returns the dataframe from the scrapper class
         """
+        import time
+        
+        start_time = time.time()
+        
+        
+        
         scrappeFM = ScrapperFileManager()
         tweet_df = scrappeFM.open_file(args)
-
+        
+        print(f" Leer tweets desde sentiment {time.time() - start_time}")
+        start_time = time.time()
+        
         file_name = self.get_file_name(args)
+        print(f" Get tiempo en sentiment {time.time() - start_time}")
+        start_time = time.time()
         data = pd.read_csv(file_name, sep=";")
+        print(f" Sentiment archivo {time.time() - start_time}")
+        start_time = time.time()
         data["sentiment"] = pd.to_numeric(data["sentiment"])
-
+        
+        print(f" To numeric {time.time() - start_time}")
+        start_time = time.time()
         data = tweet_df.join(data)
+        
+        print(f" Join {time.time() - start_time}")
+        start_time = time.time()
 
         return data
 
