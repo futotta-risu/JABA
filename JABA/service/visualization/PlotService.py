@@ -53,6 +53,6 @@ class PlotService:
             data = fmap.apply(data)
 
         if plotConfig.index == "Range Index":
-            return range(len(data)), data[plotConfig.data]
+            return range(1, len(data)+1), data[plotConfig.data]
         else:
             return data[plotConfig.index], data[plotConfig.data]

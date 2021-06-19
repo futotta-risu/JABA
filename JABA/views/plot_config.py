@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QCalendarWidget
 from PyQt5.QtWidgets import QComboBox, QGraphicsDropShadowEffect
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QGridLayout, QFormLayout
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QPushButton
@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import QWidget, QLineEdit
 from service.visualization.types.maps.MapFactory import MapFactory
 from service.visualization.types.PlotConfiguration import PlotConfiguration
 
-
+from views.component.FlowLayout import FlowLayout
 from views.component.QCoolContainer import QCoolContainer
 
 class PlotConfigure(QDialog):
@@ -45,7 +45,32 @@ class PlotConfigure(QDialog):
 
     def loadWidget(self):
 
-        self.styleSheet = """"""
+        self.styleSheet = """
+        #MapButton{
+          background-color: #8af;
+        }
+        
+        #MapButton {
+            background:linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
+            background-color:#599bb3;
+            border-radius:8px;
+            color:#ffffff;
+            font-family:Arial;
+            font-size:14px;
+            padding:6px 15px;
+            text-decoration:none;
+        }
+        #MapButton:hover {
+            background:linear-gradient(to bottom, #408c99 5%, #599bb3 100%);
+            background-color:#408c99;
+        }
+        #MapButton:active {
+            position:relative;
+            top:1px;
+        }
+
+        
+        """
         
         self.main_layout = QVBoxLayout()
         
@@ -87,7 +112,7 @@ class PlotConfigure(QDialog):
         
 
         self.model_desc_l = QHBoxLayout()
-        self.model_desc_w = QWidget()
+        self.model_desc_w = QCoolContainer()
         self.model_desc_w.setLayout(self.model_desc_l)
 
         self.model_initial_desc_l = QGridLayout()
@@ -127,13 +152,14 @@ class PlotConfigure(QDialog):
         self.mapping_hist_p_l.addWidget(self.mapping_hist_w)
         self.config_menu_1_l.addWidget(self.mapping_hist_p_w)
 
-        self.config_menu_2_l = QVBoxLayout()
-        self.config_menu_2_w = QWidget()
+        self.config_menu_2_l = FlowLayout()
+        self.config_menu_2_w = QCoolContainer()
         self.config_menu_2_w.setLayout(self.config_menu_2_l)
+        self.config_menu_2_w.setContentsMargins(10, 10, 10, 10)
         self.configureMenu_l.addWidget(self.config_menu_2_w, 1, 2)
 
         self.config_menu_3_l = QVBoxLayout()
-        self.config_menu_3_w = QWidget()
+        self.config_menu_3_w = QCoolContainer()
         self.config_menu_3_w.setLayout(self.config_menu_3_l)
         self.configureMenu_l.addWidget(self.config_menu_3_w, 1, 3)
 
@@ -195,25 +221,17 @@ class PlotConfigure(QDialog):
                                               index + 1, 2)
 
     def __load_frame_map(self):
-
+        
         for map_function in (MapFactory()).getMapList():
-
-            mapRow_l = QHBoxLayout()
-            mapRow_w = QWidget()
-
-            map_button = QPushButton("Exec")
-
+            map_button = QPushButton(map_function.getName())
+            map_button.setObjectName("MapButton")
+            
             map_button.clicked.connect(
-                lambda _, dtype=map_function: self.__load_map_config(dtype))
-            map_button.clicked.connect(
-                lambda _, dtype=map_function: print(dtype))
+                lambda _, dtype=map_function.__name__ : self.__load_map_config(dtype))
 
-            mapRow_l.addWidget(QLabel(map_function))
-            mapRow_l.addWidget(map_button)
-            mapRow_w.setLayout(mapRow_l)
-
-            self.config_menu_2_l.addWidget(mapRow_w)
-
+            self.config_menu_2_l.addWidget(map_button)
+            
+        
     def __refresh_combo(self):
         self.index_combo.clear()
         self.data_combo.clear()
@@ -224,10 +242,6 @@ class PlotConfigure(QDialog):
 
     def __get_attrs(self):
         temp_attrs = {}
-        print("WIDGETS")
-        print(self.attrs_widgets)
-        print("TYPES")
-        print(self.attrs_types)
         for key in self.attrs_widgets:
             if self.attrs_types[key][0] == 'Text':
                 temp_attrs[key] = self.attrs_widgets[key].text()

@@ -11,8 +11,8 @@ from service.visualization.types.maps.numeric.SqrtMap import SqrtMap
 
 class MapFactory:
     def getMapList(self):
-        return [q.__name__ for q in GenericMap.__subclasses__()]
-
+        return [q for q in GenericMap.__subclasses__()]
+    
     def __get_map(self, dtype, args=None):
         map_list = [
             map_class(args) for map_class in GenericMap.__subclasses__()

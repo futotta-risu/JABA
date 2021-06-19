@@ -39,6 +39,7 @@ from pyqtgraph import plot
 from pyqtgraph import PlotWidget
 
 from .configuration_view import ConfigurationDialog
+from .component.QCoolContainer import QCoolContainer
 
 
 active_thread_str = "There are {threads} running threads."
@@ -66,6 +67,8 @@ class MainView(QMainWindow):
 
     def _load_window_components(self):
         self.top_layout = QGridLayout()
+        
+
         self.button_menu_layout = QVBoxLayout()
 
         self.combo_sentiment_algorithm = QComboBox(self)
@@ -88,17 +91,15 @@ class MainView(QMainWindow):
 
         self.button_menu_container = QWidget()
         self.button_menu_container.setLayout(self.button_menu_layout)
-
+        
+        
         self.calendar = QCalendarWidget(self)
 
-        self.message_sample_scroll = QScrollArea()
         self.message_sample = QVBoxLayout()
 
         self.message_sample.addWidget(QLabel("Sample tweets from the day "))
 
         self.message_sample_table = QTableWidget()
-        
-        
         
         self.message_sample_table.setRowCount(1) 
         self.message_sample_table.setColumnCount(2)
@@ -109,29 +110,31 @@ class MainView(QMainWindow):
         
         self.message_sample.addWidget(self.message_sample_table)
         
-
-        self.message_sample_scroll.setFixedWidth(600)
-        self.message_sample_scroll.setWidgetResizable(True)
-        self.message_sample_scroll.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOff)
-        self.message_sample_scroll.setVerticalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOn)
-
         self.message_sample_widget = QWidget()
-
-        self.message_sample_widget.setLayout(self.message_sample)
-
-        self.message_sample_scroll.setWidget(self.message_sample_widget)
+        self.message_sample_widget_l = QVBoxLayout()
+        self.message_sample_widget.setLayout(self.message_sample_widget_l)
+        
+        self.message_sample_w = QCoolContainer()
+        
+        self.message_sample_w.setLayout(self.message_sample)
+        
+        self.message_sample_widget_l.addWidget(self.message_sample_w)
 
         self.top_layout.addWidget(self.button_menu_container, 1, 1)
         self.top_layout.addWidget(self.calendar, 1, 2)
 
-        self.top_container = QWidget()
+        self.top_container = QCoolContainer()
         self.top_container.setLayout(self.top_layout)
 
+        pg.setConfigOption('background', 'w')
+        
         self.graphWidgetBTC = pg.PlotWidget()
-
-
+        
+        self.plot_widget_container_w12 = QCoolContainer()
+        self.plot_widget_container_l12 = QVBoxLayout()
+        self.plot_widget_container_w12.setLayout(self.plot_widget_container_l12)
+        self.plot_widget_container_l12.addWidget(self.graphWidgetBTC)
+        
         self.combo_plotType = QComboBox(self)
         self.combo_plotType.addItem("boxplot")
         self.combo_plotType.addItem("violinplot")
@@ -159,17 +162,17 @@ class MainView(QMainWindow):
 
         self.center_layout.addWidget(self.plot_L_widget)
 
-        self.center_layout.addWidget(self.graphWidgetBTC)
+        self.plot_list_layout.addWidget(self.plot_widget_container_w12)
         self.center_layout.addWidget(self.combo_plotType)
         self.center_layout.addWidget(self.canvas)
 
 
         self.center_widget = QWidget()
         self.center_widget.setLayout(self.center_layout)
-
+        
         self.vertical_split = QSplitter(QtCore.Qt.Horizontal)
         self.vertical_split.addWidget(self.center_widget)
-        self.vertical_split.addWidget(self.message_sample_scroll)
+        self.vertical_split.addWidget(self.message_sample_widget)
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.vertical_split)
@@ -222,6 +225,8 @@ class MainView(QMainWindow):
         self._model.thread_count_changed.connect(self.on_thread_count_changed)
         self._model.thread_count_changed.connect(
             self._controller.automatic_scrapper)
+        
+        #self.graphWidgetBTC.scene().sigMouseMoved.connect(self.onMouseMoved)
         
     def _create_menu_bar(self):
         menu_bar = QMenuBar(self)
@@ -289,8 +294,17 @@ class MainView(QMainWindow):
         
     def open_configure(self):
         id, widget = self._controller.open_configure()
+        if id == None:
+            return
+        
         self.plot_list[id] = widget
-        self.plot_list_layout.addWidget(widget)
+                
+        temp_plot_w = QCoolContainer()
+        temp_plot_l = QVBoxLayout()
+        temp_plot_w.setLayout(temp_plot_l)
+        temp_plot_l.addWidget(widget)
+        
+        self.plot_list_layout.addWidget(temp_plot_w)
 
     def _reset_sample(self):
         for i in reversed(range(self.message_sample.count())):
@@ -309,7 +323,8 @@ class MainView(QMainWindow):
         ) = self._controller.get_btc_price_plot_data(date, plotX)
         
         self.graphWidgetBTC.clear()
-        self.graphWidgetBTC.plot(range(1,1+len(index_BTC)), price_BTC)
+        self.price_BTC_r = price_BTC
+        self.btc_curve = self.graphWidgetBTC.plot(range(1,1+len(index_BTC)), price_BTC, pen=pg.mkPen('g', width=1))
         
         btc_df = self._controller.get_btc_price_subdf(date)
         self.axes.clear()
@@ -326,3 +341,8 @@ class MainView(QMainWindow):
         configuration_dialog = ConfigurationDialog(self._controller)
         configuration_dialog.exec_()
 
+    def onMouseMoved(self, point):
+        p = self.graphWidgetBTC.plotItem.vb.mapSceneToView(point)
+        if p.x()//60 <0 or p.x()//60 > 23:
+            return
+        self.statusBar().showMessage("At %i:%02i price %0.02f$" % (p.x()//60, p.x()%60, self.price_BTC_r[int(p.x())-1]))

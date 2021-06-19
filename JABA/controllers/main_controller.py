@@ -3,9 +3,11 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QDate
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QRunnable
-
 from PyQt5.QtCore import QThreadPool
+
+import pyqtgraph as pg
 from pyqtgraph import PlotWidget
+
 from service.scrapper.analyzer import Analyzer
 from service.scrapper.cleaner import *
 from service.scrapper.scrapper import *
@@ -220,4 +222,4 @@ class MainController(QObject):
             index, data = plotService.applyPlotMaps(data, pConfig)
             
             widget.clear()
-            widget.plot(index, data)
+            widget.plot(index, data, pen=pg.mkPen('g', width=1))

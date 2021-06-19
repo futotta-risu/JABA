@@ -2,15 +2,17 @@ class GenericMap:
     """
     Interface for Mapping functions
     """
-    def __init__(self, name, attrs):
+    
+    name = "Generic Map"
+    def __init__(self, attrs):
         self.attrs = attrs
-        self.name = name
 
     def apply(self, data):
         raise NotImplementedError()
 
-    def getName(self):
-        return self.name
+    @classmethod
+    def getName(cls):
+        return cls.name
 
     def getAttrs(self):
         return self.attrs
