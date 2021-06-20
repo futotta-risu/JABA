@@ -11,35 +11,16 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import QRunnable
-from PyQt5.QtCore import QThreadPool
-from PyQt5.QtCore import QSettings
-from PyQt5.QtWidgets import QCalendarWidget
-from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QTableWidgetItem
-from PyQt5.QtWidgets import QTableWidget
-from PyQt5.QtWidgets import QGridLayout
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtWidgets import QMenu
-from PyQt5.QtWidgets import QMenuBar
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QScrollArea
-from PyQt5.QtWidgets import QSplitter
-from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QHeaderView
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 from pyqtgraph import plot
 from pyqtgraph import PlotWidget
 
 from .configuration_view import ConfigurationDialog
 from .component.QCoolContainer import QCoolContainer
+from views.style.styles import *
 
 
 active_thread_str = "There are {threads} running threads."
@@ -50,12 +31,14 @@ class MainView(QMainWindow):
     calendar_colors = {"data": "green", "sentiment": "blue"}
 
     plot_list = {}
-
+    
     def __init__(self, model, controller):
         super().__init__()
 
         self._model = model
         self._controller = controller
+        
+        self.setStyleSheet(main_style)
         self._load_window_properties()
         self._create_menu_bar()
         self._load_window_components()
@@ -97,7 +80,11 @@ class MainView(QMainWindow):
 
         self.message_sample = QVBoxLayout()
 
-        self.message_sample.addWidget(QLabel("Sample tweets from the day "))
+        self.message_sample_label = QLabel("Top Tweets")
+        self.message_sample_label.setObjectName("SectionLabel")
+        self.message_sample.addWidget(self.message_sample_label)
+        self.message_sample_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.message_sample_label.setAlignment(Qt.AlignCenter)
 
         self.message_sample_table = QTableWidget()
         
@@ -316,11 +303,11 @@ class MainView(QMainWindow):
         """
         Draw btc price graph in a given date
         """
-        plotX = str("open")
+        plotX = str("close")
         plotType = str(self.combo_plotType.currentText())
         (
             index_BTC, price_BTC
-        ) = self._controller.get_btc_price_plot_data(date, plotX)
+        ) = self._controller.get_btc_price_plot_data(date, "close")
         
         self.graphWidgetBTC.clear()
         self.price_BTC_r = price_BTC

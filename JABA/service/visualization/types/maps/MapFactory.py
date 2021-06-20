@@ -7,7 +7,8 @@ from service.visualization.types.maps.numeric.GroupByCountMap import \
 from service.visualization.types.maps.numeric.GroupByMeanMap import \
     GroupByMeanMap
 from service.visualization.types.maps.numeric.SqrtMap import SqrtMap
-
+from service.visualization.types.maps.numeric.MultiplyMap import MultiplyMap
+from service.visualization.types.maps.numeric.PCTChangeMap import PCTChangeMap
 
 class MapFactory:
     def getMapList(self):

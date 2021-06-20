@@ -57,7 +57,7 @@ class PlotConfigure(QDialog):
             color:#ffffff;
             font-family:Arial;
             font-size:14px;
-            padding:6px 15px;
+            padding:6px 1 5px;
             text-decoration:none;
         }
         #MapButton:hover {
@@ -99,7 +99,7 @@ class PlotConfigure(QDialog):
         self.data_model_w.setLayout(self.data_model_l)
 
         self.data_model_combobox = QComboBox()
-        self.data_model_combobox.addItems(["Tweet", "Sentiment"])
+        self.data_model_combobox.addItems(["Tweet", "Sentiment", "Bitcoin"])
 
         self.data_model_load = QPushButton("Load Model")
 
