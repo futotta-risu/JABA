@@ -1,5 +1,6 @@
 class PlotConfig:
     def __init__(self,
+                 name,
                  indexType,
                  dataType,
                  indexFunction,
@@ -7,6 +8,8 @@ class PlotConfig:
                  index,
                  data,
                  args=None):
+        
+        self.name = name
         self.indexType = indexType
         self.dataType = dataType
         self.indexFunction = indexFunction
@@ -16,6 +19,9 @@ class PlotConfig:
         self.data = data
 
         self.args = args
+        
+    def getName(self):
+        return self.name
 
     def getIndexType(self):
         return self.indexType

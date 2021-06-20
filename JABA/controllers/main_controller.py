@@ -126,29 +126,6 @@ class MainController(QObject):
         return date_list
 
 
-    def get_btc_price_plot_data(self, date, plotType):
-        """
-        Returns the subset of the bitcoin historial dataset given a date for creating a chart
-        """
-        btc_df = self.get_btc_price_subdf(date)
-
-        return (
-            btc_df.index,
-            btc_df[plotType].tolist()
-        )
-
-    def get_btc_price_subdf(self, date):
-        """
-        Returns the subset of the bitcoin historial dataset given a date
-        """
-        
-        bitcoinFM = BitcoinFileManager()
-
-        args = {'date': date.toString(DATE_FORMAT)}
-        
-        return bitcoinFM.open_file(args)
-
-
     def _refresh_thread_count(self):
         self._model.thread_count = self.threadpool.activeThreadCount()
 
@@ -204,9 +181,9 @@ class MainController(QObject):
                 "widget": widget
             }]
 
-            return id, widget
+            return id, plotConfig.name, widget
 
-        return None, None
+        return None, "", None
 
     def update_plots(self, date, algorithm):
         plots = []

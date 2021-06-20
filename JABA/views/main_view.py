@@ -1,11 +1,5 @@
 import pyqtgraph as pg
 
-
-import seaborn as sns
-from matplotlib.backends.backend_qt5agg import \
-    FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-
 from PyQt5 import Qt
 from PyQt5 import QtCore
 from PyQt5 import QtGui
@@ -56,6 +50,7 @@ class MainView(QMainWindow):
 
         self.combo_sentiment_algorithm = QComboBox(self)
 
+        # TODO Change this to factory dataGet
         self.combo_sentiment_algorithm.addItems(["nltk", "textblob"])
 
         self.analyze_date_button = QPushButton("Analyze Day")
@@ -77,6 +72,7 @@ class MainView(QMainWindow):
         
         
         self.calendar = QCalendarWidget(self)
+        
 
         self.message_sample = QVBoxLayout()
 
@@ -95,49 +91,31 @@ class MainView(QMainWindow):
         self.message_sample_table.setHorizontalHeaderItem(1, QTableWidgetItem('Sentiment'))
         self.message_sample_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch) 
         
-        self.message_sample.addWidget(self.message_sample_table)
+        self.message_sample.addWidget(self.message_sample_table, stretch = 1)
         
         self.message_sample_widget = QWidget()
         self.message_sample_widget_l = QVBoxLayout()
         self.message_sample_widget.setLayout(self.message_sample_widget_l)
+        self.message_sample_widget.setObjectName("Background")
+        
         
         self.message_sample_w = QCoolContainer()
+        self.message_sample_w.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         
         self.message_sample_w.setLayout(self.message_sample)
         
-        self.message_sample_widget_l.addWidget(self.message_sample_w)
+        self.message_sample_widget_l.addWidget(self.message_sample_w, stretch = 1)
 
         self.top_layout.addWidget(self.button_menu_container, 1, 1)
         self.top_layout.addWidget(self.calendar, 1, 2)
 
         self.top_container = QCoolContainer()
         self.top_container.setLayout(self.top_layout)
+        self.top_container.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
 
         pg.setConfigOption('background', 'w')
-        
-        self.graphWidgetBTC = pg.PlotWidget()
-        
-        self.plot_widget_container_w12 = QCoolContainer()
-        self.plot_widget_container_l12 = QVBoxLayout()
-        self.plot_widget_container_w12.setLayout(self.plot_widget_container_l12)
-        self.plot_widget_container_l12.addWidget(self.graphWidgetBTC)
-        
-        self.combo_plotType = QComboBox(self)
-        self.combo_plotType.addItem("boxplot")
-        self.combo_plotType.addItem("violinplot")
-
-        self.fig = Figure()
-        self.axes = self.fig.add_subplot()
-        self.canvas = FigureCanvas(self.fig)
-        self.canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                  QtWidgets.QSizePolicy.Expanding)
-        self.canvas.updateGeometry()
-
-        self.thread_count_label = QLabel(active_thread_str.format(threads="0"))
 
         self.center_layout = QVBoxLayout()
-
-        self.thread_count_label = QLabel(active_thread_str.format(threads="0"))
 
         self.plot_list_layout = QVBoxLayout()
 
@@ -149,13 +127,9 @@ class MainView(QMainWindow):
 
         self.center_layout.addWidget(self.plot_L_widget)
 
-        self.plot_list_layout.addWidget(self.plot_widget_container_w12)
-        self.center_layout.addWidget(self.combo_plotType)
-        self.center_layout.addWidget(self.canvas)
-
-
         self.center_widget = QWidget()
         self.center_widget.setLayout(self.center_layout)
+        self.center_widget.setObjectName("Background")
         
         self.vertical_split = QSplitter(QtCore.Qt.Horizontal)
         self.vertical_split.addWidget(self.center_widget)
@@ -163,11 +137,11 @@ class MainView(QMainWindow):
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.vertical_split)
-        self.layout.addWidget(self.thread_count_label)
 
         self.container = QWidget()
         self.container.setLayout(self.layout)
-
+        self.container.setObjectName("Background")
+        
         self.setCentralWidget(self.container)
 
         self.show()
@@ -251,8 +225,9 @@ class MainView(QMainWindow):
 
     @pyqtSlot(int)
     def on_thread_count_changed(self, value):
-        self.thread_count_label.setText(
-            active_thread_str.format(threads=self._model.thread_count_str))
+        self.statusBar().showMessage(
+            active_thread_str.format(threads=self._model.thread_count_str)
+        )
 
     def automatic_scrapper(self):
         self._model.scrapping = True
@@ -272,7 +247,6 @@ class MainView(QMainWindow):
         
         self.__refresh_table(sample)
         
-        self.load_btc_price_graph(date)
         
         self._controller.update_plots(
             self.calendar.selectedDate().toPyDate(),
@@ -280,7 +254,7 @@ class MainView(QMainWindow):
         )
         
     def open_configure(self):
-        id, widget = self._controller.open_configure()
+        id, name, widget = self._controller.open_configure()
         if id == None:
             return
         
@@ -289,6 +263,12 @@ class MainView(QMainWindow):
         temp_plot_w = QCoolContainer()
         temp_plot_l = QVBoxLayout()
         temp_plot_w.setLayout(temp_plot_l)
+        
+        name_label_temp = QLabel(name)
+        name_label_temp.setObjectName("PlotLabel")
+        name_label_temp.setAlignment(Qt.AlignCenter)
+        
+        temp_plot_l.addWidget(name_label_temp)
         temp_plot_l.addWidget(widget)
         
         self.plot_list_layout.addWidget(temp_plot_w)
@@ -299,37 +279,8 @@ class MainView(QMainWindow):
 
         self.message_sample.addWidget(QLabel("Sample tweets from the day"))
 
-    def load_btc_price_graph(self, date):
-        """
-        Draw btc price graph in a given date
-        """
-        plotX = str("close")
-        plotType = str(self.combo_plotType.currentText())
-        (
-            index_BTC, price_BTC
-        ) = self._controller.get_btc_price_plot_data(date, "close")
-        
-        self.graphWidgetBTC.clear()
-        self.price_BTC_r = price_BTC
-        self.btc_curve = self.graphWidgetBTC.plot(range(1,1+len(index_BTC)), price_BTC, pen=pg.mkPen('g', width=1))
-        
-        btc_df = self._controller.get_btc_price_subdf(date)
-        self.axes.clear()
-
-        if plotType == "boxplot":
-            sns.boxplot(x=plotX, data=btc_df, ax=self.axes)
-        elif plotType == "violinplot":
-            sns.violinplot(x=plotX, data=btc_df, ax=self.axes)
-
-        self.fig.canvas.draw_idle()
 
     def open_configuration(self):
         settings = self._controller.get_settings()
         configuration_dialog = ConfigurationDialog(self._controller)
         configuration_dialog.exec_()
-
-    def onMouseMoved(self, point):
-        p = self.graphWidgetBTC.plotItem.vb.mapSceneToView(point)
-        if p.x()//60 <0 or p.x()//60 > 23:
-            return
-        self.statusBar().showMessage("At %i:%02i price %0.02f$" % (p.x()//60, p.x()%60, self.price_BTC_r[int(p.x())-1]))

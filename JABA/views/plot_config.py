@@ -3,26 +3,21 @@ from model.modelFactory import createModelFrame
 from PyQt5 import Qt
 from PyQt5 import QtCore
 from PyQt5 import QtGui
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QCalendarWidget
-from PyQt5.QtWidgets import QComboBox, QGraphicsDropShadowEffect
-from PyQt5.QtWidgets import QDialog
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QGridLayout, QFormLayout
-from PyQt5.QtWidgets import QHBoxLayout
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QScrollArea
-from PyQt5.QtWidgets import QSplitter
-from PyQt5.QtWidgets import QVBoxLayout, QFormLayout
-from PyQt5.QtWidgets import QWidget, QLineEdit
+
+from PyQt5.Qt import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+
 from service.visualization.types.maps.MapFactory import MapFactory
 from service.visualization.types.PlotConfiguration import PlotConfiguration
 
 from views.component.FlowLayout import FlowLayout
 from views.component.QCoolContainer import QCoolContainer
+
+class QFormLabel(QLabel):
+    def __init__(self, text):
+        super(QFormLabel, self).__init__(text)
+        self.setObjectName("FormLabel")
 
 class PlotConfigure(QDialog):
     def __init__(self, parent):
@@ -57,7 +52,7 @@ class PlotConfigure(QDialog):
             color:#ffffff;
             font-family:Arial;
             font-size:14px;
-            padding:6px 1 5px;
+            padding:6px 12px 5px;
             text-decoration:none;
         }
         #MapButton:hover {
@@ -68,7 +63,21 @@ class PlotConfigure(QDialog):
             position:relative;
             top:1px;
         }
-
+        
+        #NameEdit {
+            border: 0px;
+            border-bottom: 1px solid #aaa;
+        }
+        
+        #NameEdit:focus {
+            border: 0px;
+            border-bottom: 1px solid #8af;
+        }
+        
+        #FormLabel {
+            font-size:12px;
+            font-weight: bold;
+        }
         
         """
         
@@ -86,6 +95,8 @@ class PlotConfigure(QDialog):
         self.bottom_pane_l.addWidget(self.closeButton)
 
         self.configureMenu_l = QGridLayout()
+        for i in range(1,4):
+            self.configureMenu_l.setColumnStretch(i, 1)
         self.configureMenu_w = QWidget()
         self.configureMenu_w.setLayout(self.configureMenu_l)
 
@@ -94,6 +105,15 @@ class PlotConfigure(QDialog):
         self.config_menu_1_w.setLayout(self.config_menu_1_l)
         self.configureMenu_l.addWidget(self.config_menu_1_w, 1, 1)
 
+        self.plot_name_l = QFormLayout()
+        self.plot_name_w = QCoolContainer()
+        self.plot_name_w.setLayout(self.plot_name_l)
+        self.name_edit = QLineEdit()
+        self.name_edit.setObjectName("NameEdit")
+        self.plot_name_l.addRow(QFormLabel("Name"), self.name_edit)
+        
+        self.config_menu_1_l.addWidget(self.plot_name_w)
+        
         self.data_model_l = QHBoxLayout()
         self.data_model_w = QCoolContainer()
         self.data_model_w.setLayout(self.data_model_l)
@@ -103,7 +123,7 @@ class PlotConfigure(QDialog):
 
         self.data_model_load = QPushButton("Load Model")
 
-        self.data_model_l.addWidget(QLabel("Data Model"))
+        self.data_model_l.addWidget(QFormLabel("Data Model"))
         self.data_model_l.addWidget(self.data_model_combobox)
         self.data_model_l.addWidget(self.data_model_load)
 
@@ -111,20 +131,38 @@ class PlotConfigure(QDialog):
         self.config_menu_1_l.addWidget(self.data_model_w)
         
 
-        self.model_desc_l = QHBoxLayout()
+        self.model_desc_l = QVBoxLayout()
         self.model_desc_w = QCoolContainer()
         self.model_desc_w.setLayout(self.model_desc_l)
-
+        
+        self.model_desc_label = QFormLabel("Model Description")
+        self.model_desc_label.setAlignment(Qt.AlignCenter)
+        self.model_desc_l.addWidget(self.model_desc_label)
+        
+        self.model_desc_inner_l = QHBoxLayout()
+        self.model_desc_inner_w = QWidget()
+        self.model_desc_inner_w.setLayout(self.model_desc_inner_l)
+        
+        
         self.model_initial_desc_l = QGridLayout()
         self.model_initial_desc_w = QWidget()
         self.model_initial_desc_w.setLayout(self.model_initial_desc_l)
-        self.model_desc_l.addWidget(self.model_initial_desc_w)
-
+        self.model_desc_inner_l.addWidget(self.model_initial_desc_w)
+        
+        self.model_initial_desc_w.setObjectName("InnerModelDescription1m83b9s")
+        self.model_initial_desc_w.setStyleSheet("""
+            #InnerModelDescription1m83b9s{
+                border-right: 1px solid #ddd;
+            }
+        """)
+        
         self.model_final_desc_l = QGridLayout()
         self.model_final_desc_w = QWidget()
         self.model_final_desc_w.setLayout(self.model_final_desc_l)
-        self.model_desc_l.addWidget(self.model_final_desc_w)
-
+        self.model_desc_inner_l.addWidget(self.model_final_desc_w)
+        
+        self.model_desc_l.addWidget(self.model_desc_inner_w)
+        
         self.config_menu_1_l.addWidget(self.model_desc_w)
 
         self.dataPick_w = QCoolContainer()
@@ -134,8 +172,8 @@ class PlotConfigure(QDialog):
         self.index_combo = QComboBox()
         self.data_combo = QComboBox()
         
-        self.dataPick_l.addRow(QLabel("Index"), self.index_combo)
-        self.dataPick_l.addRow(QLabel("Data"), self.data_combo)
+        self.dataPick_l.addRow(QFormLabel("Index"), self.index_combo)
+        self.dataPick_l.addRow(QFormLabel("Data"), self.data_combo)
 
         self.config_menu_1_l.addWidget(self.dataPick_w)
         
@@ -143,7 +181,8 @@ class PlotConfigure(QDialog):
         self.mapping_hist_p_l = QVBoxLayout()
         self.mapping_hist_p_w.setLayout(self.mapping_hist_p_l)
         
-        self.mapping_hist_label = QLabel("Mapping History")
+        self.mapping_hist_label = QFormLabel("Mapping History")
+        self.mapping_hist_label.setAlignment(Qt.AlignCenter)
         self.mapping_hist_p_l.addWidget(self.mapping_hist_label)
 
         self.mapping_hist_l = QVBoxLayout()
@@ -236,8 +275,9 @@ class PlotConfigure(QDialog):
         self.index_combo.clear()
         self.data_combo.clear()
 
-        self.index_combo.addItems(self.final_frame.columns.to_list())
         self.index_combo.addItem("Range Index")
+        self.index_combo.addItems(self.final_frame.columns.to_list())
+        
         self.data_combo.addItems(self.final_frame.columns.to_list())
 
     def __get_attrs(self):
@@ -311,6 +351,7 @@ class PlotConfigure(QDialog):
 
     def __save_and_exit(self):
         self.__configuration = PlotConfiguration(
+            self.name_edit.text(),
             self.initial_frame,
             self.final_frame,
             self.map_list,
