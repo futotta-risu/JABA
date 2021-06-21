@@ -17,38 +17,41 @@ from .component.QCoolContainer import QCoolContainer
 from views.style.styles import *
 
 
-active_thread_str = "There are {threads} running threads."
 
+active_thread_str = "There are {threads} running threads."
 
 class MainView(QMainWindow):
 
     calendar_colors = {"data": "green", "sentiment": "blue"}
 
     plot_list = {}
+
     
     def __init__(self, model, controller):
         super().__init__()
-
+        
         self._model = model
         self._controller = controller
         
         self.setStyleSheet(main_style)
+
         self._load_window_properties()
-        self._create_menu_bar()
         self._load_window_components()
         self._connect_window_components()
+
         self._init_window()
-
+        
     def _load_window_properties(self):
-        self.setWindowTitle("JABA")
-
-    def _load_window_components(self):
+        self.setWindowTitle("My App")
+        
+    def _load_window_components(self):        
         self.top_layout = QGridLayout()
         
 
         self.button_menu_layout = QVBoxLayout()
-
+        
         self.combo_sentiment_algorithm = QComboBox(self)
+
 
         # TODO Change this to factory dataGet
         self.combo_sentiment_algorithm.addItems(["nltk", "textblob"])
@@ -65,7 +68,6 @@ class MainView(QMainWindow):
 
         self.button_menu_layout.addWidget(self.update_plot_button)
         self.button_menu_layout.addWidget(self.configure_button)
-
 
         self.button_menu_container = QWidget()
         self.button_menu_container.setLayout(self.button_menu_layout)
@@ -141,9 +143,9 @@ class MainView(QMainWindow):
         self.container = QWidget()
         self.container.setLayout(self.layout)
         self.container.setObjectName("Background")
-        
-        self.setCentralWidget(self.container)
 
+        self.setCentralWidget(self.container)
+        
         self.show()
 
 
@@ -211,18 +213,16 @@ class MainView(QMainWindow):
 
 
     def _reset_calendar_color(self):
-        date_colors = self._controller.get_date_properties(
-        )  # TODO Add this function
-
+        date_colors = self._controller.get_date_properties() #TODO Add this function
+        
         cell_format = QtGui.QTextCharFormat()
-
+        
         for date, status in date_colors:
-            cell_format.setBackground(
-                QtGui.QColor(self.calendar_colors[status]))
-
+            cell_format.setBackground(QtGui.QColor(self.calendar_colors[status]))
+            
             if date.isValid():
                 self.calendar.setDateTextFormat(date, cell_format)
-
+    
     @pyqtSlot(int)
     def on_thread_count_changed(self, value):
         self.statusBar().showMessage(
@@ -232,7 +232,7 @@ class MainView(QMainWindow):
     def automatic_scrapper(self):
         self._model.scrapping = True
         self._controller.automatic_scrapper()
-
+    
     def analyze_date(self):
         date = self.calendar.selectedDate()
         self._controller.analyze_date(date.toPyDate())
@@ -284,3 +284,4 @@ class MainView(QMainWindow):
         settings = self._controller.get_settings()
         configuration_dialog = ConfigurationDialog(self._controller)
         configuration_dialog.exec_()
+
