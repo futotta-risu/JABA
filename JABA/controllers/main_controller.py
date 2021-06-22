@@ -26,6 +26,7 @@ base_dir = "data/tweets/"
 from PyQt5.QtCore import QSettings
 from PyQt5.QtCore import QThreadPool
 
+import pickle
 
 DATE_FORMAT = "yyyy-MM-dd"
 
@@ -33,9 +34,6 @@ INITIAL_DATE = QDate.fromString("2017-01-01", DATE_FORMAT)
 
 
 base_dir = "data/tweets/"
-
-
-query = '"BTC" OR "bitcoin"'
 
 
 query = '"BTC" OR "bitcoin"'
@@ -121,8 +119,16 @@ class MainController(QObject):
         
         self.threadpool.start(worker)
         
+    def save_plot_config(self, file_name):
+        with open(file_name, 'wb') as config_dictionary_file:
+            plot_only_configs = [ptC['config'] for ptC in self.plot_configurations]
+            pickle.dump(plot_only_configs, config_dictionary_file)
         
+    def load_plot_config(self, file_name):
+        with open(file_name, 'rb') as config_dictionary_file:
+            return pickle.load(config_dictionary_file)
         
+
     def get_date_properties(self):
         date_list = []
         for path in os.listdir( base_dir ):
@@ -132,7 +138,7 @@ class MainController(QObject):
                 date_list += [[date, "data"]]
 
         return date_list
-
+    
     def _refresh_thread_count(self):
         self._model.thread_count = self.threadpool.activeThreadCount()
     
@@ -158,11 +164,11 @@ class MainController(QObject):
         tweet_df = pd.read_csv(tweet_file_name, sep=';')
         
         tweets = []
-
+        
         #tweet_list = tweet_df.sort_values('NumLikes', ascending = False).head(n=50)
         tweet_list = tweet_df.sample(n=50)
         tweet_list = tweet_list["Text"]
-
+        
 
         analyzer = Analyzer()
         
@@ -171,8 +177,20 @@ class MainController(QObject):
             text = clean_tweet(text)
             sentiment = analyzer.get_sentiment(text) 
             tweets += [(text, sentiment)]
+        
+        return tweets
 
+    def create_plot(self, config):
+        widget = PlotWidget()
+        id = self.plotService.getPlotID()
+        self.plot_configurations += [{
+            "id": id,
+            "config": config,
+            "widget": widget
+        }]
 
+        return id, config.name, widget
+    
     def open_configure(self):
         config_window = PlotConfigure(self)
         config_window.show()
@@ -180,15 +198,7 @@ class MainController(QObject):
 
         if config_window.is_saved():
             plotConfig = config_window.getPlotConfiguration()
-            widget = PlotWidget()
-            id = self.plotService.getPlotID()
-            self.plot_configurations += [{
-                "id": id,
-                "config": plotConfig,
-                "widget": widget
-            }]
-
-            return id, plotConfig.name, widget
+            return self.create_plot(plotConfig)
 
         return None, "", None
 

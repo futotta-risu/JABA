@@ -4,17 +4,15 @@ import pandas as pd
 class Bitcoin:
 
     column_names = [
-        "timestamp_round",
+        "round_datetime",
         "timestamp",
-        "close",
-        "volume",
+        "Close"
     ]
 
     def setModelTypes(self, df):
-        df["timestamp_round"] = pd.to_datetime(df["timestamp_round"])
+        df["round_datetime"] = pd.to_datetime(df["round_datetime"])
         df["timestamp"] = pd.to_datetime(df["timestamp"])
-        df["close"] = pd.to_numeric(df["close"])
-        df["volume"] = pd.to_numeric(df["volume"])
+        df["Close"] = pd.to_numeric(df["Close"])
 
         return df
 
