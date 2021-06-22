@@ -83,7 +83,9 @@ class Analyzer:
         "long": +3,
         "short": -3,
         "high": +3,
+        'higher': +2,
         "low": -3,
+        "lower": -2,
         "hold": +2,
         "hodl": +3,
         "liquidation": -5,
@@ -92,6 +94,28 @@ class Analyzer:
         "carbon": -2,
         "inflation": +2,
         "rally": +3,
+        'fees': -3,
+        'invest': +1,
+        'phising': -3,
+        'scam': -5,
+        'shit': -3,
+        'scamed': -3,
+        'scamming': -3,
+        'breakout': +3,
+        'fake': -3,
+        'away': -3,
+        'garbage': -3,
+        'pull': -2,
+        'push': +2,
+        'free': -1, # Mostly spam
+        'ransomware': -3,
+        'unstoppable': +2,
+        'gamble': -10,
+        'gambling': -10,
+        'strong': +5,
+        'weak': -5,
+        'run': +2,
+        
     }
 
     def __init__(self):

@@ -153,7 +153,8 @@ class MainController(QObject):
 
         tweets = []
 
-        tweet_list = tweet_df.sort_values('NumLikes', ascending = False).head(n=50)
+        #tweet_list = tweet_df.sort_values('NumLikes', ascending = False).head(n=50)
+        tweet_list = tweet_df.sample(n=50)
         tweet_list = tweet_list["Text"]
 
         analyzer = Analyzer()
