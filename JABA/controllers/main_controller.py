@@ -65,22 +65,20 @@ class MainController(QObject):
     def __init__(self, model):
         super().__init__()
 
-
         self._model = model
 
         self.plot_configurations = []
-
         self.plotService = PlotService()
 
         self.threadpool = QThreadPool()
 
-        self.actual_scrapper_date = QDate.fromString("2017-01-01", DATE_FORMAT)
-
+        self._init_settings()
+        
         self.scrapped_dates = set()
         self._get_scrapped_dates()
 
         
-        self._init_settings()
+        
 
         
 
@@ -109,6 +107,9 @@ class MainController(QObject):
     def get_settings(self):
         return self.settings
 
+    def get_analysis_methods(self):
+        return Analyzer.get_algorithms()
+    
     def _get_scrapped_dates(self):
         ''' Gets the date of the alredy scrapped dates and sets to scrapped_dates'''
         # Check if files inside folder or just folder

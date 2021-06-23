@@ -53,7 +53,8 @@ class MainView(QMainWindow):
 
 
         # TODO Change this to factory dataGet
-        self.combo_sentiment_algorithm.addItems(["nltk", "textblob"])
+        analysis_methods = self._controller.get_analysis_methods()
+        self.combo_sentiment_algorithm.addItems(analysis_methods)
 
         self.analyze_date_button = QPushButton("Analyze Day")
         self.auto_scrap = QPushButton("Auto Scrap")
