@@ -1,29 +1,10 @@
 import pyqtgraph as pg
-from PyQt5 import Qt
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import QDate
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import QRunnable
-from PyQt5.QtCore import QSettings
-from PyQt5.QtCore import QThreadPool
-from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtWidgets import QDateEdit
-from PyQt5.QtWidgets import QDialog
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QFormLayout
-from PyQt5.QtWidgets import QGridLayout
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QScrollArea
-from PyQt5.QtWidgets import QSplitter
-from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QWidget
-from pyqtgraph import plot
-from pyqtgraph import PlotWidget
+
+from PyQt5 import Qt, QtCore, QtGui
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+
+from pyqtgraph import plot, PlotWidget
 
 
 class ConfigurationDialog(QDialog):
@@ -44,20 +25,19 @@ class ConfigurationDialog(QDialog):
 
     def _load_window_components(self):
         container = QWidget(self)
-
-        initial_date_lbl = QLabel("Initial Date")
-        self.initial_date_pick = QDateEdit(calendarPopup=True)
-
         form_layout = QFormLayout()
-        form_layout.addRow(initial_date_lbl, self.initial_date_pick)
-
-        initial_save_lbl = QLabel("Save")
-        self.save_button = QPushButton("Save")
-        form_layout.addRow(initial_save_lbl, self.save_button)
-
-        self.save_button.clicked.connect(self.save_settings)
-
         container.setLayout(form_layout)
+        
+        self.initial_date_pick = QDateEdit(calendarPopup=True)
+        form_layout.addRow( QLabel("Initial Date"), self.initial_date_pick)
+
+        
+        self.save_button = QPushButton("Save")
+        self.save_button.clicked.connect(self.save_settings)
+        
+        form_layout.addRow(QLabel("Save"), self.save_button)
+
+        
 
     def _set_settings_values(self):
         self.initial_date_pick.setDate(

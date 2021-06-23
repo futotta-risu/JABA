@@ -1,9 +1,6 @@
 import pyqtgraph as pg
 
-from PyQt5 import Qt
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
+from PyQt5 import Qt, QtCore, QtGui, QtWidgets
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *

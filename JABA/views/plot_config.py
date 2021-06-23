@@ -1,9 +1,7 @@
 import pandas as pd
 from model.modelFactory import createModelFrame
-from PyQt5 import Qt
-from PyQt5 import QtCore
-from PyQt5 import QtGui
 
+from PyQt5 import Qt, QtCore, QtGui
 from PyQt5.Qt import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
