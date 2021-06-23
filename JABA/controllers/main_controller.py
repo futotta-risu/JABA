@@ -28,6 +28,9 @@ from PyQt5.QtCore import QThreadPool
 
 import pickle
 
+from datetime import date
+
+
 DATE_FORMAT = "yyyy-MM-dd"
 
 INITIAL_DATE = QDate.fromString("2017-01-01", DATE_FORMAT)
@@ -149,6 +152,9 @@ class MainController(QObject):
         
         while self.actual_scrapper_date in self.scrapped_dates:
             self.actual_scrapper_date = self.actual_scrapper_date.addDays(1)
+        
+        if self.actual_scrapper_date >= date.today():
+            return
         
         if self.threadpool.activeThreadCount() < 5:
             self.analyze_date(self.actual_scrapper_date.toPyDate())
