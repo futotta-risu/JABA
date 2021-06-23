@@ -39,6 +39,8 @@ class MainView(QMainWindow):
         self._load_window_components()
         self._connect_window_components()
 
+        self._create_menu_bar()
+        
         self._init_window()
         
     def _load_window_properties(self):
@@ -193,15 +195,25 @@ class MainView(QMainWindow):
         
     def _create_menu_bar(self):
         menu_bar = QMenuBar(self)
+        
+        self.save_plots_button = QAction("&Save Plot", self)
+        self.save_plots_button.triggered.connect(self.save_plots_config)
+        self.load_plots_button = QAction("&Load Plot", self)
+        self.load_plots_button.triggered.connect(self.load_plots_config)
+        plots_menu = QMenu("&Plots", self)
+        plots_menu.addAction(self.save_plots_button)
+        plots_menu.addAction(self.load_plots_button)
+        
 
         self.open_parameters = QAction("&Parameters", self)
         self.open_parameters.triggered.connect(self.open_configuration)
         configuration_menu = QMenu("&Configuration", self)
         configuration_menu.addAction(self.open_parameters)
 
-        help_menu = QMenu("&Help", self)
+        
+        menu_bar.addMenu(plots_menu)
         menu_bar.addMenu(configuration_menu)
-        menu_bar.addMenu(help_menu)
+        
 
         self.setMenuBar(menu_bar)
 
@@ -258,8 +270,13 @@ class MainView(QMainWindow):
         if id == None:
             return
         
+        self.add_custom_plot( id, name, widget)
+        
+    
+    def add_custom_plot(self, id, name, widget):
+        
         self.plot_list[id] = widget
-                
+        
         temp_plot_w = QCoolContainer()
         temp_plot_l = QVBoxLayout()
         temp_plot_w.setLayout(temp_plot_l)
@@ -272,7 +289,7 @@ class MainView(QMainWindow):
         temp_plot_l.addWidget(widget)
         
         self.plot_list_layout.addWidget(temp_plot_w)
-
+    
     def _reset_sample(self):
         for i in reversed(range(self.message_sample.count())):
             self.message_sample.itemAt(i).widget().deleteLater()
@@ -284,4 +301,17 @@ class MainView(QMainWindow):
         settings = self._controller.get_settings()
         configuration_dialog = ConfigurationDialog(self._controller)
         configuration_dialog.exec_()
-
+    
+    def save_plots_config(self):
+        fileName, _ = QtGui.QFileDialog.getSaveFileName(self, 'Save File')
+        
+        self._controller.save_plot_config(fileName)
+        
+    def load_plots_config(self):
+        fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;Python Files (*.py)")
+        
+        plot_configs = self._controller.load_plot_config(fileName)
+        
+        for config in plot_configs:
+            id, name, widget = self._controller.create_plot(config)
+            self.add_custom_plot(id, name, widget)

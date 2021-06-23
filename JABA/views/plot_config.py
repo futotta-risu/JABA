@@ -127,10 +127,9 @@ class PlotConfigure(QDialog):
         self.data_model_l.addWidget(self.data_model_combobox)
         self.data_model_l.addWidget(self.data_model_load)
 
-        
+
         self.config_menu_1_l.addWidget(self.data_model_w)
         
-
         self.model_desc_l = QVBoxLayout()
         self.model_desc_w = QCoolContainer()
         self.model_desc_w.setLayout(self.model_desc_l)
@@ -139,10 +138,23 @@ class PlotConfigure(QDialog):
         self.model_desc_label.setAlignment(Qt.AlignCenter)
         self.model_desc_l.addWidget(self.model_desc_label)
         
+        self.model_desc_name_l = QHBoxLayout()
+        self.model_desc_name_w = QWidget()
+        self.model_desc_name_w.setLayout(self.model_desc_name_l)
+        self.initial_frame_label = QFormLabel("Initial Frame")
+        self.initial_frame_label.setAlignment(Qt.AlignCenter)
+        self.final_frame_label = QFormLabel("Final Frame")
+        self.final_frame_label.setAlignment(Qt.AlignCenter)
+        self.model_desc_name_l.setContentsMargins(0,0,0,0)
+        
+        self.model_desc_name_l.addWidget(self.initial_frame_label)
+        self.model_desc_name_l.addWidget(self.final_frame_label)
+        
+        
         self.model_desc_inner_l = QHBoxLayout()
         self.model_desc_inner_w = QWidget()
         self.model_desc_inner_w.setLayout(self.model_desc_inner_l)
-        
+        self.model_desc_inner_l.setContentsMargins(5,0,5,5)
         
         self.model_initial_desc_l = QGridLayout()
         self.model_initial_desc_w = QWidget()
@@ -161,6 +173,7 @@ class PlotConfigure(QDialog):
         self.model_final_desc_w.setLayout(self.model_final_desc_l)
         self.model_desc_inner_l.addWidget(self.model_final_desc_w)
         
+        self.model_desc_l.addWidget(self.model_desc_name_w)
         self.model_desc_l.addWidget(self.model_desc_inner_w)
         
         self.config_menu_1_l.addWidget(self.model_desc_w)

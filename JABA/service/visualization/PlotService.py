@@ -51,7 +51,7 @@ class PlotService:
 
         for fmap in plotConfig.map_list:
             data = fmap.apply(data)
-
+        
         if plotConfig.index == "Range Index":
             return range(1, len(data)+1), data[plotConfig.data]
         else:
