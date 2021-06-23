@@ -1,9 +1,13 @@
 import pandas as pd
 
+from .ScrapModel import ScrapModel
 from .Tweet import Tweet
 
 
-class Sentiment:
+class Sentiment(ScrapModel):
+    
+    name = "Sentiment"
+    
     def __init__(self):
         self.__tweet = Tweet()
 

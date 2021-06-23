@@ -1,8 +1,11 @@
 import pandas as pd
 
+from .ScrapModel import ScrapModel
 
-class Tweet:
+class Tweet(ScrapModel):
 
+    name = "Tweet"
+    
     column_names = [
         "Datetime",
         "Tweet Id",
