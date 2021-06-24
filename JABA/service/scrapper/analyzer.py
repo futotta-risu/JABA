@@ -151,7 +151,6 @@ class Analyzer:
     def analyze(self,
                 date, 
                 data_file_manager,
-                round="min",
                 algorithm="nltk",
                 verbose=False):
         """
@@ -171,8 +170,8 @@ class Analyzer:
             if verbose:
                 if index % 1000 == 0:
                     print(f"Actual analyzed index: {index}")
-
-            data.loc[index, "sentiment"] = self.get_sentiment(
-                data["Text"].iloc[index], algorithm)
+            
+            sentiment = self.get_sentiment(row["Text"], algorithm)
+            data.loc[index, "sentiment"] = sentiment
 
         self.file_manager.save_file(data["sentiment"], args = args)

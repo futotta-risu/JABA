@@ -5,10 +5,10 @@ class RoundDateMap(GenericMap):
     
     name = "Round Date"
     def __init__(self, attrs):
-        if attrs == None:
+        if attrs is None:
             attrs = {"round":"min"}
             
-        if not "round" in attrs:
+        if "round" not in attrs:
             attrs["round"] = "min"
             
         super().__init__(attrs)

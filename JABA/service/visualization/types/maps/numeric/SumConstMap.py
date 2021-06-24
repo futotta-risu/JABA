@@ -5,10 +5,10 @@ class SumConstMap(GenericMap):
     
     name = "Constant Sum"
     def __init__(self, attrs):
-        if attrs == None:
+        if attrs is None:
             attrs = {"val":"1"}
             
-        if not "val" in attrs:
+        if "val" not in attrs:
             attrs["val"] = "1"
             
         super().__init__(attrs)

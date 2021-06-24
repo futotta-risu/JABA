@@ -2,13 +2,13 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 
 import PyQt5.QtCore as QtCore
+from PyQt5.QtGui import QColor
 
 class QCoolContainer(QWidget):
     
     styleSheet = """
         QCoolContainer{
             background-color: white;
-            border: 1px solid #a6a6a6;
             border-radius: 8px;
 
         }
@@ -22,7 +22,8 @@ class QCoolContainer(QWidget):
         
         
         shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(8)
+        shadow.setColor(QColor(150, 150, 150))
+        shadow.setBlurRadius(12)
         shadow.setOffset(0, 0)
         
         self.setGraphicsEffect(shadow)
