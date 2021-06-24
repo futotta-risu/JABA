@@ -39,9 +39,10 @@ class MainView(QMainWindow):
         self._create_menu_bar()
         
         self._init_window()
+        self.load_plots_config(real_filename = 'data/plotty/default_v1')
         
     def _load_window_properties(self):
-        self.setWindowTitle("My App")
+        self.setWindowTitle("Just Another Bitcoin Analyzer")
         
     def _load_window_components(self):        
         self.top_layout = QGridLayout()
@@ -60,7 +61,6 @@ class MainView(QMainWindow):
         self.auto_scrap = QPushButton("Auto Scrap")
         self.update_plot_button = QPushButton("Update Plot")
         self.configure_button = QPushButton("Add Plot")
-
 
         self.button_menu_layout.addWidget(self.combo_sentiment_algorithm)
         self.button_menu_layout.addWidget(self.analyze_date_button)
@@ -305,11 +305,16 @@ class MainView(QMainWindow):
         
         self._controller.save_plot_config(fileName)
         
-    def load_plots_config(self):
-        fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;Python Files (*.py)")
+    def load_plots_config(self, real_filename = None):
+        if real_filename:
+            fileName = real_filename
+        else:
+            fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*)")
         
         plot_configs = self._controller.load_plot_config(fileName)
         
         for config in plot_configs:
             id, name, widget = self._controller.create_plot(config)
             self.add_custom_plot(id, name, widget)
+    
+    

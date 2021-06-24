@@ -6,7 +6,6 @@ from pyqtgraph import PlotWidget
 class PlotService:
     def __init__(self):
         self.resetID()
-        pass
 
     def resetID(self):
         self.id = 1
