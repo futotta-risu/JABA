@@ -22,6 +22,10 @@ class BitcoinFileManager(FileManagerInterface):
         data = pd.read_csv(file_name, sep=";")
         
         data["timestamp"] = pd.to_datetime(data["timestamp"])
+        data['Close'] = data['Close'].replace(to_replace=0, method='ffill')
+        data = data.reindex(index=data.index[::-1])
+        data['Close'] = data['Close'].replace(to_replace=0, method='ffill')
+        data = data.reindex(index=data.index[::-1])
 
         return data
 
