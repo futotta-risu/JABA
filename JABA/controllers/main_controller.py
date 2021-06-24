@@ -231,5 +231,5 @@ class MainController(QObject):
             index, data = plotService.applyPlotMaps(data, pConfig)
             
             widget.clear()
-            widget.plot(index, data, pen=pg.mkPen('g', width=1))
+            widget.plot(index, data, pen=pg.mkPen('18BEBE', width=1))
 

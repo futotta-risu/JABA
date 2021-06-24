@@ -19,7 +19,7 @@ active_thread_str = "There are {threads} running threads."
 
 class MainView(QMainWindow):
 
-    calendar_colors = {"data": "green", "sentiment": "blue"}
+    calendar_colors = {"data": "#18BEBE", "sentiment": "blue"}
 
     plot_list = {}
 
@@ -74,6 +74,9 @@ class MainView(QMainWindow):
         
         
         self.calendar = QCalendarWidget(self)
+        self.calendar.setVerticalHeaderFormat(QCalendarWidget.NoVerticalHeader)
+        self.calendar.setHorizontalHeaderFormat(0)
+        
         
 
         self.message_sample = QVBoxLayout()
@@ -85,9 +88,15 @@ class MainView(QMainWindow):
         self.message_sample_label.setAlignment(Qt.AlignCenter)
 
         self.message_sample_table = QTableWidget()
-        
+        self.message_sample_table.verticalHeader().setVisible(False)
         self.message_sample_table.setRowCount(1) 
         self.message_sample_table.setColumnCount(2)
+        self.message_sample_table.setShowGrid(False)
+        
+        table_header_font = self.message_sample_table.horizontalHeader().font()
+        table_header_font.setPointSize(10)
+        table_header_font.setBold(True)
+        self.message_sample_table.horizontalHeader().setFont( table_header_font )
         
         self.message_sample_table.setHorizontalHeaderItem(0, QTableWidgetItem('Text'))
         self.message_sample_table.setHorizontalHeaderItem(1, QTableWidgetItem('Sentiment'))
@@ -167,9 +176,9 @@ class MainView(QMainWindow):
             sentiment_item.setTextAlignment(QtCore.Qt.AlignCenter)
             sentiment_item.setBackground(
                 QtGui.QColor(
-                    (1 - sentiment) / 2 * 255,
-                    (1 + sentiment) / 2 * 255,
-                    0
+                    100 + (1 - sentiment) / 2 * 155,
+                    100 + (1 + sentiment) / 2 * 155,
+                    100 + (1 + sentiment) / 2 * 155
                 ) 
             )
             
@@ -179,6 +188,7 @@ class MainView(QMainWindow):
                 1,
                 sentiment_item
             )
+        self.message_sample_table.resizeRowsToContents()
         
     def _connect_window_components(self):
         self.analyze_date_button.clicked.connect(self.analyze_date)
@@ -229,6 +239,7 @@ class MainView(QMainWindow):
         
         for date, status in date_colors:
             cell_format.setBackground(QtGui.QColor(self.calendar_colors[status]))
+            cell_format.setForeground(QtGui.QColor('white'))
             
             if date.isValid():
                 self.calendar.setDateTextFormat(date, cell_format)
