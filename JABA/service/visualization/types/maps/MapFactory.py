@@ -6,7 +6,12 @@ from service.visualization.types.maps.numeric.GroupByCountMap import \
     GroupByCountMap
 from service.visualization.types.maps.numeric.GroupByMeanMap import \
     GroupByMeanMap
+from service.visualization.types.maps.numeric.GroupBySumMap import \
+    GroupBySumMap
 from service.visualization.types.maps.numeric.SqrtMap import SqrtMap
+from service.visualization.types.maps.numeric.SumConstMap import SumConstMap
+from service.visualization.types.maps.numeric.LogMap import LogMap
+from service.visualization.types.maps.numeric.Log2Map import Log2Map
 from service.visualization.types.maps.numeric.MultiplyMap import MultiplyMap
 from service.visualization.types.maps.numeric.PCTChangeMap import PCTChangeMap
 
