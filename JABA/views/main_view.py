@@ -102,6 +102,9 @@ class MainView(QMainWindow):
         self.message_sample_table.setHorizontalHeaderItem(1, QTableWidgetItem('Sentiment'))
         self.message_sample_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch) 
         
+        self.message_sample_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        self.message_sample_table.setFocusPolicy(Qt.NoFocus);
+        
         self.message_sample.addWidget(self.message_sample_table, stretch = 1)
         
         self.message_sample_widget = QWidget()
@@ -156,7 +159,10 @@ class MainView(QMainWindow):
         self.setCentralWidget(self.container)
         
         self.show()
-
+    
+    def resizeEvent(self, event):
+        self.message_sample_table.resizeRowsToContents()
+        QtGui.QMainWindow.resizeEvent(self, event)
 
     def __refresh_table(self, data):
         while (self.message_sample_table.rowCount() > 1):
@@ -174,14 +180,18 @@ class MainView(QMainWindow):
             
             sentiment_item = QTableWidgetItem("{:.2f}".format(sentiment))
             sentiment_item.setTextAlignment(QtCore.Qt.AlignCenter)
-            sentiment_item.setBackground(
-                QtGui.QColor(
+            
+            temp_font = sentiment_item.font()
+            temp_font.setBold(True)
+            temp_font.setPointSize(12)
+            sentiment_item.setFont(temp_font)
+            
+            temp_color = QtGui.QColor(
                     100 + (1 - sentiment) / 2 * 155,
                     100 + (1 + sentiment) / 2 * 155,
                     100 + (1 + sentiment) / 2 * 155
                 ) 
-            )
-            
+            sentiment_item.setForeground(QtGui.QBrush(temp_color))
             
             self.message_sample_table.setItem(
                 rowPosition-1,
@@ -238,12 +248,14 @@ class MainView(QMainWindow):
         cell_format = QtGui.QTextCharFormat()
         
         for date, status in date_colors:
-            cell_format.setBackground(QtGui.QColor(self.calendar_colors[status]))
-            cell_format.setForeground(QtGui.QColor('white'))
+            cell_format.setForeground(QtGui.QColor(self.calendar_colors[status]))
             
+            temp_font = QtGui.QFont()
+            temp_font.setBold(True)
+            cell_format.setFont(temp_font)
             if date.isValid():
                 self.calendar.setDateTextFormat(date, cell_format)
-    
+                
     @pyqtSlot(int)
     def on_thread_count_changed(self, value):
         self.statusBar().showMessage(
@@ -276,7 +288,7 @@ class MainView(QMainWindow):
         
     def open_configure(self):
         id, name, widget = self._controller.open_configure()
-        if id == None:
+        if id is None:
             return
         
         self.add_custom_plot( id, name, widget)

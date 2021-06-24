@@ -6,10 +6,10 @@ class MultiplyMap(GenericMap):
     name = "Multiply"
     
     def __init__(self, attrs):
-        if attrs == None:
+        if attrs is None:
             attrs = {"second":None}
             
-        if not "second" in attrs:
+        if "second" not in attrs:
             attrs["second"] = None
             
         super().__init__(attrs)
@@ -19,7 +19,7 @@ class MultiplyMap(GenericMap):
     def apply(self, data):
         attrs = self.getAttrs()
         
-        if attrs["second"] == None:
+        if attrs["second"] is None:
             raise Exception()
             
         variable = attrs["variable"]
