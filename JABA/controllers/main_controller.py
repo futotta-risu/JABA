@@ -4,6 +4,7 @@ from PyQt5.QtCore import QDate
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QRunnable
 from PyQt5.QtCore import QThreadPool
+from PyQt5.QtCore import QSettings
 
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget
@@ -13,24 +14,15 @@ from service.scrapper.cleaner import *
 from service.scrapper.scrapper import *
 from service.scrapper.ScrapService import ScrapService
 from service.scrapper.bitcoin import BitcoinFileManager
-
 from service.visualization.PlotService import PlotService
 from views.plot_config import PlotConfigure
-
-DATE_FORMAT = "yyyy-MM-dd"
-
-INITIAL_DATE = QDate.fromString("2017-01-01", DATE_FORMAT)
-
-base_dir = "data/tweets/"
-
-from PyQt5.QtCore import QSettings
-from PyQt5.QtCore import QThreadPool
 
 import pickle
 
 from datetime import date
 
 
+
 DATE_FORMAT = "yyyy-MM-dd"
 
 INITIAL_DATE = QDate.fromString("2017-01-01", DATE_FORMAT)
@@ -39,18 +31,24 @@ INITIAL_DATE = QDate.fromString("2017-01-01", DATE_FORMAT)
 base_dir = "data/tweets/"
 
 
-query = '"BTC" OR "bitcoin"'
-
 class Signals(QObject):
     finished = pyqtSignal()
     
 class AnalyzeDateWorker(QRunnable):
+    '''
+        Thread which scraps tweets and analyzes them. The thread need a date_from to work.
+        
+        Emits a finished signal in case of automatic scrapping.
+    '''
     signal = Signals()
     
     def set_date(self, date_from):
         self.date_from = date_from
     
     def run(self):
+        if self.date_from == None:
+            raise Exception()
+        
         scrapper = TwitterScrapper()
         analyzer = Analyzer()
         
@@ -61,52 +59,61 @@ class AnalyzeDateWorker(QRunnable):
         
 
 class MainController(QObject):
+    '''
+        Controller for the main app window.
+    '''
     def __init__(self, model):
         super().__init__()
-
 
         self._model = model
 
         self.plot_configurations = []
-
         self.plotService = PlotService()
 
         self.threadpool = QThreadPool()
 
-        self.actual_scrapper_date = QDate.fromString("2017-01-01", DATE_FORMAT)
-
+        self._init_settings()
+        
         self.scrapped_dates = set()
         self._get_scrapped_dates()
 
-
-        self.settings = QSettings("JABA", "JABA_Settings")
-
-        try:
-            self.settings.value("loaded_settings")
-        except:
-            self._init_settings()
+        
+        
 
         
 
     def _init_settings(self):
-        self.settings.setValue("initial_date",
-                               QDate.fromString("2017-01-01", DATE_FORMAT))
-        self.settings.setValue("loaded_settings", True)
-        self.settings.sync()
-
+        self.settings = QSettings("JABA", "JABA_Settings")
+        try:
+            self.settings.value("loaded_settings")
+        except:
+            self.settings.setValue("initial_date",
+                                   QDate.fromString("2017-01-01", DATE_FORMAT))
+            self.settings.setValue("loaded_settings", True)
+            self.settings.sync()
+            
+        self.load_settings()
+        
+        
     def set_settings(self, new_settings):
         self.settings = new_settings
-        self.actual_scrapper_date = self.settings.value("initial_date")
+        self.load_settings()
         self.settings.sync()
-
+    
+    def load_settings(self):
+        ''' Load controller variables from settings'''
+        self.actual_scrapper_date = self.settings.value("initial_date", type=QDate)
+    
     def get_settings(self):
         return self.settings
 
-    def _init_local_vars(self):
-        self.actual_scrapper_date = self.settings.value("initial_date",
-                                                        type=QDate)
-
+    def get_analysis_methods(self):
+        return Analyzer.get_algorithms()
+    
     def _get_scrapped_dates(self):
+        ''' Gets the date of the alredy scrapped dates and sets to scrapped_dates'''
+        # Check if files inside folder or just folder
+        
         for path in os.listdir( base_dir ):
             date = QDate.fromString(path, DATE_FORMAT)
             
@@ -114,7 +121,9 @@ class MainController(QObject):
                 self.scrapped_dates.add(date)
                 
     def analyze_date(self, date):
-        
+        '''
+            Loads the Analyze worker.
+        '''
         worker = AnalyzeDateWorker()
         worker.set_date(date)
         worker.signal.finished.connect(self.automatic_scrapper)
@@ -161,30 +170,29 @@ class MainController(QObject):
             self.actual_scrapper_date = self.actual_scrapper_date.addDays(1) # Add day to avoid same day analyze
             self.automatic_scrapper()
             
-    def get_message_sample_with_sentiment(self, date, algorithm):
-        
+    def get_message_sample_with_sentiment(self, date, algorithm, random = True):
+        '''
+            Returns a sample of the tweets with their respective sentiment.
+        '''
         date = date.toString(DATE_FORMAT)
-        directory = os.path.join(base_dir, date)
         tweet_file_name = os.path.join(base_dir, date, "tweet_list.csv")
             
         tweet_df = pd.read_csv(tweet_file_name, sep=';')
         
-        tweets = []
         
-        #tweet_list = tweet_df.sort_values('NumLikes', ascending = False).head(n=50)
-        tweet_list = tweet_df.sample(n=50)
+        
+        if random:
+            tweet_list = tweet_df.sample(n=50)
+        else:
+            tweet_list = tweet_df.sort_values('NumLikes', ascending = False).head(n=50)
+        
         tweet_list = tweet_list["Text"]
         
-
         analyzer = Analyzer()
         
-        for i in range(50):
-            text = tweet_list.iloc[i]
-            text = clean_tweet(text)
-            sentiment = analyzer.get_sentiment(text) 
-            tweets += [(text, sentiment)]
+        tweets_text = [(clean_tweet(tweet_list.iloc[i])) for i in range(50)]
+        return [(text, analyzer.get_sentiment(text)) for text in tweets_text]
         
-        return tweets
 
     def create_plot(self, config):
         widget = PlotWidget()

@@ -123,6 +123,10 @@ class Analyzer:
         self.sia = SentimentIntensityAnalyzer()
         self.sia.lexicon.update(self.bitcoin_dict)
 
+    @staticmethod
+    def get_algorithms():
+        return ['nltk', 'textblob']
+        
     def get_sentiment(self, text, algorithm="nltk"):
         """
         Analyzes text.

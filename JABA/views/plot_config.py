@@ -1,9 +1,9 @@
 import pandas as pd
-from model.modelFactory import createModelFrame
-from PyQt5 import Qt
-from PyQt5 import QtCore
-from PyQt5 import QtGui
 
+from model.ScrapModel import ScrapModel
+from model.modelFactory import createModelFrame
+
+from PyQt5 import Qt, QtCore, QtGui
 from PyQt5.Qt import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -13,6 +13,8 @@ from service.visualization.types.PlotConfiguration import PlotConfiguration
 
 from views.component.FlowLayout import FlowLayout
 from views.component.QCoolContainer import QCoolContainer
+
+
 
 class QFormLabel(QLabel):
     def __init__(self, text):
@@ -119,7 +121,13 @@ class PlotConfigure(QDialog):
         self.data_model_w.setLayout(self.data_model_l)
 
         self.data_model_combobox = QComboBox()
-        self.data_model_combobox.addItems(["Tweet", "Sentiment", "Bitcoin"])
+        
+        
+        model_name = [
+            model_class.name for model_class in ScrapModel.__subclasses__()
+        ]
+        
+        self.data_model_combobox.addItems(model_name)
 
         self.data_model_load = QPushButton("Load Model")
 

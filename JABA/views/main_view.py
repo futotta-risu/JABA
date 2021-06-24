@@ -1,9 +1,6 @@
 import pyqtgraph as pg
 
-from PyQt5 import Qt
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
+from PyQt5 import Qt, QtCore, QtGui, QtWidgets
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -56,7 +53,8 @@ class MainView(QMainWindow):
 
 
         # TODO Change this to factory dataGet
-        self.combo_sentiment_algorithm.addItems(["nltk", "textblob"])
+        analysis_methods = self._controller.get_analysis_methods()
+        self.combo_sentiment_algorithm.addItems(analysis_methods)
 
         self.analyze_date_button = QPushButton("Analyze Day")
         self.auto_scrap = QPushButton("Auto Scrap")
