@@ -83,7 +83,9 @@ class Analyzer:
         "long": +3,
         "short": -3,
         "high": +3,
+        'higher': +2,
         "low": -3,
+        "lower": -2,
         "hold": +2,
         "hodl": +3,
         "liquidation": -5,
@@ -92,6 +94,28 @@ class Analyzer:
         "carbon": -2,
         "inflation": +2,
         "rally": +3,
+        'fees': -3,
+        'invest': +1,
+        'phising': -3,
+        'scam': -5,
+        'shit': -3,
+        'scamed': -3,
+        'scamming': -3,
+        'breakout': +3,
+        'fake': -3,
+        'away': -3,
+        'garbage': -3,
+        'pull': -2,
+        'push': +2,
+        'free': -1, # Mostly spam
+        'ransomware': -3,
+        'unstoppable': +2,
+        'gamble': -10,
+        'gambling': -10,
+        'strong': +5,
+        'weak': -5,
+        'run': +2,
+        
     }
 
     def __init__(self):
@@ -99,6 +123,10 @@ class Analyzer:
         self.sia = SentimentIntensityAnalyzer()
         self.sia.lexicon.update(self.bitcoin_dict)
 
+    @staticmethod
+    def get_algorithms():
+        return ['nltk', 'textblob']
+        
     def get_sentiment(self, text, algorithm="nltk"):
         """
         Analyzes text.
@@ -123,7 +151,6 @@ class Analyzer:
     def analyze(self,
                 date, 
                 data_file_manager,
-                round="min",
                 algorithm="nltk",
                 verbose=False):
         """
@@ -143,8 +170,8 @@ class Analyzer:
             if verbose:
                 if index % 1000 == 0:
                     print(f"Actual analyzed index: {index}")
-
-            data.loc[index, "sentiment"] = self.get_sentiment(
-                data["Text"].iloc[index], algorithm)
+            
+            sentiment = self.get_sentiment(row["Text"], algorithm)
+            data.loc[index, "sentiment"] = sentiment
 
         self.file_manager.save_file(data["sentiment"], args = args)

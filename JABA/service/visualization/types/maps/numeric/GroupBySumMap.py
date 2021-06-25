@@ -1,9 +1,9 @@
 from service.visualization.types.maps.GenericMap import GenericMap
 
 
-class SqrtMap(GenericMap):
+class GroupBySumMap(GenericMap):
     
-    name = "Sqrt"
+    name = "Group Sum"
     
     def __init__(self, attrs):
         super().__init__(attrs)
@@ -11,6 +11,4 @@ class SqrtMap(GenericMap):
     def apply(self, data):
         variable = self.getAttrs()["variable"]
 
-        data[variable] = data[variable] ** 0.5
-
-        return data
+        return data.groupby(variable, as_index=False).sum()

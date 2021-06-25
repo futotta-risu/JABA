@@ -112,7 +112,8 @@ class TwitterScrapper(IScrapper):
                 continue
 
             if verbose:
-                print("Day " + str(date_from))
+                current_time = datetime.datetime.now().strftime("%H:%M:%S")
+                print(f"{current_time}: Day {date_from}")
 
             format_string = self.format_conditional_query(
                 date_from, date_from + timedelta(days=1), lang)
@@ -125,7 +126,8 @@ class TwitterScrapper(IScrapper):
                         break
 
                 if verbose and i % 2500 == 0:
-                    print(str(date_from), ": ", i, " / ", limit)
+                    current_time = datetime.datetime.now().strftime("%H:%M:%S")
+                    print(current_time, ": ", str(date_from), "(", i, " / ", limit,")")
 
                 tweet_list += [self.get_tweet_data(tweet)]
 

@@ -1,25 +1,25 @@
 from service.visualization.types.maps.GenericMap import GenericMap
 
 
-class RoundDateMap(GenericMap):
+class SumConstMap(GenericMap):
     
-    name = "Round Date"
+    name = "Constant Sum"
     def __init__(self, attrs):
         if attrs is None:
-            attrs = {"round":"min"}
+            attrs = {"val":"1"}
             
-        if "round" not in attrs:
-            attrs["round"] = "min"
+        if "val" not in attrs:
+            attrs["val"] = "1"
             
         super().__init__(attrs)
 
     def apply(self, data):
         variable = self.getAttrs()["variable"]
-        round = self.getAttrs()["round"]
+        val = self.getAttrs()["val"]
 
-        data["round_" + variable] = data[variable].dt.floor(round)
+        data[variable] = data[variable] + int(val)
 
         return data
 
     def getAttrsWithTypes(self):
-        return {"round": ("Text", "min")}
+        return {"val": ("Text", "1")}

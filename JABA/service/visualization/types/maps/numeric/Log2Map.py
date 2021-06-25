@@ -1,9 +1,9 @@
 from service.visualization.types.maps.GenericMap import GenericMap
+import numpy as np
 
-
-class SqrtMap(GenericMap):
+class Log2Map(GenericMap):
     
-    name = "Sqrt"
+    name = "Log2"
     
     def __init__(self, attrs):
         super().__init__(attrs)
@@ -11,6 +11,6 @@ class SqrtMap(GenericMap):
     def apply(self, data):
         variable = self.getAttrs()["variable"]
 
-        data[variable] = data[variable] ** 0.5
+        data[variable] = np.log2(data[variable])
 
         return data

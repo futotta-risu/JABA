@@ -1,82 +1,66 @@
 import pyqtgraph as pg
 
+from PyQt5 import Qt, QtCore, QtGui, QtWidgets
 
-import seaborn as sns
-from matplotlib.backends.backend_qt5agg import \
-    FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-
-from PyQt5 import Qt
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
-
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import QRunnable
-from PyQt5.QtCore import QThreadPool
-from PyQt5.QtCore import QSettings
-from PyQt5.QtWidgets import QCalendarWidget
-from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QTableWidgetItem
-from PyQt5.QtWidgets import QTableWidget
-from PyQt5.QtWidgets import QGridLayout
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtWidgets import QMenu
-from PyQt5.QtWidgets import QMenuBar
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QScrollArea
-from PyQt5.QtWidgets import QSplitter
-from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QHeaderView
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 from pyqtgraph import plot
 from pyqtgraph import PlotWidget
 
 from .configuration_view import ConfigurationDialog
+from .component.QCoolContainer import QCoolContainer
+from views.style.styles import *
+
 
 
 active_thread_str = "There are {threads} running threads."
 
-
 class MainView(QMainWindow):
 
-    calendar_colors = {"data": "green", "sentiment": "blue"}
+    calendar_colors = {"data": "#18BEBE", "sentiment": "blue"}
 
     plot_list = {}
 
+    
     def __init__(self, model, controller):
         super().__init__()
-
+        
         self._model = model
         self._controller = controller
+        
+        self.setStyleSheet(main_style)
+
         self._load_window_properties()
-        self._create_menu_bar()
         self._load_window_components()
         self._connect_window_components()
+
+        self._create_menu_bar()
+        
         self._init_window()
-
+        self.load_plots_config(real_filename = 'data/plotty/default_v1')
+        
     def _load_window_properties(self):
-        self.setWindowTitle("JABA")
-
-    def _load_window_components(self):
+        self.setWindowTitle("Just Another Bitcoin Analyzer")
+        
+    def _load_window_components(self):        
         self.top_layout = QGridLayout()
-        self.button_menu_layout = QVBoxLayout()
+        
 
+        self.button_menu_layout = QVBoxLayout()
+        
         self.combo_sentiment_algorithm = QComboBox(self)
 
-        self.combo_sentiment_algorithm.addItems(["nltk", "textblob"])
+
+        # TODO Change this to factory dataGet
+        analysis_methods = self._controller.get_analysis_methods()
+        self.combo_sentiment_algorithm.addItems(analysis_methods)
 
         self.analyze_date_button = QPushButton("Analyze Day")
         self.auto_scrap = QPushButton("Auto Scrap")
         self.update_plot_button = QPushButton("Update Plot")
         self.configure_button = QPushButton("Add Plot")
-
 
         self.button_menu_layout.addWidget(self.combo_sentiment_algorithm)
         self.button_menu_layout.addWidget(self.analyze_date_button)
@@ -85,69 +69,67 @@ class MainView(QMainWindow):
         self.button_menu_layout.addWidget(self.update_plot_button)
         self.button_menu_layout.addWidget(self.configure_button)
 
-
         self.button_menu_container = QWidget()
         self.button_menu_container.setLayout(self.button_menu_layout)
-
+        
+        
         self.calendar = QCalendarWidget(self)
+        self.calendar.setVerticalHeaderFormat(QCalendarWidget.NoVerticalHeader)
+        self.calendar.setHorizontalHeaderFormat(0)
+        
+        
 
-        self.message_sample_scroll = QScrollArea()
         self.message_sample = QVBoxLayout()
 
-        self.message_sample.addWidget(QLabel("Sample tweets from the day "))
+        self.message_sample_label = QLabel("Top Tweets")
+        self.message_sample_label.setObjectName("SectionLabel")
+        self.message_sample.addWidget(self.message_sample_label)
+        self.message_sample_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.message_sample_label.setAlignment(Qt.AlignCenter)
 
         self.message_sample_table = QTableWidget()
-        
-        
-        
+        self.message_sample_table.verticalHeader().setVisible(False)
         self.message_sample_table.setRowCount(1) 
         self.message_sample_table.setColumnCount(2)
+        self.message_sample_table.setShowGrid(False)
+        
+        table_header_font = self.message_sample_table.horizontalHeader().font()
+        table_header_font.setPointSize(10)
+        table_header_font.setBold(True)
+        self.message_sample_table.horizontalHeader().setFont( table_header_font )
         
         self.message_sample_table.setHorizontalHeaderItem(0, QTableWidgetItem('Text'))
         self.message_sample_table.setHorizontalHeaderItem(1, QTableWidgetItem('Sentiment'))
         self.message_sample_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch) 
         
-        self.message_sample.addWidget(self.message_sample_table)
+        self.message_sample_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        self.message_sample_table.setFocusPolicy(Qt.NoFocus);
         
-
-        self.message_sample_scroll.setFixedWidth(600)
-        self.message_sample_scroll.setWidgetResizable(True)
-        self.message_sample_scroll.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOff)
-        self.message_sample_scroll.setVerticalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOn)
-
+        self.message_sample.addWidget(self.message_sample_table, stretch = 1)
+        
         self.message_sample_widget = QWidget()
-
-        self.message_sample_widget.setLayout(self.message_sample)
-
-        self.message_sample_scroll.setWidget(self.message_sample_widget)
+        self.message_sample_widget_l = QVBoxLayout()
+        self.message_sample_widget.setLayout(self.message_sample_widget_l)
+        self.message_sample_widget.setObjectName("Background")
+        
+        
+        self.message_sample_w = QCoolContainer()
+        self.message_sample_w.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        
+        self.message_sample_w.setLayout(self.message_sample)
+        
+        self.message_sample_widget_l.addWidget(self.message_sample_w, stretch = 1)
 
         self.top_layout.addWidget(self.button_menu_container, 1, 1)
         self.top_layout.addWidget(self.calendar, 1, 2)
 
-        self.top_container = QWidget()
+        self.top_container = QCoolContainer()
         self.top_container.setLayout(self.top_layout)
+        self.top_container.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
 
-        self.graphWidgetBTC = pg.PlotWidget()
-
-
-        self.combo_plotType = QComboBox(self)
-        self.combo_plotType.addItem("boxplot")
-        self.combo_plotType.addItem("violinplot")
-
-        self.fig = Figure()
-        self.axes = self.fig.add_subplot()
-        self.canvas = FigureCanvas(self.fig)
-        self.canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                  QtWidgets.QSizePolicy.Expanding)
-        self.canvas.updateGeometry()
-
-        self.thread_count_label = QLabel(active_thread_str.format(threads="0"))
+        pg.setConfigOption('background', 'w')
 
         self.center_layout = QVBoxLayout()
-
-        self.thread_count_label = QLabel(active_thread_str.format(threads="0"))
 
         self.plot_list_layout = QVBoxLayout()
 
@@ -159,29 +141,28 @@ class MainView(QMainWindow):
 
         self.center_layout.addWidget(self.plot_L_widget)
 
-        self.center_layout.addWidget(self.graphWidgetBTC)
-        self.center_layout.addWidget(self.combo_plotType)
-        self.center_layout.addWidget(self.canvas)
-
-
         self.center_widget = QWidget()
         self.center_widget.setLayout(self.center_layout)
-
+        self.center_widget.setObjectName("Background")
+        
         self.vertical_split = QSplitter(QtCore.Qt.Horizontal)
         self.vertical_split.addWidget(self.center_widget)
-        self.vertical_split.addWidget(self.message_sample_scroll)
+        self.vertical_split.addWidget(self.message_sample_widget)
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.vertical_split)
-        self.layout.addWidget(self.thread_count_label)
 
         self.container = QWidget()
         self.container.setLayout(self.layout)
+        self.container.setObjectName("Background")
 
         self.setCentralWidget(self.container)
-
+        
         self.show()
-
+    
+    def resizeEvent(self, event):
+        self.message_sample_table.resizeRowsToContents()
+        QtGui.QMainWindow.resizeEvent(self, event)
 
     def __refresh_table(self, data):
         while (self.message_sample_table.rowCount() > 1):
@@ -199,20 +180,25 @@ class MainView(QMainWindow):
             
             sentiment_item = QTableWidgetItem("{:.2f}".format(sentiment))
             sentiment_item.setTextAlignment(QtCore.Qt.AlignCenter)
-            sentiment_item.setBackground(
-                QtGui.QColor(
-                    (1 - sentiment) / 2 * 255,
-                    (1 + sentiment) / 2 * 255,
-                    0
-                ) 
-            )
             
+            temp_font = sentiment_item.font()
+            temp_font.setBold(True)
+            temp_font.setPointSize(12)
+            sentiment_item.setFont(temp_font)
+            
+            temp_color = QtGui.QColor(
+                    100 + (1 - sentiment) / 2 * 155,
+                    100 + (1 + sentiment) / 2 * 155,
+                    100 + (1 + sentiment) / 2 * 155
+                ) 
+            sentiment_item.setForeground(QtGui.QBrush(temp_color))
             
             self.message_sample_table.setItem(
                 rowPosition-1,
                 1,
                 sentiment_item
             )
+        self.message_sample_table.resizeRowsToContents()
         
     def _connect_window_components(self):
         self.analyze_date_button.clicked.connect(self.analyze_date)
@@ -223,17 +209,29 @@ class MainView(QMainWindow):
         self._model.thread_count_changed.connect(
             self._controller.automatic_scrapper)
         
+        #self.graphWidgetBTC.scene().sigMouseMoved.connect(self.onMouseMoved)
+        
     def _create_menu_bar(self):
         menu_bar = QMenuBar(self)
+        
+        self.save_plots_button = QAction("&Save Plot", self)
+        self.save_plots_button.triggered.connect(self.save_plots_config)
+        self.load_plots_button = QAction("&Load Plot", self)
+        self.load_plots_button.triggered.connect(self.load_plots_config)
+        plots_menu = QMenu("&Plots", self)
+        plots_menu.addAction(self.save_plots_button)
+        plots_menu.addAction(self.load_plots_button)
+        
 
         self.open_parameters = QAction("&Parameters", self)
         self.open_parameters.triggered.connect(self.open_configuration)
         configuration_menu = QMenu("&Configuration", self)
         configuration_menu.addAction(self.open_parameters)
 
-        help_menu = QMenu("&Help", self)
+        
+        menu_bar.addMenu(plots_menu)
         menu_bar.addMenu(configuration_menu)
-        menu_bar.addMenu(help_menu)
+        
 
         self.setMenuBar(menu_bar)
 
@@ -245,27 +243,29 @@ class MainView(QMainWindow):
 
 
     def _reset_calendar_color(self):
-        date_colors = self._controller.get_date_properties(
-        )  # TODO Add this function
-
+        date_colors = self._controller.get_date_properties() #TODO Add this function
+        
         cell_format = QtGui.QTextCharFormat()
-
+        
         for date, status in date_colors:
-            cell_format.setBackground(
-                QtGui.QColor(self.calendar_colors[status]))
-
+            cell_format.setForeground(QtGui.QColor(self.calendar_colors[status]))
+            
+            temp_font = QtGui.QFont()
+            temp_font.setBold(True)
+            cell_format.setFont(temp_font)
             if date.isValid():
                 self.calendar.setDateTextFormat(date, cell_format)
-
+                
     @pyqtSlot(int)
     def on_thread_count_changed(self, value):
-        self.thread_count_label.setText(
-            active_thread_str.format(threads=self._model.thread_count_str))
+        self.statusBar().showMessage(
+            active_thread_str.format(threads=self._model.thread_count_str)
+        )
 
     def automatic_scrapper(self):
         self._model.scrapping = True
         self._controller.automatic_scrapper()
-
+    
     def analyze_date(self):
         date = self.calendar.selectedDate()
         self._controller.analyze_date(date.toPyDate())
@@ -280,7 +280,6 @@ class MainView(QMainWindow):
         
         self.__refresh_table(sample)
         
-        self.load_btc_price_graph(date)
         
         self._controller.update_plots(
             self.calendar.selectedDate().toPyDate(),
@@ -288,41 +287,57 @@ class MainView(QMainWindow):
         )
         
     def open_configure(self):
-        id, widget = self._controller.open_configure()
+        id, name, widget = self._controller.open_configure()
+        if id is None:
+            return
+        
+        self.add_custom_plot( id, name, widget)
+        
+    
+    def add_custom_plot(self, id, name, widget):
+        
         self.plot_list[id] = widget
-        self.plot_list_layout.addWidget(widget)
-
+        
+        temp_plot_w = QCoolContainer()
+        temp_plot_l = QVBoxLayout()
+        temp_plot_w.setLayout(temp_plot_l)
+        
+        name_label_temp = QLabel(name)
+        name_label_temp.setObjectName("PlotLabel")
+        name_label_temp.setAlignment(Qt.AlignCenter)
+        
+        temp_plot_l.addWidget(name_label_temp)
+        temp_plot_l.addWidget(widget)
+        
+        self.plot_list_layout.addWidget(temp_plot_w)
+    
     def _reset_sample(self):
         for i in reversed(range(self.message_sample.count())):
             self.message_sample.itemAt(i).widget().deleteLater()
 
         self.message_sample.addWidget(QLabel("Sample tweets from the day"))
 
-    def load_btc_price_graph(self, date):
-        """
-        Draw btc price graph in a given date
-        """
-        plotX = str("open")
-        plotType = str(self.combo_plotType.currentText())
-        (
-            index_BTC, price_BTC
-        ) = self._controller.get_btc_price_plot_data(date, plotX)
-        
-        self.graphWidgetBTC.clear()
-        self.graphWidgetBTC.plot(range(1,1+len(index_BTC)), price_BTC)
-        
-        btc_df = self._controller.get_btc_price_subdf(date)
-        self.axes.clear()
-
-        if plotType == "boxplot":
-            sns.boxplot(x=plotX, data=btc_df, ax=self.axes)
-        elif plotType == "violinplot":
-            sns.violinplot(x=plotX, data=btc_df, ax=self.axes)
-
-        self.fig.canvas.draw_idle()
 
     def open_configuration(self):
         settings = self._controller.get_settings()
         configuration_dialog = ConfigurationDialog(self._controller)
         configuration_dialog.exec_()
-
+    
+    def save_plots_config(self):
+        fileName, _ = QtGui.QFileDialog.getSaveFileName(self, 'Save File')
+        
+        self._controller.save_plot_config(fileName)
+        
+    def load_plots_config(self, real_filename = None):
+        if real_filename:
+            fileName = real_filename
+        else:
+            fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*)")
+        
+        plot_configs = self._controller.load_plot_config(fileName)
+        
+        for config in plot_configs:
+            id, name, widget = self._controller.create_plot(config)
+            self.add_custom_plot(id, name, widget)
+    
+    
