@@ -4,6 +4,9 @@ from datetime import datetime, timezone, timedelta
 import time
 import datetime
 import re
+import os
+from sklearn.model_selection import train_test_split
+
 
 def drop_unused_t_columns(dataframe):
     unused_columns = ['Text', 'Tweet Id', 'NumReplies', 'NumRetweets', 'IDOriginalRetweeted', 'isVerified'  ]
@@ -41,11 +44,11 @@ def get_t_data(date_init, date_limit, t_path, t_file, s_file):
         sentiment_file = os.path.join(folder, s_file)
 
         tweet_df = pd.read_csv(tweet_file, sep=";")
-        tweet_df = drop_unused_columns(tweet_df)
+        tweet_df = drop_unused_t_columns(tweet_df)
 
         sent_df = pd.read_csv(sentiment_file, sep=";")
 
-        tweet_df = prepare_data(tweet_df.join(sent_df))
+        tweet_df = prepare_t_data(tweet_df.join(sent_df))
         
         frames += [tweet_df]
         
@@ -115,3 +118,14 @@ def get_complete_df(date_init, date_limit):
     
     complete_df = pd.merge(twitter_df,btc_df, how='inner', left_index=True, right_index=True)
     return complete_df
+
+def train_test_splitter(X, Y, test_size):
+    X_train, X_test, y_train, y_test = train_test_split(X, 
+                                                        Y, 
+                                                        test_size = 0.2, 
+                                                        random_state = 0)
+
+    print("Training set has {} samples.".format(X_train.shape[0]))
+    print("Testing set has {} samples.".format(X_test.shape[0]))
+    
+    return X_train, X_test, y_train, y_test
