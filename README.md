@@ -5,7 +5,7 @@ Dashboard for tracking the twitter sentiment related with Bitcoin.
 
 ## Status
 
-* Main Build & Test: ![main](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg) 
+* ![main](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg) 
 
 * [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=futotta-risu_JABA&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=futotta-risu_JABA)
 * [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=futotta-risu_JABA&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=futotta-risu_JABA)
