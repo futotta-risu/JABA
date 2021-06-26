@@ -70,4 +70,40 @@ QTableWidget::item{
     padding-top: 6px;
     padding-bottom: 6px;
 }
+
+QCalendarWidget QWidget#qt_calendar_prevmonth
+{
+   qproperty-icon:url("media/icons/left.png");
+}
+
+QCalendarWidget QWidget#qt_calendar_nextmonth
+{
+   qproperty-icon:url("media/icons/right.png");
+}
+
+QWidget#qt_calendar_navigationbar
+{
+    background-color: #ffffff;
+    border: 0px solid #4f4f4f;
+    color: #18BEBE;
+}
+
+QCalendarWidget QMenu{
+    color: #18BEBE;
+
+}
+
+QCalendarWidget{
+    color: #18BEBE;
+
+}
+
+QDateEdit {
+	color: #18BEBE;
+}
+
+QCalendarWidget QToolButton{
+    color: #18BEBE;
+}
+
 """
