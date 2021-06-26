@@ -1,44 +1,35 @@
 # Just Another Bitcoin Analyzer (JABA)
 
-Dashboard for social network sentiment tracking.
+Dashboard for tracking the twitter sentiment related with Bitcoin.
 
 
 ## Status
 
 * Main Build & Test: ![main](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg) 
-* Development Build & Test: ![development](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg?branch=development)    
 
-* Maintainability: [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=futotta-risu_JABA&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=futotta-risu_JABA)
-* Reliability: [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=futotta-risu_JABA&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=futotta-risu_JABA)
+* [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=futotta-risu_JABA&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=futotta-risu_JABA)
+* [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=futotta-risu_JABA&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=futotta-risu_JABA)
 
 
 ## Execution
 
-Run 
+### 1. Install Requirements 
+For executing the JABA app, first we need to download the necesary libraries using the requirements.txt file.
 
-    python -m pip install --upgrade pip
     pip install -r requirements.txt
-    python -m nltk.downloader all
-    pip3 install git+https://github.com/JustAnotherArchivist/snscrape.git
+    python -m nltk.downloader names stopwords state_union twitter_samples movie_reviews averaged_perceptron_tagger vader_lexicon punkt
+
+### 2. Run JABA app
+Located inside the JABA folder, run the next command:
+
     python app.py
+    
+### 3. Scrap the DATA
+When you download the project the first time, you need to scrap the data needed for the analysis
+Select the scrapper **Start Date** in the configuration menu, then...
 
+### 4. Plot daily data
+You can select any day in the calendar and the sentiment and bitcoin price related plots will be updated to that day.
 
-## Incoming Changes
-
-
-- [ ] Add a spam filtering system
-- [ ] Create a model to predict price movements based on sentiment
-- [ ] Improve the tweet gathering system to avoid duplicate dates
-- [ ] Custom dashboard settings
-- [ ] Generate config file for data Scrapping Config
-- [x] Add a view of Scrapping Config
-- [x] Add visual interface to the library
-- [x] Change the code from a notebook to python files and leave the notebook as a visual tool/tutorial
-
-
-## Changelog
-
-* (25/05/2021) Added methods to analyze sentiment with NLTK
-* (23/05/2021) Added methods to scrap tweets
-* (05/06/2021) Added methos for clustering similar tweets
+### More info in the wiki
 
