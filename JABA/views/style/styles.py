@@ -15,6 +15,14 @@ main_style = """
     margin-bottom: 4px;
 }
 
+#DashboardLabel{
+    font-weight: bold;
+    font-size: 30px;
+    color: #fff;
+    margin-bottom: 2px;
+}
+
+
 #Background{
     background-color: #F1F8F8;
 }
@@ -81,6 +89,28 @@ QCalendarWidget QWidget#qt_calendar_nextmonth
    qproperty-icon:url("media/icons/right.png");
 }
 
+#DeleteButton{
+    qproperty-icon:url("media/icons/cross.png");
+    background-color: rgba(255, 255, 255, 0);
+    border: 0px solid black;
+}
+
+#DeleteButton:hover{
+    qproperty-icon:url("media/icons/cross-hover.png");
+    background-color: rgba(255, 255, 255, 0);
+    border: 0px solid black;
+}
+
+
+#ViewModeButton{
+    qproperty-iconSize: 24px 24px;
+}
+
+#ViewModeButton{
+    background-color: rgba(255, 255, 255, 0);
+    border: 0px solid black;
+}
+
 QWidget#qt_calendar_navigationbar
 {
     background-color: #ffffff;
@@ -104,6 +134,10 @@ QDateEdit {
 
 QCalendarWidget QToolButton{
     color: #18BEBE;
+}
+
+QSplitter::handle:vertical#PlotHeaderSplit {
+    height: 0px;
 }
 
 """

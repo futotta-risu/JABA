@@ -225,7 +225,7 @@ class MainController(QObject):
         plotService = PlotService()
 
         for config in self.plot_configurations:
-            id, pConfig, widget = config["id"], config["config"], config["widget"],
+            id, pConfig, widget = config["id"], config["config"], config["widget"]
             
             args = {"date": date, "algorithm": algorithm }
             data = scrapService.get_data_by_category(pConfig.variable_type, args)
@@ -234,4 +234,10 @@ class MainController(QObject):
             
             widget.clear()
             widget.plot(index, data, pen=pg.mkPen('18BEBE', width=1))
-
+    
+    def get_plots(self):
+        return self.plot_configurations
+    
+    def delete_plot(self, id):
+        # TODO Replace list to hashmap for speed
+        self.plot_configurations = [x for x in self.plot_configurations if x['id'] != id]

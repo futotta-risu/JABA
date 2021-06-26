@@ -11,6 +11,9 @@ from pyqtgraph import PlotWidget
 
 from .configuration_view import ConfigurationDialog
 from .component.QCoolContainer import QCoolContainer
+from .component.FlowLayout import FlowLayout
+
+from .component.BorderLayout import BorderLayout
 from views.style.styles import *
 
 
@@ -26,6 +29,8 @@ class MainView(QMainWindow):
     
     def __init__(self, model, controller):
         super().__init__()
+        
+        self.view_mode = 'Flow'
         
         self._model = model
         self._controller = controller
@@ -77,6 +82,13 @@ class MainView(QMainWindow):
         self.calendar.setVerticalHeaderFormat(QCalendarWidget.NoVerticalHeader)
         self.calendar.setHorizontalHeaderFormat(0)
         
+        self.top_layout.addWidget(self.button_menu_container, 1, 1)
+        self.top_layout.addWidget(self.calendar, 1, 2)
+
+        self.top_container = QCoolContainer()
+        self.top_container.setLayout(self.top_layout)
+        self.top_container.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        
         
 
         self.message_sample = QVBoxLayout()
@@ -118,15 +130,11 @@ class MainView(QMainWindow):
         
         self.message_sample_w.setLayout(self.message_sample)
         
+        self.message_sample_widget_l.addWidget(self.top_container)
         self.message_sample_widget_l.addWidget(self.message_sample_w, stretch = 1)
 
-        self.top_layout.addWidget(self.button_menu_container, 1, 1)
-        self.top_layout.addWidget(self.calendar, 1, 2)
-
-        self.top_container = QCoolContainer()
-        self.top_container.setLayout(self.top_layout)
-        self.top_container.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-
+        
+        
         pg.setConfigOption('background', 'w')
 
         self.center_layout = QVBoxLayout()
@@ -135,11 +143,43 @@ class MainView(QMainWindow):
 
         self.plot_L_widget = QWidget()
         self.plot_L_widget.setLayout(self.plot_list_layout)
-
-        self.center_layout.addWidget(self.top_container)
+        self.plot_L_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         
-
-        self.center_layout.addWidget(self.plot_L_widget)
+        self.dashboard_container_w = QCoolContainer()
+        self.dashboard_container_l = QHBoxLayout()
+        self.dashboard_container_w.setLayout(self.dashboard_container_l)
+        
+        self.dashboard_container_w.setAttribute(Qt.WA_StyledBackground, True)
+        self.dashboard_container_w.setStyleSheet('''
+            background-color: #18BEBE;
+            border-radius: 8px;
+            margin: 0px 8px 0px 8px;
+        ''')
+        
+        self.dashboard_label = QLabel("JABA Dashboard")
+        
+        self.dashboard_label.setAlignment(Qt.AlignCenter)
+        self.dashboard_label.setObjectName("DashboardLabel")
+        
+        self.view_mode_button = QPushButton("")
+        self.view_mode_button.setObjectName("ViewModeButton")
+        self.view_mode_button.setIcon(QIcon('media/icons/grid-layout.png'))
+        self.view_mode_button.clicked.connect(self._change_view_mode)
+        
+        
+        self.dashboard_header = QSplitter(QtCore.Qt.Horizontal)
+        self.dashboard_header.setObjectName("PlotHeaderSplit")
+        
+        self.dashboard_header.addWidget(self.dashboard_label)
+        self.dashboard_header.addWidget(self.view_mode_button)
+        
+        self.dashboard_header.setStretchFactor(0,3)
+        self.dashboard_header.setStretchFactor(1,0)
+        
+        self.dashboard_container_l.addWidget(self.dashboard_header)
+        
+        self.center_layout.addWidget(self.dashboard_container_w)
+        self.center_layout.addWidget(self.plot_L_widget, stretch=1)
 
         self.center_widget = QWidget()
         self.center_widget.setLayout(self.center_layout)
@@ -148,6 +188,9 @@ class MainView(QMainWindow):
         self.vertical_split = QSplitter(QtCore.Qt.Horizontal)
         self.vertical_split.addWidget(self.center_widget)
         self.vertical_split.addWidget(self.message_sample_widget)
+        
+        self.vertical_split.setStretchFactor(0,3)
+        self.vertical_split.setStretchFactor(1,1)
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.vertical_split)
@@ -157,6 +200,8 @@ class MainView(QMainWindow):
         self.container.setObjectName("Background")
 
         self.setCentralWidget(self.container)
+        
+        self.setMinimumSize(1200, 600)
         
         self.show()
     
@@ -294,8 +339,30 @@ class MainView(QMainWindow):
         self.add_custom_plot( id, name, widget)
         
     
-    def add_custom_plot(self, id, name, widget):
+    def _refresh_plot_widgets(self):
+        configs = self._controller.get_plots()
         
+        for config in configs: 
+            config['widget'].setParent(None)
+            
+        QWidget().setLayout(self.plot_list_layout)
+        
+        if self.view_mode == 'Flow':
+            self.plot_list_layout = QVBoxLayout()
+        else:
+            self.plot_list_layout = QGridLayout()
+            
+        self.plot_L_widget.setLayout(self.plot_list_layout)
+        
+        
+        for config in configs:
+            self.add_custom_plot(config["id"], config["config"].name, config["widget"])
+    
+    def add_custom_plot(self, id, name, widget):
+        '''
+            Parameters:
+                layout: Grid or Flow
+        '''
         self.plot_list[id] = widget
         
         temp_plot_w = QCoolContainer()
@@ -306,18 +373,50 @@ class MainView(QMainWindow):
         name_label_temp.setObjectName("PlotLabel")
         name_label_temp.setAlignment(Qt.AlignCenter)
         
-        temp_plot_l.addWidget(name_label_temp)
+        delete_button = QPushButton("")
+        delete_button.resize(25,40)
+        delete_button.setObjectName("DeleteButton")
+        delete_button.clicked.connect(
+                lambda _, dtype=id : self._delete_plot(dtype))
+        
+        v_split = QSplitter(QtCore.Qt.Horizontal)
+        v_split.setObjectName("PlotHeaderSplit")
+        v_split.addWidget(name_label_temp)
+        v_split.addWidget(delete_button)
+        v_split.setStretchFactor(0,3)
+        v_split.setStretchFactor(1,0)
+        
+        temp_plot_l.addWidget(v_split)
         temp_plot_l.addWidget(widget)
         
-        self.plot_list_layout.addWidget(temp_plot_w)
+        if self.view_mode == 'Flow':
+            self.plot_list_layout.addWidget(temp_plot_w)
+        else:
+            count = self.plot_list_layout.count()
+            self.plot_list_layout.addWidget(temp_plot_w, count//2, count%2)
+            
+    def _delete_plot(self, id):
+        self._controller.delete_plot(id)
+        self._refresh_plot_widgets()
     
     def _reset_sample(self):
         for i in reversed(range(self.message_sample.count())):
             self.message_sample.itemAt(i).widget().deleteLater()
 
         self.message_sample.addWidget(QLabel("Sample tweets from the day"))
-
-
+    
+    def _change_view_mode(self):
+        if self.view_mode == 'Grid':
+            self.view_mode = 'Flow'
+            self.view_mode_button.setIcon(QIcon('media/icons/grid-layout.png'))
+        else:
+            self.view_mode = 'Grid'
+            self.view_mode_button.setIcon(QIcon('media/icons/list-layout.png'))
+            
+            
+        self._refresh_plot_widgets()
+        
+        
     def open_configuration(self):
         settings = self._controller.get_settings()
         configuration_dialog = ConfigurationDialog(self._controller)
