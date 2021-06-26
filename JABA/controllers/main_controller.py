@@ -21,6 +21,7 @@ import pickle
 
 from datetime import date
 
+from pathlib import Path
 
 
 DATE_FORMAT = "yyyy-MM-dd"
@@ -112,8 +113,9 @@ class MainController(QObject):
     
     def _get_scrapped_dates(self):
         ''' Gets the date of the alredy scrapped dates and sets to scrapped_dates'''
-        # Check if files inside folder or just folder
-        
+        # TODO Move function which tells the scrapped data based on logs
+        Path(base_dir).mkdir(parents=True, exist_ok=True)
+
         for path in os.listdir( base_dir ):
             date = QDate.fromString(path, DATE_FORMAT)
             
