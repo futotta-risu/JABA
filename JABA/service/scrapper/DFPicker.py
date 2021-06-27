@@ -130,17 +130,3 @@ def train_test_splitter(X, Y, test_size):
     
     return X_train, X_test, y_train, y_test
 
-'''
-def add_null_rows(df, num_rows):
-    last_row = df.iloc[df.shape[1]-1:]
-    init = pd.to_datetime(last_row.ds)
-    for i in range(num_rows):
-        init += datetime.timedelta(minutes=30)
-        new_row = {'ds':init, 'y':0}
-        df = df.append(new_row, ignore_index=True)
-    
-   
-    df.reset_index(drop=True, inplace=True)
-    print(df.tail())
-    return df
-'''
