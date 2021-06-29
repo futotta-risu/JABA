@@ -21,7 +21,11 @@ from views.style.styles import *
 active_thread_str = "There are {threads} running threads."
 
 class MainView(QMainWindow):
-
+    '''
+        Main view from the program.
+        
+        
+    '''
     calendar_colors = {"data": "#18BEBE", "sentiment": "blue"}
 
     plot_list = {}
@@ -50,40 +54,15 @@ class MainView(QMainWindow):
         self.setWindowTitle("Just Another Bitcoin Analyzer")
         
     def _load_window_components(self):        
-        self.top_layout = QGridLayout()
+        self.top_layout = QHBoxLayout()
         
-
-        self.button_menu_layout = QVBoxLayout()
-        
-        self.combo_sentiment_algorithm = QComboBox(self)
-
-
-        # TODO Change this to factory dataGet
-        analysis_methods = self._controller.get_analysis_methods()
-        self.combo_sentiment_algorithm.addItems(analysis_methods)
-
-        self.analyze_date_button = QPushButton("Analyze Day")
-        self.auto_scrap = QPushButton("Auto Scrap")
-        self.update_plot_button = QPushButton("Update Plot")
-        self.configure_button = QPushButton("Add Plot")
-
-        self.button_menu_layout.addWidget(self.combo_sentiment_algorithm)
-        self.button_menu_layout.addWidget(self.analyze_date_button)
-        self.button_menu_layout.addWidget(self.auto_scrap)
-
-        self.button_menu_layout.addWidget(self.update_plot_button)
-        self.button_menu_layout.addWidget(self.configure_button)
-
-        self.button_menu_container = QWidget()
-        self.button_menu_container.setLayout(self.button_menu_layout)
-        
+        #Iconos diseñados por Freepik from www.flaticon.es
+        self.setWindowIcon(QtGui.QIcon('media/icons/pizza.png'))
         
         self.calendar = QCalendarWidget(self)
         self.calendar.setVerticalHeaderFormat(QCalendarWidget.NoVerticalHeader)
         self.calendar.setHorizontalHeaderFormat(0)
-        
-        self.top_layout.addWidget(self.button_menu_container, 1, 1)
-        self.top_layout.addWidget(self.calendar, 1, 2)
+        self.top_layout.addWidget(self.calendar)
 
         self.top_container = QCoolContainer()
         self.top_container.setLayout(self.top_layout)
@@ -246,24 +225,31 @@ class MainView(QMainWindow):
         self.message_sample_table.resizeRowsToContents()
         
     def _connect_window_components(self):
-        self.analyze_date_button.clicked.connect(self.analyze_date)
-        self.auto_scrap.clicked.connect(self.automatic_scrapper)
-        self.configure_button.clicked.connect(self.open_configure)
-        self.update_plot_button.clicked.connect(self.update_plot)
         self._model.thread_count_changed.connect(self.on_thread_count_changed)
         self._model.thread_count_changed.connect(
             self._controller.automatic_scrapper)
-        
+        self.calendar.clicked.connect(self.update_plot)
         #self.graphWidgetBTC.scene().sigMouseMoved.connect(self.onMouseMoved)
         
     def _create_menu_bar(self):
         menu_bar = QMenuBar(self)
         
+        self.scrap_date_button = QAction("&Scrap Date", self)
+        self.scrap_date_button.triggered.connect(self.analyze_date)
+        self.auto_scrap_date_button = QAction("&Auto Scrap", self)
+        self.auto_scrap_date_button.triggered.connect(self.automatic_scrapper)
+        data_menu = QMenu("&Data", self)
+        data_menu.addAction(self.scrap_date_button)
+        data_menu.addAction(self.auto_scrap_date_button)
+        
         self.save_plots_button = QAction("&Save Plot", self)
         self.save_plots_button.triggered.connect(self.save_plots_config)
         self.load_plots_button = QAction("&Load Plot", self)
         self.load_plots_button.triggered.connect(self.load_plots_config)
+        self.add_plot_button = QAction("&Add Plot", self)
+        self.add_plot_button.triggered.connect(self.open_configure)
         plots_menu = QMenu("&Plots", self)
+        plots_menu.addAction(self.add_plot_button)
         plots_menu.addAction(self.save_plots_button)
         plots_menu.addAction(self.load_plots_button)
         
@@ -273,7 +259,7 @@ class MainView(QMainWindow):
         configuration_menu = QMenu("&Configuration", self)
         configuration_menu.addAction(self.open_parameters)
 
-        
+        menu_bar.addMenu(data_menu)
         menu_bar.addMenu(plots_menu)
         menu_bar.addMenu(configuration_menu)
         
@@ -318,7 +304,7 @@ class MainView(QMainWindow):
 
     def update_plot(self):
         date = self.calendar.selectedDate()
-        algorithm = str(self.combo_sentiment_algorithm.currentText())
+        algorithm = str(self._controller.get_analysis_method())
         
         sample = self._controller.get_message_sample_with_sentiment(
             date, algorithm)
@@ -328,7 +314,7 @@ class MainView(QMainWindow):
         
         self._controller.update_plots(
             self.calendar.selectedDate().toPyDate(),
-            self.combo_sentiment_algorithm.currentText(),
+            self._controller.get_analysis_method(),
         )
         
     def open_configure(self):

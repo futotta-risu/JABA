@@ -78,11 +78,6 @@ class MainController(QObject):
         self.scrapped_dates = set()
         self._get_scrapped_dates()
 
-        
-        
-
-        
-
     def _init_settings(self):
         self.settings = QSettings("JABA", "JABA_Settings")
         try:
@@ -91,6 +86,7 @@ class MainController(QObject):
             self.settings.setValue("initial_date",
                                    QDate.fromString("2017-01-01", DATE_FORMAT))
             self.settings.setValue("loaded_settings", True)
+            self.settings.setValue("analysis_algorithm", 'nltk')
             self.settings.sync()
             
         self.load_settings()
@@ -108,6 +104,9 @@ class MainController(QObject):
     def get_settings(self):
         return self.settings
 
+    def get_analysis_method(self):
+        return self.settings.value("analysis_algorithm")
+    
     def get_analysis_methods(self):
         return Analyzer.get_algorithms()
     
@@ -241,3 +240,5 @@ class MainController(QObject):
     def delete_plot(self, id):
         # TODO Replace list to hashmap for speed
         self.plot_configurations = [x for x in self.plot_configurations if x['id'] != id]
+        
+  
