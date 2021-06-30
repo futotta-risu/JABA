@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 import snscrape.modules.twitter as snstwitter
 
+from .analyzer import *
 from .cleaner import clean_tweet
 from .file_manager import *
 
@@ -137,7 +138,7 @@ class TwitterScrapper(IScrapper):
 
             date_from += timedelta(days=1)
 
-    def filter_spam(self, data):
+    def filter_spam(self, data, dbscan=False):
         """
         Filters the spam from the data.
 
@@ -158,6 +159,14 @@ class TwitterScrapper(IScrapper):
                      rename_axis("unique_texts").reset_index(name="counts"))
 
         data.drop_duplicates(subset="Text", keep=False, inplace=True)
+        
+        if(dbscan == True):
+            # Search for similar tweets with cosine similarity & DBSCAN
+            print(data.shape)
+            data = analyze_similarity(data)
+            print(data.head())
+            data = remove_similar_tweets(data)
+            print(data.shape)
 
         return data, data_spam
 
