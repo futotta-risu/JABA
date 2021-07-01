@@ -4,6 +4,9 @@ from pathlib import Path
 import nltk
 import pandas as pd
 from nltk.sentiment import SentimentIntensityAnalyzer
+from sklearn.cluster import DBSCAN
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from textblob import TextBlob
 
 from .cleaner import *
@@ -175,3 +178,54 @@ class Analyzer:
             data.loc[index, "sentiment"] = sentiment
 
         self.file_manager.save_file(data["sentiment"], args = args)
+    
+    
+    def get_cosine_similarity(self, cleaned_texts):
+        """
+        Calculates the Cosine Similarity of Strings given a list of them.
+        Texts must be cleaned before the analisis
+        """
+
+        vectorizer = CountVectorizer().fit_transform(cleaned_texts)
+        vectors = vectorizer.toarray()
+
+        return cosine_similarity(vectors)
+
+    def analyze_similarity(self, tweet_df):
+        """
+        Insert a new column with the clustered group number into the given dataframe of tweets.
+        The column is called 'Prediction'
+        """
+
+        tweet_df = tweet_df.dropna(axis=0, subset=["Text"])
+        csim = self.get_cosine_similarity(tweet_df["Text"])
+        clustering = DBSCAN(eps=1.04, min_samples=5).fit(csim)
+        unique_elements, counts_elements = np.unique(clustering.labels_,
+                                                     return_counts=True)
+        tweet_df["Prediction"] = clustering.labels_.tolist()
+
+        return tweet_df
+
+    def remove_similar_tweets(self, tweet_df):
+        """
+        Remove from the received Dataframe the tweet_groups where the username is similar.
+        """
+
+        for i in range(0, tweet_df["Prediction"].value_counts().size - 1):
+            tweet_group = tweet_df.loc[tweet_df["Prediction"] == i]
+            csim = self.get_cosine_similarity(tweet_group["Username"])
+            lower = []
+            for j in range(0, len(csim)):
+                for i in range(0, len(csim)):
+                    if j > i:
+                        lower.append(csim[j][i])
+                    else:
+                        pass
+            lowerSum = sum(lower)
+
+            # El parametro 0.1 hace referencia a la cantidad de repeticiones en el
+            # grupo de tweets, siendo 1 el maximo numero de repeticiones
+            if lowerSum / sum(range(len(csim))) > 0.1:
+                tweet_df.drop(tweet_group.index, inplace=True)
+
+        return tweet_df
