@@ -3,6 +3,9 @@
 * Dashboard for scrapping & tracking the twitter sentiment related with Bitcoin.
 * Notebooks with Correlation Analysis & Forecasting with Facebook Prophet
 
+<p align="center">
+  <img width="930" height="520" src="https://miro.medium.com/max/700/1*H8m57TR-ib_MQxhy6-2OcQ.png">
+</p>
 
 ## Status
 
