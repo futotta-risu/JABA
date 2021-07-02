@@ -57,3 +57,5 @@ The proposed formula for sentiment calculations is detailed in the [GlobalSentim
 
 ### 6. Forecasting With Prophet
 We also have used the Facebook Prophet model for trying to forecast the future price of bitcoin given the sentiment of twitter. The analysis can be found in the [TSA](https://github.com/futotta-risu/JABA/blob/main/TSA.ipynb) notebook.
+Download the fitted Model to save time, you can load it with the notebook section 'Load Model'. [Download It from Google Drive](https://drive.google.com/file/d/1RMDXy2svQ73nDvJdl2nKe5ghZD_7dnJl/view?usp=sharing)
+
