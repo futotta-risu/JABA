@@ -1,61 +1,31 @@
 # Just Another Bitcoin Analyzer (JABA)
+![main](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg) 
+Dashboard for scrapping & tracking the twitter sentiment related with Bitcoin.
 
-* Dashboard for scrapping & tracking the twitter sentiment related with Bitcoin.
-* Notebooks with Correlation Analysis & Forecasting with Facebook Prophet
+![GIF demo](https://miro.medium.com/max/700/1*5KJpHcwmNoxVHmkHipyL4g.gif)
 
-<p align="center">
-  <img width="930" height="520" src="https://miro.medium.com/max/700/1*H8m57TR-ib_MQxhy6-2OcQ.png">
-</p>
-
-## Status
-
-* ![main](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg) 
-
-* [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=futotta-risu_JABA&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=futotta-risu_JABA)
-* [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=futotta-risu_JABA&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=futotta-risu_JABA)
-
-
-## Execution
-
-### 1. Install Requirements 
-For executing the JABA app, first we need to download the necesary libraries using the requirements.txt file. Locate at the same level of the requirements file and execute next commands in your prompt:
+## Installation
+To use JABA, you will need to download the repo and install the requirements
 
     pip install -r requirements.txt
-    python -m nltk.downloader names stopwords state_union twitter_samples movie_reviews averaged_perceptron_tagger vader_lexicon punkt
 
-### 2. Run JABA app
-Located inside the JABA folder and run the next command:
+once you have the necessary imports, you will need to exec the app
 
-    python app.py
+    python JABA/app.py
     
-### 3. Scrap the DATA
-Now you must see the dashboard of JABA empty, when you download the project the first time, you need to scrap the data needed for the analysis.
-We give you 2 options:
-1. Scrap the data starting by your preferred date\
-    Select the date in the calendar and click **Data > Auto Scrap** in the menu
+## Data Scraping
+JABA is planned to have the option to scrap the data when needed, but the project isn't finished, and we don't have this option yet for all the data. The data scraping is divided in social network and bitcoin:
 
-2. Use our prepared datasets\
-    [Download It from Google Drive](https://drive.google.com/file/d/10Opisqx0QSxMW8jhUqEewXOEzMk9_sNK/view?usp=sharing)
+* **Social network** can be downloaded through the autoscrap option in the app menu. 
+* **Bitcoin** data is not yet automatically scraped, so we have uploaded the current data to this [url](https://drive.google.com/file/d/1Kjs9CpYB9ueGJubsrQwnoURdhw78GTXY/view?usp=sharing). The bitcoin folder extracted from the zip file must be located in the /JABA/data/ folder.
 
-Data must be located in daily folders inside the **data/bitcoin/YYYY-MM-DD** or **data/tweets/YYYY-MM-DD**, our data is grouped to 30m periods.
+## Global Sentiment
+The main academic proposal from this repository is a different sentiment analysis formula for sets of texts. Exploring the field, the most common proporsal has been to apply the mean to the list of sentiments. We reject this vision since it doesn't hold enough information about the list.
 
-#### 3.1 SPAM filtering option
-We have used clustering with DBSAN & Cosine Similarity for grouping similar tweets, and delete them if considered as SPAM.
-This option can be activated in the [scrapper.py [Line 135]](https://github.com/futotta-risu/JABA/blob/main/JABA/service/scrapper/scrapper.py)
-    
-    tweets, spam_tweets = self.filter_spam(tweet_list, dbscan = True)
+The details of it can be seen in the notebook [GlobalSentiment](https://github.com/futotta-risu/JABA/blob/main/GlobalSentiment.ipynb).
 
-### 4. Plot daily data
-You can select any day in the calendar and the sentiment and bitcoin price related plots will be updated to that day.
-Furthermore, we can add, load or save plots to the dashboard with a high configurable options.
-We can do this by clicking on the sections located in the submenu of **Plots**.
-If we want to export or configure individually any of the displayed plots we only need to do right click on it.
-
-### 5. Global Sentiment
-We have been searching for a way to calculate a global sentiment caused by a tweet, taking into account more complex features, rather than the simple polarity offered by nltk.
-The proposed formula for sentiment calculations is detailed in the [GlobalSentiment](https://github.com/futotta-risu/JABA/blob/main/GlobalSentiment.ipynb) notebook.
-
-### 6. Forecasting With Prophet
-We also have used the Facebook Prophet model for trying to forecast the future price of bitcoin given the sentiment of twitter. The analysis can be found in the [TSA](https://github.com/futotta-risu/JABA/blob/main/TSA.ipynb) notebook.
-Download the fitted Model to save time, you can load it with the notebook section 'Load Model'. [Download It from Google Drive](https://drive.google.com/file/d/1RMDXy2svQ73nDvJdl2nKe5ghZD_7dnJl/view?usp=sharing)
-
+## Future Lines
+We plan to update the project adding new features. The main lines in which we will be working are:
+* Custom search queries apart from Bitcoin, accessible from the app.
+* Online database from AWS.
+* Multiday plot visualization
