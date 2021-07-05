@@ -31,6 +31,10 @@ class ConfigurationDialog(QDialog):
         self.initial_date_pick = QDateEdit(calendarPopup=True)
         form_layout.addRow( QLabel("Initial Date"), self.initial_date_pick)
 
+        self.combo_sentiment_algorithm = QComboBox(self)
+        self.combo_sentiment_algorithm.addItems(self._controller.get_analysis_methods())
+        
+        form_layout.addRow( QLabel("Sentiment Algorithm"), self.combo_sentiment_algorithm)
         
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.save_settings)
@@ -42,8 +46,12 @@ class ConfigurationDialog(QDialog):
     def _set_settings_values(self):
         self.initial_date_pick.setDate(
             self.settings.value("initial_date", type=QDate))
+        print(self._controller.get_analysis_methods())
+        index = self._controller.get_analysis_methods().index(self._controller.get_analysis_method())
+        self.combo_sentiment_algorithm.setCurrentIndex(index)
 
     def save_settings(self):
         self.settings.setValue("initial_date", self.initial_date_pick.date())
+        self.settings.setValue("analysis_algorithm", self.combo_sentiment_algorithm.currentValue())
         self._controller.set_settings(self.settings)
         self.close()

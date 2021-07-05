@@ -140,10 +140,5 @@ QSplitter::handle:vertical#PlotHeaderSplit {
     height: 0px;
 }
 
-#Dashboard8099 {
-    background-color: #18BEBE;
-    border-radius: 8px;
-    margin: 0px 8px 0px 8px;
-}
 
 """

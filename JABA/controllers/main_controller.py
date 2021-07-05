@@ -21,6 +21,7 @@ import pickle
 
 from datetime import date
 
+from pathlib import Path
 
 
 DATE_FORMAT = "yyyy-MM-dd"
@@ -77,11 +78,6 @@ class MainController(QObject):
         self.scrapped_dates = set()
         self._get_scrapped_dates()
 
-        
-        
-
-        
-
     def _init_settings(self):
         self.settings = QSettings("JABA", "JABA_Settings")
         try:
@@ -90,6 +86,7 @@ class MainController(QObject):
             self.settings.setValue("initial_date",
                                    QDate.fromString("2017-01-01", DATE_FORMAT))
             self.settings.setValue("loaded_settings", True)
+            self.settings.setValue("analysis_algorithm", 'nltk')
             self.settings.sync()
             
         self.load_settings()
@@ -107,13 +104,17 @@ class MainController(QObject):
     def get_settings(self):
         return self.settings
 
+    def get_analysis_method(self):
+        return self.settings.value("analysis_algorithm")
+    
     def get_analysis_methods(self):
         return Analyzer.get_algorithms()
     
     def _get_scrapped_dates(self):
         ''' Gets the date of the alredy scrapped dates and sets to scrapped_dates'''
-        # Check if files inside folder or just folder
-        
+        # TODO Move function which tells the scrapped data based on logs
+        Path(base_dir).mkdir(parents=True, exist_ok=True)
+
         for path in os.listdir( base_dir ):
             date = QDate.fromString(path, DATE_FORMAT)
             
@@ -223,7 +224,7 @@ class MainController(QObject):
         plotService = PlotService()
 
         for config in self.plot_configurations:
-            id, pConfig, widget = config["id"], config["config"], config["widget"],
+            id, pConfig, widget = config["id"], config["config"], config["widget"]
             
             args = {"date": date, "algorithm": algorithm }
             data = scrapService.get_data_by_category(pConfig.variable_type, args)
@@ -232,4 +233,12 @@ class MainController(QObject):
             
             widget.clear()
             widget.plot(index, data, pen=pg.mkPen('18BEBE', width=1))
-
+    
+    def get_plots(self):
+        return self.plot_configurations
+    
+    def delete_plot(self, id):
+        # TODO Replace list to hashmap for speed
+        self.plot_configurations = [x for x in self.plot_configurations if x['id'] != id]
+        
+  
