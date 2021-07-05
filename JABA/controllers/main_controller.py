@@ -196,6 +196,7 @@ class MainController(QObject):
         
 
     def create_plot(self, config):
+        ''' Creates a plot widget and id and adds it to the plot configuration list '''
         widget = PlotWidget()
         id = self.plotService.getPlotID()
         self.plot_configurations += [{
@@ -218,6 +219,7 @@ class MainController(QObject):
         return None, "", None
 
     def update_plots(self, date, algorithm):
+        ''' Refreshes the plots from a certain date and algorithm '''
         plots = []
         
         scrapService = ScrapService()

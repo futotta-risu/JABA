@@ -26,6 +26,10 @@ nltk.download([
 
 
 class AnalyzerFileManager(FileManagerInterface):
+    '''
+        Handles the file system for the analyzer methods.
+    '''
+
     def __init__(self):
         super().__init__()
 
