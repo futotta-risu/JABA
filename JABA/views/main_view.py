@@ -32,14 +32,14 @@ class MainView(QMainWindow):
         
     '''
     calendar_colors = {"data": "#18BEBE", "sentiment": "blue"}
-
+    
+    layout_mode = 0
+    layout_icons = [('Grid', 'media/icons/grid-layout.png'), ('Flow', 'media/icons/list-layout.png')]
+    
     plot_list = {}
-
     
     def __init__(self, model, controller):
         super().__init__()
-        
-        self.view_mode = 'Flow'
         
         self._model = model
         self._controller = controller
@@ -248,7 +248,6 @@ class MainView(QMainWindow):
 
     def _init_window(self):
         self._reset_calendar_color()
-        
         self.__refresh_table([])
 
 
@@ -308,7 +307,7 @@ class MainView(QMainWindow):
             
         QWidget().setLayout(self.plot_list_layout)
         
-        if self.view_mode == 'Flow':
+        if self.layout_mode == 0:
             self.plot_list_layout = QVBoxLayout()
         else:
             self.plot_list_layout = QGridLayout()
@@ -343,7 +342,7 @@ class MainView(QMainWindow):
         temp_plot_l.addWidget(CornerIconPanel(name_label_temp, delete_button))
         temp_plot_l.addWidget(widget)
         
-        if self.view_mode == 'Flow':
+        if self.layout_mode == 0:
             self.plot_list_layout.addWidget(temp_plot_w)
         else:
             count = self.plot_list_layout.count()
@@ -360,13 +359,9 @@ class MainView(QMainWindow):
         self.message_sample.addWidget(QLabel("Sample tweets from the day"))
     
     def _change_view_mode(self):
-        if self.view_mode == 'Grid':
-            self.view_mode = 'Flow'
-            self.view_mode_button.setIcon(QIcon('media/icons/grid-layout.png'))
-        else:
-            self.view_mode = 'Grid'
-            self.view_mode_button.setIcon(QIcon('media/icons/list-layout.png'))
-            
+        
+        self.layout_mode = (self.layout_mode + 1 ) % len(self.layout_icons) 
+        self.view_mode_button.setIcon(QIcon(self.layout_icons[self.layout_mode][1]))
             
         self._refresh_plot_widgets()
         
