@@ -16,9 +16,8 @@ class PlotService:
 
 
     def applyPlotMaps(self, data, plotConfig):
-        '''
-            Apply plot maps to the data.
-        '''
+        ''' Apply plot maps to the data '''
+        
         for fmap in plotConfig.map_list:
             data = fmap.apply(data)
         

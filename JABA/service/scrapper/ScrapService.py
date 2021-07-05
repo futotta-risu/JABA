@@ -9,7 +9,8 @@ class NoDataAvailableException(Exception):
 
 class ScrapService:
     def get_data_by_category(self, dataModel, args):
-        data = None
+        ''' Returns the data based on the data model. '''
+        
         if dataModel == "Tweet":
             scrapper = ScrapperFileManager()
             data = scrapper.open_file(args)

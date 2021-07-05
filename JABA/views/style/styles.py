@@ -140,4 +140,5 @@ QSplitter::handle:vertical#PlotHeaderSplit {
     height: 0px;
 }
 
+
 """
