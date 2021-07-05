@@ -20,7 +20,6 @@ from .component.calendar.CoolCalendar import CoolCalendar
 from .component.label.CoolCenterTitleLabel import CoolCenterTitleLabel
 from .component.CornerIconPanel import CornerIconPanel
 
-CornerIconPanel
 from views.style.styles import *
 
 
@@ -29,8 +28,8 @@ class MainView(QMainWindow):
     '''
         Main view from the program.
         
-        
     '''
+    
     calendar_colors = {"data": "#18BEBE", "sentiment": "blue"}
     
     layout_mode = 0

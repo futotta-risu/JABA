@@ -3,7 +3,9 @@ import pandas as pd
 from .ScrapModel import ScrapModel
 
 class Bitcoin(ScrapModel):
-    
+    '''
+        Bitcoin model.
+    '''
     name = "Bitcoin"
     
     column_names = [

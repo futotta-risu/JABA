@@ -90,7 +90,13 @@ class IScrapper:
         pass
 
 
+# TODO Change the spelling
 class TwitterScrapper(IScrapper):
+    '''
+        Twitter scraper class which extracts the data of a certain query.
+    '''
+
+
     namespace = "twitter"
     query = '"BTC" OR "bitcoin" since:{since} until:{until} lang:{lang}'
 
