@@ -37,7 +37,7 @@ jobs:
           python -m pytest ../tests --cov=JABA --cov-report=xml
       - uses: codecov/codecov-action@v1
         with:
-          files: ../coverage.xml 
+          files: ./JABA/coverage.xml 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
