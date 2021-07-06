@@ -166,7 +166,7 @@ class MainController(QObject):
         if self.actual_scrapper_date >= date.today():
             return
         
-        if self.threadpool.activeThreadCount() < 5:
+        if self.threadpool.activeThreadCount() < 10:
             self.analyze_date(self.actual_scrapper_date.toPyDate())
             self.actual_scrapper_date = self.actual_scrapper_date.addDays(1) # Add day to avoid same day analyze
             self.automatic_scrapper()
