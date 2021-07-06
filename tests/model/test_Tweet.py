@@ -2,9 +2,7 @@ import pytest
 
 import pandas as pd
 
-
-import JABA
-from JABA.model.Tweet import Tweet
+from model.Tweet import Tweet
 
 def test_create_tweet():
     tweet = Tweet()
