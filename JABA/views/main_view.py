@@ -55,159 +55,108 @@ class MainView(QMainWindow):
         self.load_plots_config(real_filename = 'data/plotty/default_v1')
         
     def _load_window_properties(self):
+        ''' Loads the windows properties such as title, icon or size '''
         self.setWindowTitle("Just Another Bitcoin Analyzer")
-        
-    def _load_window_components(self):        
-        self.top_layout = QHBoxLayout()
         
         #Iconos diseñados por Freepik from www.flaticon.es
         self.setWindowIcon(QtGui.QIcon('media/icons/pizza.png'))
         
-        self.calendar = CoolCalendar()
+        self.setMinimumSize(1200, 600)
         
-        self.top_layout.addWidget(self.calendar)
-
-        self.top_container = QCoolContainer()
-        self.top_container.setLayout(self.top_layout)
-        self.top_container.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        
-        
-        
-        self.message_sample = QVBoxLayout()
-
-        self.message_sample_table = SentimentTable()
-
-        self.message_sample_label = CoolCenterTitleLabel("Top Tweets")
-        
-        
-        self.message_sample.addWidget(self.message_sample_label)
-        self.message_sample.addWidget(self.message_sample_table, stretch = 1)
-        
-        
-        self.message_sample_widget = QWidget()
-        self.message_sample_widget_l = QVBoxLayout()
-        self.message_sample_widget.setLayout(self.message_sample_widget_l)
-        self.message_sample_widget.setObjectName("Background")
-        
-        
-        self.message_sample_w = QCoolContainer()
-        self.message_sample_w.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
-        
-        self.message_sample_w.setLayout(self.message_sample)
-        
-        self.message_sample_widget_l.addWidget(self.top_container)
-        self.message_sample_widget_l.addWidget(self.message_sample_w, stretch = 1)
-
-        
-        
+        # Set the plot background as white
         pg.setConfigOption('background', 'w')
+        
+        
+        
+    def _load_window_components(self):        
+        ''' Loads the window components '''
+        self.calendar = CoolCalendar()
+        self.sample_table = SentimentTable()
+        
+        
+        self.east_widget = QWidget()
+        self.east_layout = QVBoxLayout()
+        self.east_widget.setLayout(self.east_layout)
+        self.east_widget.setObjectName("Background")
+        
+        self.calendar_container = QCoolContainer(self.calendar)
+        self.calendar_container.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
 
+        self.message_sample_layout = QVBoxLayout()
+        self.message_sample_widget = QCoolContainer()
+        self.message_sample_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.message_sample_widget.setLayout(self.message_sample_layout)
+        
+        self.message_sample_layout.addWidget(CoolCenterTitleLabel("Top Tweets"))
+        self.message_sample_layout.addWidget(self.sample_table, stretch = 1)
+                
+        self.east_layout.addWidget(self.calendar_container)
+        self.east_layout.addWidget(self.message_sample_widget, stretch = 1)
+
+
+        self.center_widget = QWidget()
         self.center_layout = QVBoxLayout()
-
-        self.plot_list_layout = QVBoxLayout()
-
-        self.plot_L_widget = QWidget()
-        self.plot_L_widget.setLayout(self.plot_list_layout)
-        self.plot_L_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
-        
-        self.dashboard_container_w = QCoolContainer()
-        self.dashboard_container_l = QHBoxLayout()
-        self.dashboard_container_w.setLayout(self.dashboard_container_l)
-        
-        self.dashboard_container_w.setAttribute(Qt.WA_StyledBackground, True)
-        self.dashboard_container_w.setStyleSheet('''
-            background-color: #18BEBE;
-            border-radius: 8px;
-            margin: 0px 8px 0px 8px;
-        ''')
+        self.center_widget.setLayout(self.center_layout)
+        self.center_widget.setObjectName("Background")
         
         self.dashboard_label = QLabel("JABA Dashboard")
-        
         self.dashboard_label.setAlignment(Qt.AlignCenter)
         self.dashboard_label.setObjectName("DashboardLabel")
         
         self.view_mode_button = QPushButton("")
         self.view_mode_button.setObjectName("ViewModeButton")
         self.view_mode_button.setIcon(QIcon('media/icons/grid-layout.png'))
-        self.view_mode_button.clicked.connect(self._change_view_mode)
+        
+        self.plot_list_widget = QWidget()
+        self.plot_list_layout = QVBoxLayout()
+        self.plot_list_widget.setLayout(self.plot_list_layout)
+        self.plot_list_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+                        
+        
+        self.header = CornerIconPanel(self.dashboard_label, self.view_mode_button)
+        self.header.setObjectName('TitleWidgetHeader')
+        
+        self.title_widget = QCoolContainer(self.header)
+        self.title_widget.setObjectName('TitleWidget')
+        
+        self.title_widget.setAttribute(Qt.WA_StyledBackground, True)
+        self.title_widget.setStyleSheet('background-color: #18BEBE')
         
         
-        self.dashboard_header = CornerIconPanel(self.dashboard_label, self.view_mode_button)
-        
-        self.dashboard_container_l.addWidget(self.dashboard_header)
-        
-        self.center_layout.addWidget(self.dashboard_container_w)
-        self.center_layout.addWidget(self.plot_L_widget, stretch=1)
+        self.center_layout.addWidget(self.title_widget)
+        self.center_layout.addWidget(self.plot_list_widget, stretch=1)
 
-        self.center_widget = QWidget()
-        self.center_widget.setLayout(self.center_layout)
-        self.center_widget.setObjectName("Background")
         
         self.vertical_split = QSplitter(QtCore.Qt.Horizontal)
+        self.vertical_split.setObjectName("Background")
+        
         self.vertical_split.addWidget(self.center_widget)
-        self.vertical_split.addWidget(self.message_sample_widget)
-        
         self.vertical_split.setStretchFactor(0,3)
-        self.vertical_split.setStretchFactor(1,1)
-
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.vertical_split)
-
-        self.container = QWidget()
-        self.container.setLayout(self.layout)
-        self.container.setObjectName("Background")
-
-        self.setCentralWidget(self.container)
         
-        self.setMinimumSize(1200, 600)
+        self.vertical_split.addWidget(self.east_widget)
+        self.vertical_split.setStretchFactor(1,1)
+        
+        self.setCentralWidget(self.vertical_split)
         
         self.show()
     
     def resizeEvent(self, event):
-        self.message_sample_table.resizeRowsToContents()
+        self.sample_table.resizeRowsToContents()
         QtGui.QMainWindow.resizeEvent(self, event)
 
     def __refresh_table(self, data):
-        while (self.message_sample_table.rowCount() > 1):
-            self.message_sample_table.removeRow(1)
+        ''' Refresh the table with new data '''
+        while (self.sample_table.rowCount() > 1):
+            self.sample_table.removeRow(1)
         
         for text, sentiment in data:
-            rowPosition = self.message_sample_table.rowCount()
-            self.message_sample_table.insertRow(rowPosition)
+            self.sample_table.addRow(text, sentiment)
             
-            self.message_sample_table.setItem(
-                rowPosition-1, 
-                0,
-                QtGui.QTableWidgetItem(text)
-            )
-            
-            sentiment_item = QTableWidgetItem("{:.2f}".format(sentiment))
-            sentiment_item.setTextAlignment(QtCore.Qt.AlignCenter)
-            
-            temp_font = sentiment_item.font()
-            temp_font.setBold(True)
-            temp_font.setPointSize(12)
-            sentiment_item.setFont(temp_font)
-            
-            temp_color = QtGui.QColor(
-                    100 + (1 - sentiment) / 2 * 155,
-                    100 + (1 + sentiment) / 2 * 155,
-                    100 + (1 + sentiment) / 2 * 155
-                ) 
-            sentiment_item.setForeground(QtGui.QBrush(temp_color))
-            
-            self.message_sample_table.setItem(
-                rowPosition-1,
-                1,
-                sentiment_item
-            )
-        self.message_sample_table.resizeRowsToContents()
+        self.sample_table.resizeRowsToContents()
         
     def _connect_window_components(self):
-        self._model.thread_count_changed.connect(
-            self._controller.automatic_scrapper)
         self.calendar.clicked.connect(self.update_plot)
-        #self.graphWidgetBTC.scene().sigMouseMoved.connect(self.onMouseMoved)
+        self.view_mode_button.clicked.connect(self._change_view_mode)
         
     def _create_menu_bar(self):
         menu_bar = QMenuBar(self)
@@ -267,12 +216,11 @@ class MainView(QMainWindow):
     
 
     def automatic_scrapper(self):
-        self._model.scrapping = True
-        self._controller.automatic_scrapper()
+        self._controller.startAutoScrapWorker()
     
     def analyze_date(self):
         date = self.calendar.selectedDate()
-        self._controller.analyze_date(date.toPyDate())
+        self._controller.startScrapWorker(date = date.toPyDate())
 
 
     def update_plot(self):
@@ -296,7 +244,7 @@ class MainView(QMainWindow):
             return
         
         self.add_custom_plot( id, name, widget)
-        
+    
     
     def _refresh_plot_widgets(self):
         configs = self._controller.get_plots()
@@ -311,7 +259,7 @@ class MainView(QMainWindow):
         else:
             self.plot_list_layout = QGridLayout()
             
-        self.plot_L_widget.setLayout(self.plot_list_layout)
+        self.plot_list_widget.setLayout(self.plot_list_layout)
         
         
         for config in configs:
@@ -350,13 +298,7 @@ class MainView(QMainWindow):
     def _delete_plot(self, id):
         self._controller.delete_plot(id)
         self._refresh_plot_widgets()
-    
-    def _reset_sample(self):
-        for i in reversed(range(self.message_sample.count())):
-            self.message_sample.itemAt(i).widget().deleteLater()
-
-        self.message_sample.addWidget(QLabel("Sample tweets from the day"))
-    
+        
     def _change_view_mode(self):
         
         self.layout_mode = (self.layout_mode + 1 ) % len(self.layout_icons) 

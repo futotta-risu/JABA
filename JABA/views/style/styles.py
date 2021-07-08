@@ -27,7 +27,6 @@ main_style = """
     background-color: #F1F8F8;
 }
 
-
 #MapButton{
   background-color: #8af;
 }
@@ -140,5 +139,15 @@ QSplitter::handle:vertical#PlotHeaderSplit {
     height: 0px;
 }
 
+#TitleWidget{
+    background-color: #18BEBE;
+    border-radius: 8px;
+    margin: 0px 8px 0px 8px;
+}
+
+#TitleWidgetHeader{
+    background-color: #18BEBE;
+    margin-right: 8px;
+}
 
 """

@@ -9,6 +9,8 @@ from PyQt5.QtCore import QSettings
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget
 
+from service.scrapper.workers.DateScrapWorker import DateScrapWorker
+
 from service.scrapper.analyzer import Analyzer
 from service.scrapper.cleaner import *
 from service.scrapper.scrapper import *
@@ -31,38 +33,11 @@ INITIAL_DATE = QDate.fromString("2017-01-01", DATE_FORMAT)
 
 base_dir = "data/tweets/"
 
-
-class Signals(QObject):
-    finished = pyqtSignal()
-    
-class AnalyzeDateWorker(QRunnable):
-    '''
-        Thread which scraps tweets and analyzes them. The thread need a date_from to work.
-        
-        Emits a finished signal in case of automatic scrapping.
-    '''
-    signal = Signals()
-    
-    def set_date(self, date_from):
-        self.date_from = date_from
-    
-    def run(self):
-        if self.date_from == None:
-            raise Exception()
-        
-        scrapper = TwitterScrapper()
-        analyzer = Analyzer()
-        
-        scrapper.scrap(self.date_from, self.date_from + timedelta(days=1), verbose=True)
-        analyzer.analyze(self.date_from, ScrapperFileManager())
-
-        self.signal.finished.emit()
-        
-
 class MainController(QObject):
     '''
         Controller for the main app window.
     '''
+    
     def __init__(self, model):
         super().__init__()
 
@@ -121,16 +96,7 @@ class MainController(QObject):
             if date.isValid():
                 self.scrapped_dates.add(date)
                 
-    def analyze_date(self, date):
-        '''
-            Loads the Analyze worker.
-        '''
-        worker = AnalyzeDateWorker()
-        worker.set_date(date)
-        worker.signal.finished.connect(self.automatic_scrapper)
-        worker.signal.finished.connect(self._refresh_thread_count)
-        
-        self.threadpool.start(worker)
+    
         
     def save_plot_config(self, file_name):
         with open(file_name, 'wb') as config_dictionary_file:
@@ -152,24 +118,45 @@ class MainController(QObject):
 
         return date_list
     
-    def _refresh_thread_count(self):
-        self._model.thread_count = self.threadpool.activeThreadCount()
-    
-    def automatic_scrapper(self):
-        self._get_scrapped_dates()
-        if not self._model.scrapping:
-            return
+    def change_automatic_scrapper(self):
+        self._model.auto_scraping = not self._model.auto_scraping
         
+    def getScrapDate(self):
         while self.actual_scrapper_date in self.scrapped_dates:
             self.actual_scrapper_date = self.actual_scrapper_date.addDays(1)
         
         if self.actual_scrapper_date >= date.today():
-            return
+            raise Exception() 
+            
+        return self.actual_scrapper_date
         
-        if self.threadpool.activeThreadCount() < 10:
-            self.analyze_date(self.actual_scrapper_date.toPyDate())
-            self.actual_scrapper_date = self.actual_scrapper_date.addDays(1) # Add day to avoid same day analyze
-            self.automatic_scrapper()
+        
+    def startAutoScrapWorker(self):
+        self._model.auto_scraping = True
+        
+        while self.threadpool.activeThreadCount() < self._model._max_threads:
+            self.startScrapWorker()
+            
+    def startScrapWorker(self, date = None):
+        ''' Gets a new  ScrapWorker and launches it '''
+        if date is None:
+            if self._model.auto_scraping:
+                date = self.getScrapDate()
+            else:
+                return
+        
+        self.scrapped_dates.add(date)
+        
+        worker = DateScrapWorker()
+        worker.set_date(date.toPyDate())
+        worker.signal.finished.connect(self.startScrapWorker)
+
+        self.threadpool.start(worker)   
+
+        
+    def stopAutoScrap():
+        model.autoscrap = False
+        
             
     def get_message_sample_with_sentiment(self, date, algorithm, random = True):
         '''

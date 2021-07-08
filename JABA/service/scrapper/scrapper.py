@@ -7,7 +7,6 @@ from pathlib import Path
 import pandas as pd
 import snscrape.modules.twitter as snstwitter
 
-from .analyzer import *
 from .cleaner import clean_tweet
 from .file_manager import *
 
