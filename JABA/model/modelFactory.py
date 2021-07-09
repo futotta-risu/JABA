@@ -2,10 +2,11 @@ import pandas as pd
 
 from model.ScrapModel import ScrapModel
 
-from model.Tweet import Tweet
-from model.Bitcoin import Bitcoin
-from model.Sentiment import Sentiment
+from model.social.Tweet import Tweet
+from model.bitcoin.Bitcoin import Bitcoin
+from model.sentiment.Sentiment import Sentiment
 
+# TODO Change this with real factory
 def createModelFrame(dtype):
     
     models = [

@@ -1,8 +1,6 @@
 from pyqtgraph import plot
 from pyqtgraph import PlotWidget
 
-
-
 class PlotService:
     def __init__(self):
         self.resetID()
