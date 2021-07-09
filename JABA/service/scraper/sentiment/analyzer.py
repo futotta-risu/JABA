@@ -1,17 +1,9 @@
-import os
-from pathlib import Path
-
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 
-import pandas as pd
-
-from sklearn.cluster import DBSCAN
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from textblob import TextBlob
 
-from service.scraper.cleaner import *
+from service.scraper.cleaner import total_clean
 from model.sentiment.SentimentFileManager import SentimentFileManager
 
 
@@ -76,7 +68,7 @@ class Analyzer:
         'garbage': -3,
         'pull': -2,
         'push': +2,
-        'free': -1, # Mostly spam
+        'free': -1,  # Mostly spam
         'ransomware': -3,
         'unstoppable': +2,
         'gamble': -10,
@@ -84,7 +76,7 @@ class Analyzer:
         'strong': +5,
         'weak': -5,
         'run': +2,
-        
+
     }
 
     def __init__(self):
@@ -95,7 +87,7 @@ class Analyzer:
     @staticmethod
     def get_algorithms():
         return ['nltk', 'textblob']
-        
+
     def get_sentiment(self, text, algorithm="nltk"):
         """
         Analyzes text.
@@ -115,10 +107,10 @@ class Analyzer:
             sentiment = TextBlob(text).sentiment.polarity
 
         return sentiment
-    
+
     # TODO Delete the round parameter
     def analyze(self,
-                date, 
+                date,
                 data_file_manager,
                 algorithm="nltk",
                 verbose=False):
@@ -132,16 +124,15 @@ class Analyzer:
         ubication (String): Path to the folder for the new file
         round (String): Where to approximate the "DateTime" column
         """
-        args = {'date': date, 'algorithm': algorithm }
+        args = {'date': date, 'algorithm': algorithm}
         data = data_file_manager.open_file(args)
-        
+
         for index, row in data.iterrows():
             if verbose:
                 if index % 1000 == 0:
                     print(f"Actual analyzed index: {index}")
-            
+
             sentiment = self.get_sentiment(row["Text"], algorithm)
             data.loc[index, "sentiment"] = sentiment
 
-        self.file_manager.save_file(data["sentiment"], args = args)
-    
+        self.file_manager.save_file(data["sentiment"], args=args)

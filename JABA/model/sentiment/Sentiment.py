@@ -3,10 +3,11 @@ import pandas as pd
 from model.ScrapModel import ScrapModel
 from model.social.Tweet import Tweet
 
+
 class Sentiment(ScrapModel):
-    
+
     name = "Sentiment"
-    
+
     def __init__(self):
         self.__tweet = Tweet()
 

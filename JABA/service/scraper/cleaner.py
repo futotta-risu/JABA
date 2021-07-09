@@ -1,10 +1,10 @@
 import re
 
 from nltk.corpus import stopwords
-from nltk.tokenize import TweetTokenizer
 
 stop_words = set(stopwords.words("english"))
 stop_words.remove('not')
+
 
 def decontracted(phrase):
     '''https://stackoverflow.com/questions/19790188'''
@@ -22,6 +22,7 @@ def decontracted(phrase):
     phrase = re.sub(r"\'ve", " have", phrase)
     phrase = re.sub(r"\'m", " am", phrase)
     return phrase
+
 
 def clean_tweet(tweet):
     """
@@ -59,5 +60,5 @@ def clean_tweet(tweet):
 
 def total_clean(text):
     text = decontracted(text)
-    text = " ".join([w for w in text.split() if not w in stop_words])
+    text = " ".join([w for w in text.split() if w not in stop_words])
     return re.sub(r"[\W.,:() ]", " ", text)

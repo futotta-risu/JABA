@@ -6,6 +6,7 @@ import pandas as pd
 
 from model.FileManager import FileManagerInterface
 
+
 class BitcoinFileManager(FileManagerInterface):
     def __init__(self):
         super().__init__()
@@ -19,10 +20,10 @@ class BitcoinFileManager(FileManagerInterface):
         """
         Returns the dataframe from the scrapper class
         """
-        
+
         file_name = self.get_file_name(args)
         data = pd.read_csv(file_name, sep=";")
-        
+
         data["timestamp"] = pd.to_datetime(data["timestamp"])
         data['Close'] = data['Close'].replace(to_replace=0, method='ffill')
         data = data.reindex(index=data.index[::-1])

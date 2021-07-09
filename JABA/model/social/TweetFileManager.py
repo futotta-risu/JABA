@@ -3,6 +3,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import json
+
 from model.FileManager import FileManagerInterface
 
 
@@ -41,7 +43,7 @@ class TweetFileManager(FileManagerInterface):
         file_names = self.get_file_name(args)
         self.DIRECTORY = self.DIRECTORY.format(day=args["date"])
         Path(self.DIRECTORY).mkdir(parents=True, exist_ok=True)
-        
+
         for index, file_name in enumerate(file_names):
             data[index].to_csv(file_name, sep=";", index=False)
 
@@ -50,7 +52,7 @@ class TweetFileManager(FileManagerInterface):
     def file_exists(self, date):
         file_name, _ = self.get_file_name({'date': date})
         return os.path.isfile(file_name)
-    
+
     def create_data_log(self, status):
         with open(self.DIRECTORY + "/log.json", "w") as f:
             json.dump(status, f)

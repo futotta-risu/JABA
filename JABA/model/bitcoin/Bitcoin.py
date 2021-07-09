@@ -2,12 +2,13 @@ import pandas as pd
 
 from model.ScrapModel import ScrapModel
 
+
 class Bitcoin(ScrapModel):
     '''
         Bitcoin model.
     '''
     name = "Bitcoin"
-    
+
     column_names = [
         "round_datetime",
         "timestamp",

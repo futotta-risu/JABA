@@ -2,9 +2,9 @@ from service.visualization.maps.GenericMap import GenericMap
 
 
 class GroupByCountMap(GenericMap):
-    
+
     name = "Group Count"
-    
+
     def __init__(self, attrs):
         super().__init__(attrs)
 

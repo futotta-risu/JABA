@@ -1,47 +1,46 @@
 #############################################################################
 ##
-## Copyright (C) 2013 Riverbank Computing Limited.
-## Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-## All rights reserved.
+# Copyright (C) 2013 Riverbank Computing Limited.
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+# All rights reserved.
 ##
-## This file is part of the examples of PyQt.
+# This file is part of the examples of PyQt.
 ##
-## $QT_BEGIN_LICENSE:BSD$
-## You may use this file under the terms of the BSD license as follows:
+# $QT_BEGIN_LICENSE:BSD$
+# You may use this file under the terms of the BSD license as follows:
 ##
-## "Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions are
-## met:
-##   * Redistributions of source code must retain the above copyright
-##     notice, this list of conditions and the following disclaimer.
-##   * Redistributions in binary form must reproduce the above copyright
-##     notice, this list of conditions and the following disclaimer in
-##     the documentation and/or other materials provided with the
-##     distribution.
-##   * Neither the name of Nokia Corporation and its Subsidiary(-ies) nor
-##     the names of its contributors may be used to endorse or promote
-##     products derived from this software without specific prior written
-##     permission.
+# "Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+# * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in
+# the documentation and/or other materials provided with the
+# distribution.
+# * Neither the name of Nokia Corporation and its Subsidiary(-ies) nor
+# the names of its contributors may be used to endorse or promote
+# products derived from this software without specific prior written
+# permission.
 ##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-## "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-## LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-## A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-## OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-## SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-## LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-## DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-## THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-## $QT_END_LICENSE$
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+# $QT_END_LICENSE$
 ##
 #############################################################################
 
 
 from PyQt5.QtCore import QRect, QSize, Qt
-from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QLayout,
-        QTextBrowser, QWidget, QWidgetItem)
+from PyQt5.QtWidgets import (QLayout, QWidgetItem)
 
 
 class ItemWrapper(object):
@@ -64,9 +63,9 @@ class BorderLayout(QLayout):
         self.list = []
 
     def __del__(self):
-        l = self.takeAt(0)
-        while l is not None:
-            l = self.takeAt(0)
+        item = self.takeAt(0)
+        while item is not None:
+            item = self.takeAt(0)
 
     def addItem(self, item):
         self.add(item, self.West)
@@ -108,20 +107,20 @@ class BorderLayout(QLayout):
 
             if position == self.North:
                 item.setGeometry(QRect(rect.x(), northHeight,
-                        rect.width(), item.sizeHint().height()))    
+                                       rect.width(), item.sizeHint().height()))
 
                 northHeight += item.geometry().height() + self.spacing()
 
             elif position == self.South:
                 item.setGeometry(QRect(item.geometry().x(),
-                        item.geometry().y(), rect.width(),
-                        item.sizeHint().height()))
+                                       item.geometry().y(), rect.width(),
+                                       item.sizeHint().height()))
 
                 southHeight += item.geometry().height() + self.spacing()
 
                 item.setGeometry(QRect(rect.x(),
-                        rect.y() + rect.height() - southHeight + self.spacing(),
-                        item.geometry().width(), item.geometry().height()))
+                                       rect.y() + rect.height() - southHeight + self.spacing(),
+                                       item.geometry().width(), item.geometry().height()))
 
             elif position == self.Center:
                 center = wrapper
@@ -134,24 +133,24 @@ class BorderLayout(QLayout):
 
             if position == self.West:
                 item.setGeometry(QRect(rect.x() + westWidth,
-                        northHeight, item.sizeHint().width(), centerHeight))    
+                                       northHeight, item.sizeHint().width(), centerHeight))
 
                 westWidth += item.geometry().width() + self.spacing()
 
             elif position == self.East:
                 item.setGeometry(QRect(item.geometry().x(),
-                        item.geometry().y(), item.sizeHint().width(),
-                        centerHeight))
+                                       item.geometry().y(), item.sizeHint().width(),
+                                       centerHeight))
 
                 eastWidth += item.geometry().width() + self.spacing()
 
                 item.setGeometry(QRect(rect.x() + rect.width() - eastWidth + self.spacing(),
-                        northHeight, item.geometry().width(),
-                        item.geometry().height()))
+                                       northHeight, item.geometry().width(),
+                                       item.geometry().height()))
 
         if center:
             center.item.setGeometry(QRect(westWidth, northHeight,
-                    rect.width() - eastWidth - westWidth, centerHeight))
+                                          rect.width() - eastWidth - westWidth, centerHeight))
 
     def sizeHint(self):
         return self.calculateSize(self.SizeHint)
@@ -175,7 +174,7 @@ class BorderLayout(QLayout):
 
             if sizeType == self.MinimumSize:
                 itemSize = wrapper.item.minimumSize()
-            else: # sizeType == self.SizeHint
+            else:  # sizeType == self.SizeHint
                 itemSize = wrapper.item.sizeHint()
 
             if position in (self.North, self.South, self.Center):

@@ -6,6 +6,7 @@ import pandas as pd
 from model.FileManager import FileManagerInterface
 from model.social.TweetFileManager import TweetFileManager
 
+
 class SentimentFileManager(FileManagerInterface):
     '''
         Handles the file system for the analyzer methods.
@@ -25,10 +26,10 @@ class SentimentFileManager(FileManagerInterface):
         """
         Returns the dataframe from the scrapper class
         """
-        
+
         tweet_file_manager = TweetFileManager()
         tweet_df = tweet_file_manager.open_file(args)
-        
+
         file_name = self.get_file_name(args)
         data = pd.read_csv(file_name, sep=";")
         data["sentiment"] = pd.to_numeric(data["sentiment"])

@@ -1,11 +1,7 @@
-import os.path
-
-
 class FileManagerInterface:
     '''
         File management interface for data models
     '''
-
 
     DIRECTORY = "data/tweets/{day}"
 

@@ -2,10 +2,11 @@ import pandas as pd
 
 from model.ScrapModel import ScrapModel
 
+
 class Tweet(ScrapModel):
 
     name = "Tweet"
-    
+
     column_names = [
         "Datetime",
         "Tweet Id",

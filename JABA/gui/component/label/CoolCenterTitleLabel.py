@@ -1,16 +1,12 @@
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
-class CoolCenterTitleLabel(QLabel):
-    
+class CoolCenterTitleLabel(QtWidgets.QLabel):
+
     def __init__(self, text):
         super().__init__(text)
-        
+
         self.setObjectName("SectionLabel")
-        
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.setAlignment(Qt.AlignCenter)
-        
+
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.setAlignment(QtCore.Qt.AlignCenter)

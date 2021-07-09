@@ -2,9 +2,9 @@ from service.visualization.maps.GenericMap import GenericMap
 
 
 class GroupByMeanMap(GenericMap):
-    
+
     name = "Group Mean"
-    
+
     def __init__(self, attrs):
         super().__init__(attrs)
 

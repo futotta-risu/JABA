@@ -4,13 +4,15 @@ from model.social.TweetFileManager import TweetFileManager
 
 query = '"BTC" OR "bitcoin"'
 
+
 class NoDataAvailableException(Exception):
     pass
+
 
 class ScrapService:
     def get_data_by_category(self, dataModel, args):
         ''' Returns the data based on the data model. '''
-        
+
         if dataModel == "Tweet":
             fileManager = TweetFileManager()
         elif dataModel == "Sentiment":
@@ -19,6 +21,6 @@ class ScrapService:
             fileManager = BitcoinFileManager()
         else:
             raise NoDataAvailableException("No data detected")
-        
+
         data = fileManager.open_file(args)
         return data

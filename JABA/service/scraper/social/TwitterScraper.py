@@ -1,10 +1,5 @@
 import datetime
 
-import json
-
-import os.path
-from pathlib import Path
-
 from datetime import timedelta
 
 import pandas as pd
@@ -12,7 +7,7 @@ import pandas as pd
 import snscrape.modules.twitter as snstwitter
 
 from service.scraper.cleaner import clean_tweet
-
+from model.social.TweetFileManager import TweetFileManager
 
 # Name of the columns for the dataframes
 column_names = [
@@ -28,9 +23,7 @@ column_names = [
 ]
 
 
-
 class IScrapper:
-
     # Namespace for the scrapper in order to save files
     namespace = "IScrapper"
 
@@ -50,12 +43,11 @@ class TwitterScraper(IScrapper):
         Twitter scraper class which extracts the data of a certain query.
     '''
 
-
     namespace = "twitter"
     query = '"BTC" OR "bitcoin" since:{since} until:{until} lang:{lang}'
 
     def __init__(self):
-        self.fileManager = ScrapperFileManager()
+        self.fileManager = TweetFileManager()
 
     def scrap(self, date_from, date_until, limit=-1, lang="en", verbose=False):
         """
@@ -88,13 +80,13 @@ class TwitterScraper(IScrapper):
 
                 if verbose and i % 2500 == 0:
                     current_time = datetime.datetime.now().strftime("%H:%M:%S")
-                    print(current_time, ": ", str(date_from), "(", i, " / ", limit,")")
+                    print(current_time, ": ", str(date_from), "(", i, " / ", limit, ")")
 
                 tweet_list += [self.get_tweet_data(tweet)]
 
             tweets, spam_tweets = self.filter_spam(tweet_list)
 
-            self.fileManager.save_file([tweets, spam_tweets], {'date' : date_from, 'status' :limit} )
+            self.fileManager.save_file([tweets, spam_tweets], {'date': date_from, 'status': limit})
 
             date_from += timedelta(days=1)
 
@@ -119,8 +111,6 @@ class TwitterScraper(IScrapper):
                      rename_axis("unique_texts").reset_index(name="counts"))
 
         data.drop_duplicates(subset="Text", keep=False, inplace=True)
-        
-        
 
         return data, data_spam
 

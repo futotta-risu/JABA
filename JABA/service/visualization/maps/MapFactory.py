@@ -4,7 +4,7 @@ from service.visualization.maps.GenericMap import GenericMap
 class MapFactory:
     def getMapList(self):
         return [q for q in GenericMap.__subclasses__()]
-    
+
     def __get_map(self, dtype, args=None):
         map_list = [
             map_class(args) for map_class in GenericMap.__subclasses__()

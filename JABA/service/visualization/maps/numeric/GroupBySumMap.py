@@ -2,9 +2,9 @@ from service.visualization.maps.GenericMap import GenericMap
 
 
 class GroupBySumMap(GenericMap):
-    
+
     name = "Group Sum"
-    
+
     def __init__(self, attrs):
         super().__init__(attrs)
 

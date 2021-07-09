@@ -3,7 +3,7 @@ class PlotConfiguration:
         Plot configuration class which includes a map list, name and variable type.
     '''
     name = ""
-    
+
     initial_frame = None
     final_frame = None
 

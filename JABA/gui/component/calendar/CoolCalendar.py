@@ -1,14 +1,10 @@
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
 
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
-class CoolCalendar(QCalendarWidget):
-    
+class CoolCalendar(QtWidgets.QCalendarWidget):
+
     def __init__(self):
         super().__init__()
-        
-        self.setVerticalHeaderFormat(QCalendarWidget.NoVerticalHeader)
+
+        self.setVerticalHeaderFormat(QtWidgets.QCalendarWidget.NoVerticalHeader)
         self.setHorizontalHeaderFormat(0)
-        

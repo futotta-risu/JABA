@@ -1,10 +1,10 @@
-import pyqtgraph as pg
+from PyQt5 import Qt
 
-from PyQt5 import Qt, QtCore, QtGui
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-
-from pyqtgraph import plot, PlotWidget
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import (QLabel, QPushButton)
+from PyQt5.QtWidgets import (QFormLayout)
+from PyQt5.QtWidgets import (QDateEdit, QComboBox)
 
 
 class ConfigurationDialog(QDialog):
@@ -27,25 +27,23 @@ class ConfigurationDialog(QDialog):
         container = QWidget(self)
         form_layout = QFormLayout()
         container.setLayout(form_layout)
-        
+
         self.initial_date_pick = QDateEdit(calendarPopup=True)
-        form_layout.addRow( QLabel("Initial Date"), self.initial_date_pick)
+        form_layout.addRow(QLabel("Initial Date"), self.initial_date_pick)
 
         self.combo_sentiment_algorithm = QComboBox(self)
         self.combo_sentiment_algorithm.addItems(self._controller.get_analysis_methods())
-        
-        form_layout.addRow( QLabel("Sentiment Algorithm"), self.combo_sentiment_algorithm)
-        
+
+        form_layout.addRow(QLabel("Sentiment Algorithm"), self.combo_sentiment_algorithm)
+
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.save_settings)
-        
-        form_layout.addRow(QLabel("Save"), self.save_button)
 
-        
+        form_layout.addRow(QLabel("Save"), self.save_button)
 
     def _set_settings_values(self):
         self.initial_date_pick.setDate(
-            self.settings.value("initial_date", type=QDate))
+            self.settings.value("initial_date", type=Qt.QDate))
         index = self._controller.get_analysis_methods().index(self._controller.get_analysis_method())
         self.combo_sentiment_algorithm.setCurrentIndex(index)
 

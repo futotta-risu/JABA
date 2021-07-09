@@ -1,10 +1,11 @@
 from service.visualization.maps.GenericMap import GenericMap
 import numpy as np
 
+
 class Log2Map(GenericMap):
-    
+
     name = "Log2"
-    
+
     def __init__(self, attrs):
         super().__init__(attrs)
 
