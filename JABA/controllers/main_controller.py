@@ -164,7 +164,7 @@ class MainController(QObject):
         self.threadpool.start(worker)   
 
         
-    def stopAutoScrap():
+    def stopAutoScrap(self):
         model.autoscrap = False
         
             
