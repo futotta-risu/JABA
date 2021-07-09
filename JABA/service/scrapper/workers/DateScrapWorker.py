@@ -24,7 +24,8 @@ class DateScrapWorker(QRunnable):
         Emits a finished signal in case of automatic scrapping.
     '''
     
-    signal = Signals()
+    def __init__(self):
+        self.signal = Signals()
     
     def set_date(self, date_from):
         self.date_from = date_from

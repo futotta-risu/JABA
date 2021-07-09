@@ -21,5 +21,5 @@ class MainWindowModel(QObject):
         super().__init__()
     
         self._message_sample = []
-        self._max_threads = 10
+        self._max_threads = 12
         self._auto_scraping = False

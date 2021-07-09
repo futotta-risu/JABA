@@ -25,6 +25,9 @@ from datetime import date
 
 from pathlib import Path
 
+import random
+import time
+
 
 DATE_FORMAT = "yyyy-MM-dd"
 
@@ -38,6 +41,8 @@ class MainController(QObject):
         Controller for the main app window.
     '''
     
+    scrapped_dates = set()
+    
     def __init__(self, model):
         super().__init__()
 
@@ -47,10 +52,10 @@ class MainController(QObject):
         self.plotService = PlotService()
 
         self.threadpool = QThreadPool()
-
+        self.threadpool.setMaxThreadCount( self._model._max_threads)
+        
         self._init_settings()
         
-        self.scrapped_dates = set()
         self._get_scrapped_dates()
 
     def _init_settings(self):
@@ -126,6 +131,7 @@ class MainController(QObject):
             self.actual_scrapper_date = self.actual_scrapper_date.addDays(1)
         
         if self.actual_scrapper_date >= date.today():
+            print(self.actual_scrapper_date)
             raise Exception() 
             
         return self.actual_scrapper_date
@@ -139,6 +145,10 @@ class MainController(QObject):
             
     def startScrapWorker(self, date = None):
         ''' Gets a new  ScrapWorker and launches it '''
+        time.sleep(random.uniform(0, 0.2))
+        if self.threadpool.activeThreadCount() >= self._model._max_threads:
+            return
+            
         if date is None:
             if self._model.auto_scraping:
                 date = self.getScrapDate()
