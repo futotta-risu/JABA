@@ -46,7 +46,6 @@ class ConfigurationDialog(QDialog):
     def _set_settings_values(self):
         self.initial_date_pick.setDate(
             self.settings.value("initial_date", type=QDate))
-        print(self._controller.get_analysis_methods())
         index = self._controller.get_analysis_methods().index(self._controller.get_analysis_method())
         self.combo_sentiment_algorithm.setCurrentIndex(index)
 

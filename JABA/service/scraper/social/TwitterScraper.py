@@ -98,7 +98,7 @@ class TwitterScraper(IScrapper):
 
             date_from += timedelta(days=1)
 
-    def filter_spam(self, data, dbscan=False):
+    def filter_spam(self, data):
         """
         Filters the spam from the data.
 
@@ -120,13 +120,7 @@ class TwitterScraper(IScrapper):
 
         data.drop_duplicates(subset="Text", keep=False, inplace=True)
         
-        if(dbscan == True):
-            # Search for similar tweets with cosine similarity & DBSCAN
-            print(data.shape)
-            data = analyze_similarity(data)
-            print(data.head())
-            data = remove_similar_tweets(data)
-            print(data.shape)
+        
 
         return data, data_spam
 
