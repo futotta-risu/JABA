@@ -20,7 +20,9 @@ class TweetFileManager(FileManagerInterface):
         Returns:
         FILE_NAME, SPAM_FILE_NAME
         """
-
+        if args['date'] is None:
+            raise TypeError('Date should not be None')
+            
         file_name = self.FILE_NAME.format(day=args["date"])
         spam_file_name = self.SPAM_FILE_NAME.format(day=args["date"])
 
