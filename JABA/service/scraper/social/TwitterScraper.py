@@ -8,20 +8,7 @@ import snscrape.modules.twitter as snstwitter
 
 from service.scraper.cleaner import clean_tweet
 from model.social.TweetFileManager import TweetFileManager
-
-# Name of the columns for the dataframes
-column_names = [
-    "Datetime",
-    "Tweet Id",
-    "Text",
-    "NumReplies",
-    "NumRetweets",
-    "NumLikes",
-    "IDOriginalRetweeted",
-    "Username",
-    "isVerified",
-]
-
+from model.social.Tweet import Tweet
 
 class IScrapper:
     # Namespace for the scrapper in order to save files
@@ -104,7 +91,8 @@ class TwitterScraper(IScrapper):
         Spam (Pandas Dataframe) Spam filtered from the data
         """
 
-        data = pd.DataFrame(data, columns=column_names)
+        tweet = Tweet()
+        data = pd.DataFrame(data, columns=tweet.column_names)
         data = data[(data["Text"].notna()) & data["Text"]]
 
         data_spam = (data[data["Text"].duplicated()]["Text"].value_counts().

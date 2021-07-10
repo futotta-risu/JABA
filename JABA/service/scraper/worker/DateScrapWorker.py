@@ -23,6 +23,7 @@ class DateScrapWorker(QRunnable):
     '''
 
     def __init__(self):
+        super().__init__()
         self.signal = Signals()
 
     def set_date(self, date_from):

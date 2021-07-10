@@ -1,6 +1,6 @@
 import pandas as pd
 
-from PyQt5 import Qt
+from PyQt5 import QtCore
 
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QWidget
@@ -105,16 +105,16 @@ class PlotConfigure(QDialog):
         self.model_desc_w.setLayout(self.model_desc_l)
 
         self.model_desc_label = QFormLabel("Model Description")
-        self.model_desc_label.setAlignment(Qt.AlignCenter)
+        self.model_desc_label.setAlignment(QtCore.Qt.AlignCenter)
         self.model_desc_l.addWidget(self.model_desc_label)
 
         self.model_desc_name_l = QHBoxLayout()
         self.model_desc_name_w = QWidget()
         self.model_desc_name_w.setLayout(self.model_desc_name_l)
         self.initial_frame_label = QFormLabel("Initial Frame")
-        self.initial_frame_label.setAlignment(Qt.AlignCenter)
+        self.initial_frame_label.setAlignment(QtCore.Qt.AlignCenter)
         self.final_frame_label = QFormLabel("Final Frame")
-        self.final_frame_label.setAlignment(Qt.AlignCenter)
+        self.final_frame_label.setAlignment(QtCore.Qt.AlignCenter)
         self.model_desc_name_l.setContentsMargins(0, 0, 0, 0)
 
         self.model_desc_name_l.addWidget(self.initial_frame_label)
@@ -159,7 +159,7 @@ class PlotConfigure(QDialog):
         self.mapping_hist_p_w.setLayout(self.mapping_hist_p_l)
 
         self.mapping_hist_label = QFormLabel("Mapping History")
-        self.mapping_hist_label.setAlignment(Qt.AlignCenter)
+        self.mapping_hist_label.setAlignment(QtCore.Qt.AlignCenter)
         self.mapping_hist_p_l.addWidget(self.mapping_hist_label)
 
         self.mapping_hist_l = QVBoxLayout()

@@ -107,15 +107,9 @@ class MainController(QObject):
         with open(file_name, 'rb') as config_dictionary_file:
             return pickle.load(config_dictionary_file)
 
-    def get_date_properties(self):
-        date_list = []
-        for path in os.listdir(base_dir):
-            date = QDate.fromString(path, DATE_FORMAT)
-
-            if date.isValid():
-                date_list += [[date, "data"]]
-
-        return date_list
+    def get_dates(self):
+        dates = [QDate.fromString(path, DATE_FORMAT) for path in os.listdir(base_dir)]
+        return [date for date in dates if date.isValid()]
 
     def change_automatic_scrapper(self):
         self._model.auto_scraping = not self._model.auto_scraping

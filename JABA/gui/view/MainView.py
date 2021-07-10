@@ -21,6 +21,7 @@ from gui.component.CornerIconPanel import CornerIconPanel
 
 from gui.component.style.styles import main_style
 
+from gui.component.utils.actions import create_action
 
 class MainView(QMainWindow):
     '''
@@ -41,16 +42,11 @@ class MainView(QMainWindow):
         self._model = model
         self._controller = controller
 
-        self.setStyleSheet(main_style)
-
         self._load_window_properties()
         self._load_window_components()
-        self._connect_window_components()
-
         self._create_menu_bar()
 
         self._init_window()
-        self.load_plots_config(real_filename='data/plotty/default_v1')
 
     def _load_window_properties(self):
         ''' Loads the windows properties such as title, icon or size '''
@@ -63,10 +59,14 @@ class MainView(QMainWindow):
 
         # Set the plot background as white
         pg.setConfigOption('background', 'w')
+        
+        self.setStyleSheet(main_style)
 
     def _load_window_components(self):
         ''' Loads the window components '''
         self.calendar = CoolCalendar()
+        self.calendar.clicked.connect(self.update_plot)
+        
         self.sample_table = SentimentTable()
 
         self.east_widget = QWidget()
@@ -100,6 +100,7 @@ class MainView(QMainWindow):
         self.view_mode_button = QPushButton("")
         self.view_mode_button.setObjectName("ViewModeButton")
         self.view_mode_button.setIcon(QIcon('media/icons/grid-layout.png'))
+        self.view_mode_button.clicked.connect(self._change_view_mode)
 
         self.plot_list_widget = QWidget()
         self.plot_list_layout = QVBoxLayout()
@@ -128,13 +129,43 @@ class MainView(QMainWindow):
         self.vertical_split.setStretchFactor(1, 1)
 
         self.setCentralWidget(self.vertical_split)
-
+        
         self.show()
 
+    def _init_window(self):
+        ''' Sets the initial values of the window '''
+        
+        self.calendar.reset_dates(self._controller.get_dates())     
+        self.load_plots_config(real_filename='data/plotty/default_v1')
+        
     def resizeEvent(self, event):
+        ''' Function executed on window resizing '''
         self.sample_table.resizeRowsToContents()
         QtGui.QMainWindow.resizeEvent(self, event)
 
+    def _create_menu_bar(self):
+        ''' Creates the menu bar of the window '''
+
+        menu_bar = QMenuBar(self)
+
+        data_menu = QMenu("&Data", self)
+        data_menu.addAction(create_action(self, 'Scrap Date', self.analyze_date))
+        data_menu.addAction(create_action(self, 'Auto Scrap', self._controller.startAutoScrapWorker))
+        
+        plots_menu = QMenu("&Plots", self)
+        plots_menu.addAction(create_action(self, 'Add Plot', self.open_configure))
+        plots_menu.addAction(create_action(self, 'Save Plot', self.save_plots_config))
+        plots_menu.addAction(create_action(self, 'Load Plot', self.load_plots_config))
+        
+        configuration_menu = QMenu("&Configuration", self)
+        configuration_menu.addAction(create_action(self, 'Parameters', self.open_configuration))
+        
+        menu_bar.addMenu(data_menu)
+        menu_bar.addMenu(plots_menu)
+        menu_bar.addMenu(configuration_menu)
+        
+        self.setMenuBar(menu_bar)
+        
     def __refresh_table(self, data):
         ''' Refresh the table with new data '''
         while (self.sample_table.rowCount() > 1):
@@ -144,65 +175,7 @@ class MainView(QMainWindow):
             self.sample_table.addRow(text, sentiment)
 
         self.sample_table.resizeRowsToContents()
-
-    def _connect_window_components(self):
-        self.calendar.clicked.connect(self.update_plot)
-        self.view_mode_button.clicked.connect(self._change_view_mode)
-
-    def _create_menu_bar(self):
-        menu_bar = QMenuBar(self)
-
-        self.scrap_date_button = QAction("&Scrap Date", self)
-        self.scrap_date_button.triggered.connect(self.analyze_date)
-        self.auto_scrap_date_button = QAction("&Auto Scrap", self)
-        self.auto_scrap_date_button.triggered.connect(self.automatic_scrapper)
-        data_menu = QMenu("&Data", self)
-        data_menu.addAction(self.scrap_date_button)
-        data_menu.addAction(self.auto_scrap_date_button)
-
-        self.save_plots_button = QAction("&Save Plot", self)
-        self.save_plots_button.triggered.connect(self.save_plots_config)
-        self.load_plots_button = QAction("&Load Plot", self)
-        self.load_plots_button.triggered.connect(self.load_plots_config)
-        self.add_plot_button = QAction("&Add Plot", self)
-        self.add_plot_button.triggered.connect(self.open_configure)
-        plots_menu = QMenu("&Plots", self)
-        plots_menu.addAction(self.add_plot_button)
-        plots_menu.addAction(self.save_plots_button)
-        plots_menu.addAction(self.load_plots_button)
-
-        self.open_parameters = QAction("&Parameters", self)
-        self.open_parameters.triggered.connect(self.open_configuration)
-        configuration_menu = QMenu("&Configuration", self)
-        configuration_menu.addAction(self.open_parameters)
-
-        menu_bar.addMenu(data_menu)
-        menu_bar.addMenu(plots_menu)
-        menu_bar.addMenu(configuration_menu)
-
-        self.setMenuBar(menu_bar)
-
-    def _init_window(self):
-        self._reset_calendar_color()
-        self.__refresh_table([])
-
-    def _reset_calendar_color(self):
-        date_colors = self._controller.get_date_properties()  # TODO Add this function
-
-        cell_format = QtGui.QTextCharFormat()
-
-        for date, status in date_colors:
-            cell_format.setForeground(QtGui.QColor(self.calendar_colors[status]))
-
-            temp_font = QtGui.QFont()
-            temp_font.setBold(True)
-            cell_format.setFont(temp_font)
-            if date.isValid():
-                self.calendar.setDateTextFormat(date, cell_format)
-
-    def automatic_scrapper(self):
-        self._controller.startAutoScrapWorker()
-
+    
     def analyze_date(self):
         date = self.calendar.selectedDate()
         self._controller.startScrapWorker(date=date.toPyDate())
@@ -281,7 +254,6 @@ class MainView(QMainWindow):
         self._refresh_plot_widgets()
 
     def _change_view_mode(self):
-
         self.layout_mode = (self.layout_mode + 1) % len(self.layout_icons)
         self.view_mode_button.setIcon(QIcon(self.layout_icons[self.layout_mode][1]))
 
