@@ -19,7 +19,7 @@ def test_get_file_name():
     file_name = bitcoinFileManager.get_file_name(args)
     
     # Then
-    assert file_name == "data/bitcoin/2021-01-13\\bitcoin.csv"
+    assert file_name == "data/bitcoin/2021-01-13\\bitcoin.csv" or file_name == "data/bitcoin/2021-01-13/bitcoin.csv"
     
 def test_get_file_name_fails_on_no_date():
     # Given
