@@ -1,5 +1,5 @@
 import pytest
-from service.visualization.types.maps.numeric.SqrtMap import SqrtMap
+from service.visualization.maps.numeric.SqrtMap import SqrtMap
 
 import pandas as pd
 

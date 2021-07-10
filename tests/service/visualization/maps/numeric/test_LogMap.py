@@ -1,5 +1,5 @@
 import pytest
-from service.visualization.types.maps.numeric.LogMap import LogMap
+from service.visualization.maps.numeric.LogMap import LogMap
 
 import pandas as pd
 

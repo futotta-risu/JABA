@@ -1,6 +1,6 @@
 import pytest
 
-from service.visualization.types.maps.numeric.Log2Map import Log2Map
+from service.visualization.maps.numeric.Log2Map import Log2Map
 
 import pandas as pd
 

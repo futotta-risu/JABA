@@ -1,5 +1,5 @@
 import pytest
-from service.visualization.types.maps.GenericMap import GenericMap
+from service.visualization.maps.GenericMap import GenericMap
 
 import pandas as pd
 

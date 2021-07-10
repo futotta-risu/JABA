@@ -1,6 +1,6 @@
 import pytest
 
-from service.visualization.types.maps.numeric.SumConstMap import SumConstMap
+from service.visualization.maps.numeric.SumConstMap import SumConstMap
 
 import pandas as pd
 

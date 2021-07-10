@@ -1,5 +1,5 @@
 import pytest
-from service.visualization.types.maps.numeric.MultiplyMap import MultiplyMap
+from service.visualization.maps.numeric.MultiplyMap import MultiplyMap
 
 import pandas as pd
 

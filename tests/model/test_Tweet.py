@@ -2,7 +2,7 @@ import pytest
 
 import pandas as pd
 
-from model.Tweet import Tweet
+from model.social.Tweet import Tweet
 
 def test_create_tweet():
     tweet = Tweet()

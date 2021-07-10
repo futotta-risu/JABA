@@ -34,7 +34,7 @@ jobs:
       - name: Test with pytest
         run: |
           cd JABA
-          python -m pytest ../tests --cov=JABA --cov-report=xml
+          python -m pytest ../tests --cov=. --cov-report=xml
       - uses: codecov/codecov-action@v1
         with:
           files: ./JABA/coverage.xml 
