@@ -32,11 +32,8 @@ jobs:
           pip install -e .
 
       - name: Test with pytest
-        addons:
-          apt:
-            packages:
-              - libxkbcommon-x11-0
         run: |
+          sudo apt install -y xvfb x11-utils libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0
           cd JABA
           python -m pytest ../tests --cov=. --cov-report=xml
       - uses: codecov/codecov-action@v1
