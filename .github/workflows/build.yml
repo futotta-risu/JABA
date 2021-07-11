@@ -32,6 +32,10 @@ jobs:
           pip install -e .
 
       - name: Test with pytest
+        addons:
+          apt:
+            packages:
+              - libxkbcommon-x11-0
         run: |
           cd JABA
           python -m pytest ../tests --cov=. --cov-report=xml
