@@ -6,27 +6,30 @@ from gui.component.BorderLayout import BorderLayout
 
 from PyQt5.QtWidgets import QLabel
 
-def test_create_borderlayout(qtbot):
+from PyQt5.QtWidgets import QApplication
+app = QApplication([])
+
+def test_create_borderlayout():
     layout = BorderLayout()
     
     assert layout != None
 
-def test_create_borderlayout_with_margin(qtbot):
+def test_create_borderlayout_with_margin():
     layout = BorderLayout(margin = 3)
     
     assert layout != None
 
-def test_has_height_for_width(qtbot):
+def test_has_height_for_width():
     layout = BorderLayout()
     
     assert not layout.hasHeightForWidth()
     
-def test_count(qtbot):
+def test_count():
     layout = BorderLayout()
     
     assert layout.count() == 0
 
-def test_add_widget(qtbot):
+def test_add_widget():
     layout = BorderLayout()
     label = QLabel("test")
     
