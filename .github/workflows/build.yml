@@ -33,7 +33,7 @@ jobs:
 
       - name: Test with pytest
         run: |
-          sudo apt install -y xvfb x11-utils libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0
+          sudo apt update && sudo apt install -y libxkbcommon-x11-0 x11-utils
           cd JABA
           xvfb-run python -m pytest ../tests --cov=. --cov-report=xml
       - uses: codecov/codecov-action@v1
