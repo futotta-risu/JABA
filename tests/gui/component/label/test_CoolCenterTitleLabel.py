@@ -6,6 +6,7 @@ from gui.component.label.CoolCenterTitleLabel import CoolCenterTitleLabel
 
 from PyQt5.QtWidgets import QLabel
 
+import sys
 from PyQt5.QtWidgets import QApplication
 app = QApplication(sys.argv)
 

@@ -6,6 +6,7 @@ from gui.component.BorderLayout import BorderLayout
 
 from PyQt5.QtWidgets import QLabel
 
+import sys
 from PyQt5.QtWidgets import QApplication
 app = QApplication(sys.argv)
 

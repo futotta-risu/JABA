@@ -6,6 +6,7 @@ from gui.component.CornerIconPanel import CornerIconPanel
 
 from PyQt5.QtWidgets import QLabel
 
+import sys
 from PyQt5.QtWidgets import QApplication
 app = QApplication(sys.argv)
 
