@@ -6,10 +6,6 @@ from gui.component.table.SentimentTable import SentimentTable
 
 from PyQt5.QtWidgets import QLabel
 
-import sys
-from PyQt5.QtWidgets import QApplication
-app = QApplication(sys.argv)
-
 def test_sentimenttable_constructor(qtbot):
     # Given
     

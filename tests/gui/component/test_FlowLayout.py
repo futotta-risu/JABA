@@ -4,11 +4,6 @@ import pandas as pd
 
 from gui.component.FlowLayout import FlowLayout
 
-import sys
-from PyQt5.QtWidgets import QApplication
-app = QApplication(sys.argv)
-
-
 def test_create_flowlayout(qtbot):
     layout = FlowLayout()
     
