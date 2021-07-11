@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import pandas as pd
 
-import snscrape.modules.twitter as snstwitter
+from snscrape.modules.twitter import TwitterSearchScraper
 
 from service.scraper.cleaner import clean_tweet
 from model.social.TweetFileManager import TweetFileManager
@@ -23,7 +23,7 @@ class IScrapper:
     # Conditions of the query
     condition_query = "default_conditional_query"
 
-    def scrap(self, date_from, date_until, limit=-1, lang="en", verbose=False):
+    def scrap(self, date_from, limit=-1, lang="en"):
         pass
 
 
@@ -39,49 +39,33 @@ class TwitterScraper(IScrapper):
     def __init__(self):
         self.fileManager = TweetFileManager()
 
-    def scrap(self, date_from, date_until, limit=-1, lang="en", verbose=False):
+    def scrap(self, date_from, limit=-1, lang="en"):
         """
         Function to scrap tweet between dates and save them
 
         Parameters:
-        date_from (datetime.date): Fecha de comienzo del scrapping
-        date_until (datetime.date): Fecha hasta la que se realiza el scrapping. Fecha no incluida.
-        tweet_limit (int): Limite de tweets al dia. -1 si no se quiere limite
+            date_from (datetime.date): Fecha de comienzo del scrapping
+            tweet_limit (int): Límite de tweets al dia o -1 para sin límite.
         """
 
         logger.info(f"Scraping data from Twitter from {date_from} with limit {limit}")
 
-        while date_from != date_until:
-            tweet_list = []
-            if self.fileManager.file_exists(date_from):
-                date_from += timedelta(days=1)
-                continue
+        tweet_list = []
+        if self.fileManager.file_exists(date_from):
+            return
 
-            if verbose:
-                current_time = datetime.datetime.now().strftime("%H:%M:%S")
-                print(f"{current_time}: Day {date_from}")
+        format_string = self.format_query(date_from, lang)
 
-            format_string = self.format_conditional_query(
-                date_from, date_from + timedelta(days=1), lang)
+        for i, tweet in enumerate(TwitterSearchScraper(format_string).get_items()):
 
-            for i, tweet in enumerate(
-                    snstwitter.TwitterSearchScraper(
-                        format_string).get_items()):
-                if limit != -1:
-                    if i >= limit:
-                        break
+            if limit != -1 and i >= limit:
+                break
 
-                if verbose and i % 2500 == 0:
-                    current_time = datetime.datetime.now().strftime("%H:%M:%S")
-                    print(current_time, ": ", str(date_from), "(", i, " / ", limit, ")")
+            tweet_list += [self.get_tweet_data(tweet)]
 
-                tweet_list += [self.get_tweet_data(tweet)]
+        tweets, spam_tweets = self.filter_spam(tweet_list)
 
-            tweets, spam_tweets = self.filter_spam(tweet_list)
-
-            self.fileManager.save_file([tweets, spam_tweets], {'date': date_from, 'status': limit})
-
-            date_from += timedelta(days=1)
+        self.fileManager.save_file([tweets, spam_tweets], {'date': date_from, 'status': limit})
 
     def filter_spam(self, data):
         """
@@ -119,6 +103,7 @@ class TwitterScraper(IScrapper):
         List of Date, ID, Tweet Text, Reply Count,
             Retweet Count, Like Count, Parent Tweet ID, Username, IsVerified
         """
+
         return [
             tweet.date,
             tweet.id,
@@ -131,10 +116,10 @@ class TwitterScraper(IScrapper):
             tweet.user.verified,
         ]
 
-    def format_conditional_query(self, date_from, date_until, lang):
-        """
-        Formats the conditional query
-        """
+    def format_query(self, date_from, lang):
+        ''' Formats the conditional query '''
+
+        date_until = date_from + timedelta(days=1)
 
         return self.query.format(since=str(date_from),
                                  until=str(date_until),

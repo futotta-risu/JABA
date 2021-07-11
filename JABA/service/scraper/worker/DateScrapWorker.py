@@ -36,7 +36,7 @@ class DateScrapWorker(QRunnable):
         scrapper = TwitterScraper()
         analyzer = Analyzer()
 
-        scrapper.scrap(self.date_from, self.date_from + timedelta(days=1), verbose=True)
+        scrapper.scrap(self.date_from)
         analyzer.analyze(self.date_from, TweetFileManager())
 
         self.signal.finished.emit()
