@@ -26,6 +26,7 @@ from service.scraper.ScrapService import ScrapService
 from service.visualization.PlotService import PlotService
 from gui.view.plot_config import PlotConfigure
 
+from loguru import logger
 
 DATE_FORMAT = "yyyy-MM-dd"
 
@@ -57,16 +58,23 @@ class MainController(QObject):
         self._get_scrapped_dates()
 
     def _init_settings(self):
+        logger.debug("Loading settings.")
+        
         self.settings = QSettings("JABA", "JABA_Settings")
         try:
             self.settings.value("loaded_settings")
+            
+            
         except BaseException:
+            logger.warning("Settings were not loaded. Creating new settings.")
+            
             self.settings.setValue("initial_date",
                                    QDate.fromString("2017-01-01", DATE_FORMAT))
             self.settings.setValue("loaded_settings", True)
             self.settings.setValue("analysis_algorithm", 'nltk')
             self.settings.sync()
-
+            
+        logger.success("Settings loaded.")
         self.load_settings()
 
     def set_settings(self, new_settings):
@@ -99,11 +107,17 @@ class MainController(QObject):
                 self.scrapped_dates.add(date)
 
     def save_plot_config(self, file_name):
+        ''' Save Plot configurations to custom plot file '''
+        
+        logger.debug(f"Dumping plot configurations to {file_name}.")
         with open(file_name, 'wb') as config_dictionary_file:
             plot_only_configs = [ptC['config'] for ptC in self.plot_configurations]
             pickle.dump(plot_only_configs, config_dictionary_file)
 
     def load_plot_config(self, file_name):
+        ''' Load plot configurations from custom plot file '''
+        
+        logger.debug(f"Loading plot configurations from {file_name}.")
         with open(file_name, 'rb') as config_dictionary_file:
             return pickle.load(config_dictionary_file)
 
@@ -128,6 +142,7 @@ class MainController(QObject):
         self._model.auto_scraping = True
 
         while self.threadpool.activeThreadCount() < self._model._max_threads:
+            logger.info("Starting new scrap worker.")
             self.startScrapWorker()
 
     def startScrapWorker(self, date=None):
@@ -157,6 +172,9 @@ class MainController(QObject):
         '''
             Returns a sample of the tweets with their respective sentiment.
         '''
+        
+        logger.info(f"Getting sample for {date.toPyDate()} and {algorithm}.")
+        
         # TODO Replace location of this function
         date = date.toString(DATE_FORMAT)
         tweet_file_name = os.path.join(base_dir, date, "tweet_list.csv")
@@ -193,9 +211,11 @@ class MainController(QObject):
         config_window.exec_()
 
         if config_window.is_saved():
+            logger.success("Plot created from configuration.")
             plotConfig = config_window.getPlotConfiguration()
             return self.create_plot(plotConfig)
-
+        
+        logger.warning("Plot configuration window closed without saving. Data is discarded")
         return None, "", None
 
     def update_plots(self, date, algorithm):
@@ -203,7 +223,13 @@ class MainController(QObject):
 
         scrapService = ScrapService()
         plotService = PlotService()
-
+        
+        # TODO Before doing a random loop, optimize the way files are opened and save them in
+        #    variables temporarily to optimize
+        #    
+        #    Moreover, maybe move this whole function to PlotService since widgets are passed
+        #    as parameters
+        
         for config in self.plot_configurations:
             pConfig, widget = config["config"], config["widget"]
 

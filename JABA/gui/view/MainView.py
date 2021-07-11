@@ -23,6 +23,8 @@ from gui.component.style.styles import main_style
 
 from gui.component.utils.actions import create_action
 
+from loguru import logger 
+
 class MainView(QMainWindow):
     '''
         Main view from the program.
@@ -183,7 +185,9 @@ class MainView(QMainWindow):
     def update_plot(self):
         date = self.calendar.selectedDate()
         algorithm = str(self._controller.get_analysis_method())
-
+        
+        logger.info(f"Updating plots for {date.toPyDate()}.")
+        
         sample = self._controller.get_message_sample_with_sentiment(
             date, algorithm)
 

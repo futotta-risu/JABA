@@ -19,6 +19,7 @@ from gui.component.style.styles import main_style
 from model.ScrapModel import ScrapModel
 from model.ModelFactory import createModelFrame
 
+from loguru import logger
 
 class QFormLabel(QLabel):
     def __init__(self, text):
@@ -273,6 +274,7 @@ class PlotConfigure(QDialog):
         try:
             self.save_map_button.clicked.disconnect()
         except Exception:
+            logger.error("Button disconection throwed unkown error.")
             pass
 
         strategy = MapFactory()
@@ -324,6 +326,7 @@ class PlotConfigure(QDialog):
         return self.__saved
 
     def __save_and_exit(self):
+        logger.info("Plot configuration saving and exiting")
         self.__configuration = PlotConfiguration(
             self.name_edit.text(),
             self.initial_frame,

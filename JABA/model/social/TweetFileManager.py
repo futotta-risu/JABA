@@ -5,6 +5,8 @@ import pandas as pd
 
 import json
 
+from loguru import logger
+
 from model.FileManager import FileManagerInterface
 
 
@@ -33,6 +35,9 @@ class TweetFileManager(FileManagerInterface):
         Returns the dataframe from the scrapper class
         """
         file_name, _ = self.get_file_name(args)
+        
+        logger.debug(f"Trying to open tweet file {file_name}.")
+        
         data = pd.read_csv(file_name, sep=";")
         data["Datetime"] = pd.to_datetime(data["Datetime"])
 
@@ -42,9 +47,11 @@ class TweetFileManager(FileManagerInterface):
         """
         Saves the file if it doesn't exist
         """
-        file_names = self.get_file_name(args)
         self.DIRECTORY = self.DIRECTORY.format(day=args["date"])
         Path(self.DIRECTORY).mkdir(parents=True, exist_ok=True)
+        file_names = self.get_file_name(args)
+        
+        logger.debug(f"Saving tweet files {file_names}.")
 
         for index, file_name in enumerate(file_names):
             data[index].to_csv(file_name, sep=";", index=False)

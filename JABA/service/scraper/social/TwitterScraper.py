@@ -10,6 +10,8 @@ from service.scraper.cleaner import clean_tweet
 from model.social.TweetFileManager import TweetFileManager
 from model.social.Tweet import Tweet
 
+from loguru import logger
+
 class IScrapper:
     # Namespace for the scrapper in order to save files
     namespace = "IScrapper"
@@ -45,6 +47,9 @@ class TwitterScraper(IScrapper):
         date_until (datetime.date): Fecha hasta la que se realiza el scrapping. Fecha no incluida.
         tweet_limit (int): Limite de tweets al dia. -1 si no se quiere limite
         """
+        
+        logger.info("Scraping data from Twitter \n\t {} {}" % (date_from, limit))
+        
         while date_from != date_until:
             tweet_list = []
             if self.fileManager.file_exists(date_from):

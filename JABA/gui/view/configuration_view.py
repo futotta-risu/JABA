@@ -6,10 +6,14 @@ from PyQt5.QtWidgets import (QLabel, QPushButton)
 from PyQt5.QtWidgets import (QFormLayout)
 from PyQt5.QtWidgets import (QDateEdit, QComboBox)
 
+from loguru import logger
 
 class ConfigurationDialog(QDialog):
     def __init__(self, controller):
         super().__init__()
+        
+        logger.info("Starting configuration dialog.")
+        
         self._controller = controller
         self.settings = controller.get_settings()
 
