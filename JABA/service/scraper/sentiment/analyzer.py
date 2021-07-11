@@ -125,9 +125,9 @@ class Analyzer:
         ubication (String): Path to the folder for the new file
         round (String): Where to approximate the "DateTime" column
         """
-        
+
         logger.degub(f"Starting sentiment analysis for {date} with {algorithm}")
-        
+
         args = {'date': date, 'algorithm': algorithm}
         data = data_file_manager.open_file(args)
 

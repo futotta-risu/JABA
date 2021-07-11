@@ -1,4 +1,4 @@
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class SentimentTable(QtWidgets.QTableWidget):

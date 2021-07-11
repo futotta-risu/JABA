@@ -1,6 +1,6 @@
 import pyqtgraph as pg
 
-from PyQt5 import Qt, QtCore, QtGui
+from PyQt5 import QtCore, QtGui
 
 from PyQt5.QtGui import QIcon
 
@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import (QLabel, QPushButton)
 from PyQt5.QtWidgets import (QVBoxLayout, QGridLayout)
 from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import (QMenu, QAction, QMenuBar)
+from PyQt5.QtWidgets import (QMenu, QMenuBar)
 from PyQt5.QtWidgets import (QSplitter, QSizePolicy)
 
 from gui.view.configuration_view import ConfigurationDialog
@@ -23,7 +23,8 @@ from gui.component.style.styles import main_style
 
 from gui.component.utils.actions import create_action
 
-from loguru import logger 
+from loguru import logger
+
 
 class MainView(QMainWindow):
     '''
@@ -61,14 +62,14 @@ class MainView(QMainWindow):
 
         # Set the plot background as white
         pg.setConfigOption('background', 'w')
-        
+
         self.setStyleSheet(main_style)
 
     def _load_window_components(self):
         ''' Loads the window components '''
         self.calendar = CoolCalendar()
         self.calendar.clicked.connect(self.update_plot)
-        
+
         self.sample_table = SentimentTable()
 
         self.east_widget = QWidget()
@@ -131,15 +132,15 @@ class MainView(QMainWindow):
         self.vertical_split.setStretchFactor(1, 1)
 
         self.setCentralWidget(self.vertical_split)
-        
+
         self.show()
 
     def _init_window(self):
         ''' Sets the initial values of the window '''
-        
-        self.calendar.reset_dates(self._controller.get_dates())     
+
+        self.calendar.reset_dates(self._controller.get_dates())
         self.load_plots_config(real_filename='data/plotty/default_v1')
-        
+
     def resizeEvent(self, event):
         ''' Function executed on window resizing '''
         self.sample_table.resizeRowsToContents()
@@ -153,21 +154,21 @@ class MainView(QMainWindow):
         data_menu = QMenu("&Data", self)
         data_menu.addAction(create_action(self, 'Scrap Date', self.analyze_date))
         data_menu.addAction(create_action(self, 'Auto Scrap', self._controller.startAutoScrapWorker))
-        
+
         plots_menu = QMenu("&Plots", self)
         plots_menu.addAction(create_action(self, 'Add Plot', self.open_configure))
         plots_menu.addAction(create_action(self, 'Save Plot', self.save_plots_config))
         plots_menu.addAction(create_action(self, 'Load Plot', self.load_plots_config))
-        
+
         configuration_menu = QMenu("&Configuration", self)
         configuration_menu.addAction(create_action(self, 'Parameters', self.open_configuration))
-        
+
         menu_bar.addMenu(data_menu)
         menu_bar.addMenu(plots_menu)
         menu_bar.addMenu(configuration_menu)
-        
+
         self.setMenuBar(menu_bar)
-        
+
     def __refresh_table(self, data):
         ''' Refresh the table with new data '''
         while (self.sample_table.rowCount() > 1):
@@ -177,7 +178,7 @@ class MainView(QMainWindow):
             self.sample_table.addRow(text, sentiment)
 
         self.sample_table.resizeRowsToContents()
-    
+
     def analyze_date(self):
         date = self.calendar.selectedDate()
         self._controller.startScrapWorker(date=date.toPyDate())
@@ -185,9 +186,9 @@ class MainView(QMainWindow):
     def update_plot(self):
         date = self.calendar.selectedDate()
         algorithm = str(self._controller.get_analysis_method())
-        
+
         logger.info(f"Updating plots for {date.toPyDate()}.")
-        
+
         sample = self._controller.get_message_sample_with_sentiment(
             date, algorithm)
 

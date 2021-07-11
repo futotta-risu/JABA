@@ -15,13 +15,11 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QThreadPool
 from PyQt5.QtCore import QSettings
 
-import pyqtgraph as pg
 from pyqtgraph import PlotWidget
 
 from service.scraper.worker.DateScrapWorker import DateScrapWorker
 from service.scraper.sentiment.analyzer import Analyzer
 from service.scraper.cleaner import clean_tweet
-from service.scraper.ScrapService import ScrapService
 
 from service.visualization.PlotService import PlotService
 from gui.view.plot_config import PlotConfigure
@@ -59,21 +57,20 @@ class MainController(QObject):
 
     def _init_settings(self):
         logger.debug("Loading settings.")
-        
+
         self.settings = QSettings("JABA", "JABA_Settings")
         try:
             self.settings.value("loaded_settings")
-            
-            
+
         except BaseException:
             logger.warning("Settings were not loaded. Creating new settings.")
-            
+
             self.settings.setValue("initial_date",
                                    QDate.fromString("2017-01-01", DATE_FORMAT))
             self.settings.setValue("loaded_settings", True)
             self.settings.setValue("analysis_algorithm", 'nltk')
             self.settings.sync()
-            
+
         logger.success("Settings loaded.")
         self.load_settings()
 
@@ -108,7 +105,7 @@ class MainController(QObject):
 
     def save_plot_config(self, file_name):
         ''' Save Plot configurations to custom plot file '''
-        
+
         logger.debug(f"Dumping plot configurations to {file_name}.")
         with open(file_name, 'wb') as config_dictionary_file:
             plot_only_configs = [ptC['config'] for ptC in self.plot_configurations]
@@ -116,7 +113,7 @@ class MainController(QObject):
 
     def load_plot_config(self, file_name):
         ''' Load plot configurations from custom plot file '''
-        
+
         logger.debug(f"Loading plot configurations from {file_name}.")
         with open(file_name, 'rb') as config_dictionary_file:
             return pickle.load(config_dictionary_file)
@@ -172,9 +169,9 @@ class MainController(QObject):
         '''
             Returns a sample of the tweets with their respective sentiment.
         '''
-        
+
         logger.info(f"Getting sample for {date.toPyDate()} and {algorithm}.")
-        
+
         # TODO Replace location of this function
         date = date.toString(DATE_FORMAT)
         tweet_file_name = os.path.join(base_dir, date, "tweet_list.csv")
@@ -214,7 +211,7 @@ class MainController(QObject):
             logger.success("Plot created from configuration.")
             plotConfig = config_window.getPlotConfiguration()
             return self.create_plot(plotConfig)
-        
+
         logger.warning("Plot configuration window closed without saving. Data is discarded")
         return None, "", None
 

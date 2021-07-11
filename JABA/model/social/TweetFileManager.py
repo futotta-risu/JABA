@@ -24,7 +24,7 @@ class TweetFileManager(FileManagerInterface):
         """
         if args['date'] is None:
             raise TypeError('Date should not be None')
-            
+
         file_name = self.FILE_NAME.format(day=args["date"])
         spam_file_name = self.SPAM_FILE_NAME.format(day=args["date"])
 
@@ -35,9 +35,9 @@ class TweetFileManager(FileManagerInterface):
         Returns the dataframe from the scrapper class
         """
         file_name, _ = self.get_file_name(args)
-        
+
         logger.debug(f"Trying to open tweet file {file_name}.")
-        
+
         data = pd.read_csv(file_name, sep=";")
         data["Datetime"] = pd.to_datetime(data["Datetime"])
 
@@ -50,7 +50,7 @@ class TweetFileManager(FileManagerInterface):
         self.DIRECTORY = self.DIRECTORY.format(day=args["date"])
         Path(self.DIRECTORY).mkdir(parents=True, exist_ok=True)
         file_names = self.get_file_name(args)
-        
+
         logger.debug(f"Saving tweet files {file_names}.")
 
         for index, file_name in enumerate(file_names):

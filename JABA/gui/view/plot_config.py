@@ -21,6 +21,7 @@ from model.ModelFactory import createModelFrame
 
 from loguru import logger
 
+
 class QFormLabel(QLabel):
     def __init__(self, text):
         super(QFormLabel, self).__init__(text)

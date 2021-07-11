@@ -8,6 +8,7 @@ from model.social.TweetFileManager import TweetFileManager
 
 from loguru import logger
 
+
 class SentimentFileManager(FileManagerInterface):
     '''
         Handles the file system for the analyzer methods.
@@ -27,14 +28,14 @@ class SentimentFileManager(FileManagerInterface):
         """
         Returns the dataframe from the scrapper class
         """
-        
+
         tweet_file_manager = TweetFileManager()
         tweet_df = tweet_file_manager.open_file(args)
 
         file_name = self.get_file_name(args)
-        
+
         logger.debug(f"Trying to open sentiment file {file_name}.")
-        
+
         data = pd.read_csv(file_name, sep=";")
         data["sentiment"] = pd.to_numeric(data["sentiment"])
         data = tweet_df.join(data)
@@ -48,6 +49,6 @@ class SentimentFileManager(FileManagerInterface):
         file_name = self.get_file_name(args)
 
         logger.debug(f"Saving sentiment file {file_name}.")
-        
+
         Path(self.DIRECTORY).mkdir(parents=True, exist_ok=True)
         data.to_csv(file_name, sep=";", index=False)

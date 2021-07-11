@@ -45,12 +45,12 @@ def clean_tweet(tweet):
     """
     tweet = tweet.lower()
     tweet = tweet.replace(";", ".")
-    
-     # Remove hashtag or dollar sign but keep the text
+
+    # Remove hashtag or dollar sign but keep the text
     tweet = tweet.replace("#", "").replace("$", "").replace("_", " ")
-              
+
     # Remove http links
-    tweet = re.sub(r"(?:\@|http?\://|https?\://|www)\S+", "",tweet)  
+    tweet = re.sub(r"(?:\@|http?\://|https?\://|www)\S+", "", tweet)
     tweet = re.sub(r"@\S+", "", tweet)
 
     tweet = re.sub(r"(-?)[0-9][0-9,\.]+(%?)", "", tweet)
