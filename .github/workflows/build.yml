@@ -35,7 +35,7 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y libxkbcommon-x11-0 
           cd JABA
-          xvfb-run python -m pytest ../tests --cov=. --cov-report=xml
+          xvfb-run python -m pytest ../tests --cov=. --cov-report=xml -s
       - uses: codecov/codecov-action@v1
         with:
           files: ./JABA/coverage.xml 
