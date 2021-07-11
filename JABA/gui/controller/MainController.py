@@ -221,25 +221,8 @@ class MainController(QObject):
     def update_plots(self, date, algorithm):
         ''' Refreshes the plots from a certain date and algorithm '''
 
-        scrapService = ScrapService()
         plotService = PlotService()
-        
-        # TODO Before doing a random loop, optimize the way files are opened and save them in
-        #    variables temporarily to optimize
-        #    
-        #    Moreover, maybe move this whole function to PlotService since widgets are passed
-        #    as parameters
-        
-        for config in self.plot_configurations:
-            pConfig, widget = config["config"], config["widget"]
-
-            args = {"date": date, "algorithm": algorithm}
-            data = scrapService.get_data_by_category(pConfig.variable_type, args)
-
-            index, data = plotService.applyPlotMaps(data, pConfig)
-
-            widget.clear()
-            widget.plot(index, data, pen=pg.mkPen('18BEBE', width=1))
+        plotService.updatePlots(self.plot_configurations, date, algorithm)
 
     def get_plots(self):
         return self.plot_configurations

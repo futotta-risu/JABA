@@ -48,7 +48,7 @@ class TwitterScraper(IScrapper):
         tweet_limit (int): Limite de tweets al dia. -1 si no se quiere limite
         """
         
-        logger.info("Scraping data from Twitter \n\t {} {}" % (date_from, limit))
+        logger.info(f"Scraping data from Twitter from {date_from} with limit {limit}")
         
         while date_from != date_until:
             tweet_list = []
