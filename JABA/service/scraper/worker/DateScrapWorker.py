@@ -2,13 +2,10 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QRunnable
 
-
 from model.social.TweetFileManager import TweetFileManager
 
 from service.scraper.social.TwitterScraper import TwitterScraper
 from service.scraper.sentiment.analyzer import Analyzer
-
-from datetime import timedelta
 
 
 class Signals(QObject):

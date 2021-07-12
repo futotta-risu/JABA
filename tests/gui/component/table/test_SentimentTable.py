@@ -1,27 +1,25 @@
 import pytest
 
-import pandas as pd
-
 from gui.component.table.SentimentTable import SentimentTable
 
-from PyQt5.QtWidgets import QLabel
 
 def test_sentimenttable_constructor(qtbot):
     # Given
-    
     # When
-    container = SentimentTable()
-    
-    # Then
-    assert container is not None
-    
+    try:
+        SentimentTable()
+        # Then
+    except Exception:
+        pytest.fail("Could not create Sentiment Table")
+
+
 def test_sentimenttable_add_row(qtbot):
     # Given
     container = SentimentTable()
-    
+
     # When
     try:
         container.addRow("Text", 0.4)
         # Then
-    except:
+    except Exception:
         pytest.fail("Sentiment Table addRow should not raise.")

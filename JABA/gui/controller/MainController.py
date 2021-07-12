@@ -49,7 +49,7 @@ class MainController(QObject):
         self.plotService = PlotService()
 
         self.threadpool = QThreadPool()
-        self.threadpool.setMaxThreadCount(self._model._max_threads)
+        self.threadpool.setMaxThreadCount(self._model.max_threads())
 
         self._init_settings()
 
@@ -138,18 +138,18 @@ class MainController(QObject):
     def startAutoScrapWorker(self):
         self._model.auto_scraping = True
 
-        while self.threadpool.activeThreadCount() < self._model._max_threads:
+        while self.threadpool.activeThreadCount() < self._model.max_threads():
             logger.info("Starting new scrap worker.")
             self.startScrapWorker()
 
     def startScrapWorker(self, date=None):
         ''' Gets a new  ScrapWorker and launches it '''
         time.sleep(random.uniform(0, 0.2))
-        if self.threadpool.activeThreadCount() >= self._model._max_threads:
+        if self.threadpool.activeThreadCount() >= self._model.max_threads():
             return
 
         if date is None:
-            if self._model.auto_scraping:
+            if self._model.auto_scraping():
                 date = self.getScrapDate()
             else:
                 return

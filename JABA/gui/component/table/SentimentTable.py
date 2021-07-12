@@ -29,9 +29,9 @@ class SentimentTable(QtWidgets.QTableWidget):
         sentiment = max(min(sentiment, 1), -1)
 
         return QtGui.QColor(
-            100 + (1 - sentiment) / 2 * 155,
-            100 + (1 + sentiment) / 2 * 155,
-            100 + (1 + sentiment) / 2 * 155
+            int(100 + (1 - sentiment) / 2 * 155),
+            int(100 + (1 + sentiment) / 2 * 155),
+            int(100 + (1 + sentiment) / 2 * 155)
         )
 
     def addRow(self, text, sentiment):
