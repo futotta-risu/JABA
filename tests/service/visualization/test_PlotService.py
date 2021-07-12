@@ -42,8 +42,6 @@ def test_getDataPriorities():
     assert service.getDataPriorities("Tweet") == 1
 
 def test_reorderConfiguration(mocker):
-    mocker.patch('pandas.read_csv', return_value=frame)
-    
     bitcoin_frame = Bitcoin().createModelFrame()
     map_list = [SqrtMap({'variable': 'Close'})]
     now = datetime.now()
@@ -55,6 +53,8 @@ def test_reorderConfiguration(mocker):
     
     r_config = {'config': config, 'widget': PlotWidget(), 'id': 1}
     frame = pd.DataFrame({'Close' : [133,133], 'timestamp':[now,now], 'round_datetime':[now, now]})
+    
+    mocker.patch('pandas.read_csv', return_value=frame)
     
     service= PlotService()
     
