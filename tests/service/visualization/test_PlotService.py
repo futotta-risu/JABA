@@ -1,5 +1,17 @@
 import pytest
 from service.visualization.PlotService import PlotService
+from service.visualization.PlotConfiguration import PlotConfiguration
+
+from service.visualization.maps.numeric.SqrtMap import SqrtMap
+
+from pyqtgraph import PlotWidget
+from PyQt5.QtCore import QDate
+import pandas as pd
+
+from model.bitcoin.Bitcoin import Bitcoin
+
+from datetime import datetime
+
 
 
 def test_plot_service_constructior():
@@ -16,8 +28,37 @@ def test_get_id():
 
 
 def test_reset_id():
-    config = PlotService()
+    service = PlotService()
 
-    config.resetID()
+    service.resetID()
 
-    assert config.id == 1
+    assert service.id == 1
+
+def test_getDataPriorities():
+    service = PlotService()
+    
+    assert service.getDataPriorities("Bitcoin") == 2
+    assert service.getDataPriorities("Sentiment") == 0
+    assert service.getDataPriorities("Tweet") == 1
+
+def test_reorderConfiguration(mocker):
+    mocker.patch('pandas.read_csv', return_value=frame)
+    
+    bitcoin_frame = Bitcoin().createModelFrame()
+    map_list = [SqrtMap({'variable': 'Close'})]
+    now = datetime.now()
+    
+    config = PlotConfiguration(
+        'BTC', bitcoin_frame, bitcoin_frame,
+        map_list, "Bitcoin", "Range Index", 'Close'
+    )
+    
+    r_config = {'config': config, 'widget': PlotWidget(), 'id': 1}
+    frame = pd.DataFrame({'Close' : [133,133], 'timestamp':[now,now], 'round_datetime':[now, now]})
+    
+    service= PlotService()
+    
+    try:
+        service.updatePlots([r_config], '2010/05/05', 'nltk')
+    except Exception:
+        pytest.fail("update plots should not fail")
