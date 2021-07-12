@@ -2,6 +2,7 @@ import pytest
 
 from gui.component.FlowLayout import FlowLayout
 
+from PyQt5.QtCore import Qt
 
 def test_create_flowlayout(qtbot):
     try:
@@ -20,3 +21,32 @@ def test_count(qtbot):
     layout = FlowLayout()
 
     assert layout.count() == 0
+
+def test_heightForWidth(qtbot):
+    layout = FlowLayout()
+
+    try:
+        layout.heightForWidth(32)
+    except Exception:
+        pytest.fail("Exception trying to get minimumSize in FlowLayout")
+    
+def test_sizeHint(qtbot):
+    layout = FlowLayout()
+
+    try:
+        layout.sizeHint()
+    except Exception:
+        pytest.fail("Exception trying to get minimumSize in FlowLayout")
+    
+def test_minimumSize(qtbot):
+    layout = FlowLayout()
+    
+    try:
+        layout.minimumSize()
+    except Exception:
+        pytest.fail("Exception trying to get minimumSize in FlowLayout")
+
+def test_expandingDirections(qtbot):
+    layout = FlowLayout()
+
+    assert layout.expandingDirections() == Qt.Orientations(Qt.Orientation(0))
