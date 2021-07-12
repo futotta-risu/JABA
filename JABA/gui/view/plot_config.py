@@ -17,7 +17,7 @@ from gui.component.QCoolContainer import QCoolContainer
 from gui.component.style.styles import main_style
 
 from model.ScrapModel import ScrapModel
-from model import ModelFactory
+from model.ModelFactory import createModelFrame
 
 from loguru import logger
 
@@ -315,7 +315,7 @@ class PlotConfigure(QDialog):
         self.__load_map_history()
 
     def __load_data_model(self):
-        self.initial_frame = ModelFactory.createModelFrame(
+        self.initial_frame = createModelFrame(
             self.data_model_combobox.currentText())
         self.final_frame = self.initial_frame.copy(deep=True)
         self.__load_frame_descriptions()
