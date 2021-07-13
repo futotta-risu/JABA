@@ -64,15 +64,15 @@ def test_open_file_raises_on_invalid_columns(mocker):
 
 def test_save_file(mocker):
     # When
-    args = {'date': '2021-01-13'}
+    args = {'date': '2021-01-13', 'status':'Gool', 'algorithm':'nltk'}
 
     sentimentFileManager = SentimentFileManager()
 
-    mocker.patch('pandas.to_csv', return_value=None)
+    mocker.patch('pandas.DataFrame.to_csv', return_value=None)
 
     try:
         # When
-        sentimentFileManager.save_file(args)
+        sentimentFileManager.save_file(pd.DataFrame(), args)
 
         # Then
         

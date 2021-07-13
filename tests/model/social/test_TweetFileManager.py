@@ -138,15 +138,15 @@ def test_file_exists_fails_on_non_valid_date(mocker):
 
 def test_save_file(mocker):
     # When
-    args = {'date': '2021-01-13'}
+    args = {'date': '2021-01-13', 'status':'Gool'}
 
     tweetFileManager = TweetFileManager()
 
-    mocker.patch('pandas.to_csv', return_value=None)
+    mocker.patch('pandas.DataFrame.to_csv', return_value=None)
 
     try:
         # When
-        tweetFileManager.save_file(args)
+        tweetFileManager.save_file([pd.DataFrame(),pd.DataFrame()], args)
 
         # Then
         
