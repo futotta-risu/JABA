@@ -11,7 +11,7 @@ def test_maincontroller_constructor(qtbot, mocker):
     model.max_threads = 12
     model.auto_scraping = False
     
-    mocker.patch('os.listdir', return_value=['2017/02/02', '2017/02/03', '2017/42/03'])
+    mocker.patch('os.listdir', return_value=['2017-02-02', '2017/02/03', '2017-42-03'])
 
     # When
     try:
@@ -32,3 +32,17 @@ def test_maincontroller_get_analysis_method(qtbot):
     
     # Then
     assert methods == ['nltk', 'textblob']
+
+def test_main_controller_change_automatic_scrapper(qtbot):
+    # Given
+    model = Mock()
+    model.max_threads = 12
+    model.auto_scraping = False
+    controller = MainController(model)
+    
+    # When
+    try:
+        controller.change_automatic_scrapper()
+        # Then
+    except Exception:
+        pytest.fail("Changing to automaic scrapper should not raise")

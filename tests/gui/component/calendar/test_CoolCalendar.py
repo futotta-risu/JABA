@@ -14,6 +14,11 @@ def test_coolcalendar_constructor(qtbot):
     except Exception:
         pytest.fail("Could not create CoolCalendar")
 
+def test_coolcalendar_set_color(qtbot):
+    calendar = CoolCalendar()
+    calendar.set_color('18BEBC')
+    
+    assert calendar.color == QtGui.QColor('18BEBC')
 
 def test_coolcalendar_reset_dates(qtbot):
     # Given

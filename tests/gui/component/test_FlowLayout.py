@@ -2,7 +2,7 @@ import pytest
 
 from gui.component.FlowLayout import FlowLayout
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRect
 
 def test_create_flowlayout(qtbot):
     try:
@@ -50,3 +50,11 @@ def test_expandingDirections(qtbot):
     layout = FlowLayout()
 
     assert layout.expandingDirections() == Qt.Orientations(Qt.Orientation(0))
+
+def test_set_geometry(qtbot):
+    layout = FlowLayout()
+
+    try:
+        layout.setGeometry(QRect(100,100,500,500))
+    except Exception:
+        pytest.fail("FlowLayout setGeometry should not raise Exception")
