@@ -40,7 +40,7 @@ def test_sizeHint(qtbot):
     
 def test_minimumSize(qtbot):
     layout = FlowLayout()
-    
+    layout.addWidget(QLabel("Test2"))
     try:
         layout.minimumSize()
     except Exception:
@@ -53,6 +53,11 @@ def test_expandingDirections(qtbot):
 
 def test_set_geometry(qtbot):
     layout = FlowLayout()
+    layout.addWidget(QLabel("Test2"))
+    layout.addWidget(QLabel("Test2"))
+    layout.addWidget(QLabel("Test2"))
+    layout.addWidget(QLabel("Test2"))
+    layout.addWidget(QLabel("Test2"))
 
     try:
         layout.setGeometry(QRect(100,100,500,500))
