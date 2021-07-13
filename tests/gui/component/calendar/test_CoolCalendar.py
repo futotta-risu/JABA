@@ -1,6 +1,7 @@
 import pytest
 
 from PyQt5.QtCore import QDate
+from PyQt5 import QtGui
 
 from gui.component.calendar.CoolCalendar import CoolCalendar
 
