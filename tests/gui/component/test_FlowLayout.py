@@ -4,6 +4,8 @@ from gui.component.FlowLayout import FlowLayout
 
 from PyQt5.QtCore import Qt, QRect
 
+from PyQt5.QtWidgets import QLabel
+
 def test_create_flowlayout(qtbot):
     try:
         FlowLayout()

@@ -61,3 +61,21 @@ def test_open_file_raises_on_invalid_columns(mocker):
         pytest.fail("File should not exist")
     except Exception:
         assert True
+
+def test_save_file(mocker):
+    # When
+    args = {'date': '2021-01-13'}
+
+    sentimentFileManager = SentimentFileManager()
+
+    mocker.patch('pandas.to_csv', return_value=None)
+
+    try:
+        # When
+        sentimentFileManager.save_file(args)
+
+        # Then
+        
+    except Exception:
+        pytest.fail("Save file should not fail")
+

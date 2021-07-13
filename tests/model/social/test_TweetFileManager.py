@@ -135,3 +135,20 @@ def test_file_exists_fails_on_non_valid_date(mocker):
         pytest.fail("Invalid type should not be accepted")
     except TypeError:
         assert True
+
+def test_save_file(mocker):
+    # When
+    args = {'date': '2021-01-13'}
+
+    tweetFileManager = TweetFileManager()
+
+    mocker.patch('pandas.to_csv', return_value=None)
+
+    try:
+        # When
+        tweetFileManager.save_file(args)
+
+        # Then
+        
+    except Exception:
+        pytest.fail("Save file should not fail")
