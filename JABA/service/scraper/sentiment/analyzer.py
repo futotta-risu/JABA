@@ -130,7 +130,7 @@ class Analyzer:
         round (String): Where to approximate the "DateTime" column
         """
 
-        logger.degub(f"Starting sentiment analysis for {date} with {algorithm}")
+        logger.debug(f"Starting sentiment analysis for {date} with {algorithm}")
 
         args = {'date': date, 'algorithm': algorithm}
         data = data_file_manager.open_file(args)

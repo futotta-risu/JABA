@@ -224,7 +224,5 @@ def test_start_message_sample(mocker, order):
 
     result = controller.get_message_sample_with_sentiment(now, 'nltk', random=order)
     
-    if order:
-        assert result == [('test', 0.8), ('tost', 0.8)]
-    else:
-        assert result == [('tost', 0.8), ('test', 0.8)]
+    assert result == [('test', 0.8), ('tost', 0.8)] or result == [('tost', 0.8), ('test', 0.8)]
+    

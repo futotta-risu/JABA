@@ -57,23 +57,23 @@ def test_analyzer_get_sentiment_none_existent():
     except Exception:
         assert True
 
-def test_analyzer_analyze():
+def test_analyzer_analyze(mocker):
     # Given
     analyzer = Analyzer()
 
     args = {'sentiment':[0,0], 'Text':["I love you", "Love"]}
     data= pd.DataFrame(args)
     
+    
+
     file_manager = Mock()
     file_manager.open_file.return_value = data
     file_manager.save_file.return_value = None
 
+    mock = mocker.patch('model.sentiment.SentimentFileManager.SentimentFileManager.save_file')
+
     # When
-    try:
-        result = analyzer.analyze('2010-02-03', file_manager, verbose=True)
+    result = analyzer.analyze('2010-02-03', file_manager, verbose=True)
 
-        # Then
-        pytest.fail("Analyzer with None should raise Exception")
-    except Exception:
-        assert True
-
+    # Then
+    mock.assert_called_once()
