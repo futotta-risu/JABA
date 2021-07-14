@@ -61,4 +61,4 @@ def test_reorderConfiguration(mocker):
     try:
         service.updatePlots([r_config], '2010/05/05', 'nltk')
     except Exception:
-        pytest.fail("update plots should not fail")
+        pytest.fail("updatePlots should not fail")

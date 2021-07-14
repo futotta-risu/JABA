@@ -54,6 +54,6 @@ class ConfigurationDialog(QDialog):
 
     def save_settings(self):
         self.settings.setValue("initial_date", self.initial_date_pick.date())
-        self.settings.setValue("analysis_algorithm", self.combo_sentiment_algorithm.currentValue())
+        self.settings.setValue("analysis_algorithm", str(self.combo_sentiment_algorithm.currentText()))
         self._controller.set_settings(self.settings)
         self.close()
