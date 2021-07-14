@@ -191,6 +191,7 @@ def test_start_auto_scrap(mocker):
     model.auto_scraping = False
     controller = MainController(model)
 
+    mocker.patch('PyQt5.QtCore.QThreadPool.activeThreadCount', return_value=[1,2,4, 24])
     mocker.patch('PyQt5.QtCore.QThreadPool.start')
 
     with pytest.raises(Exception):
