@@ -106,7 +106,11 @@ class Analyzer:
             sentiment = self.sia.polarity_scores(text)["compound"]
         elif algorithm == "textblob":
             sentiment = TextBlob(text).sentiment.polarity
+        else:
+            # Improve this method to extensible
 
+            # Algorithm not defined
+            raise Exception
         return sentiment
 
     # TODO Delete the round parameter

@@ -21,3 +21,10 @@ def test_setModelType():
         sentiment.setModelTypes(df)
     except Exception:
         pytest.fail("Pandas error")
+
+def test_createModelFrame():
+    sentiment = Sentiment()
+
+    model = sentiment.createModelFrame()
+
+    assert 'sentiment' in model.columns

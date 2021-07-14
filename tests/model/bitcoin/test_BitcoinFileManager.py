@@ -96,3 +96,40 @@ def test_open_file_raises_on_invalid_columns(mocker):
         pytest.fail("File should not exist and should raise")
     except Exception:
         assert True
+
+def test_open_file(mocker):
+    # When
+    data = pd.DataFrame(columns=['timestamp', 'Close'])
+    args = {'date': '2021-01-13'}
+
+    bitcoinFileManager = BitcoinFileManager()
+
+    mocker.patch('pandas.read_csv', return_value=data)
+
+    try:
+        # When
+        data = bitcoinFileManager.open_file(args)
+
+        # Then
+        assert True
+    except Exception:
+        pytest.fail("Pandas error")
+
+def test_save_file(mocker):
+    # When
+    args = {'date': '2021-01-13', 'status':'Gool', 'algorithm':'nltk'}
+
+    bitcoinFileManager = BitcoinFileManager()
+
+    mocker.patch('pandas.DataFrame.to_csv', return_value=None)
+
+    try:
+        # When
+        bitcoinFileManager.save_file(pd.DataFrame(), args)
+
+        # Then
+        
+    except Exception:
+        pytest.fail("Save file should not fail")
+
+

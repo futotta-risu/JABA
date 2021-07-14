@@ -1,3 +1,5 @@
+from loguru import logger
+
 def jacard(txt1, txt2):
     words1 = set(txt1[0].split(' '))
     words2 = set(txt2[0].split(' '))

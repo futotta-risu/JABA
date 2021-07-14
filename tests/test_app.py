@@ -8,7 +8,7 @@ import sys
 
 def test_app_constructor(mocker):
     # Given    
-    mocker.patch('os.listdir', return_value=['2017/02/02', '2017/02/03', '2017/42/03'])
+    mocker.patch('pandas.DataFrame.to_csv', return_value=None)
 
     # When
     try:
