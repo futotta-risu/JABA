@@ -32,7 +32,7 @@ def test_open_file_raises_on_non_existent_file(mocker):
 
     sentimentFileManager = SentimentFileManager()
 
-    mocker.patch('pandas.read_csv', return_value=Exception())
+    mocker.patch('pandas.read_csv', side_effect=Exception())
 
     try:
         # When
