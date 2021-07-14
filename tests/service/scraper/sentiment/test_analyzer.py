@@ -70,7 +70,7 @@ def test_analyzer_analyze():
 
     # When
     try:
-        result = analyzer.get_sentiment('2010-02-03', file_manager)
+        result = analyzer.analyze('2010-02-03', file_manager, verbose=True)
 
         # Then
         pytest.fail("Analyzer with None should raise Exception")

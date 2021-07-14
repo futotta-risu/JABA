@@ -5,7 +5,7 @@ from scipy.spatial.distance import pdist, squareform
 
 import numpy as np
 
-from .metrics import jacard_t
+from .metrics import jacard
 
 
 def filter_duplicated(data):
@@ -18,7 +18,7 @@ def filter_duplicated(data):
     pass  # TODO Implement functions
 
 
-def filter_spam(data, batch_size=5000, verbose=False, metric=jacard_t, eps=0.3):
+def filter_spam(data, batch_size=5000, verbose=False, metric=jacard, eps=0.3):
     '''
         Filters spam based on text similarity.
 
