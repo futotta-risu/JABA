@@ -37,6 +37,9 @@ class TwitterScraper(IScrapper):
     def __init__(self):
         self.fileManager = TweetFileManager()
 
+    def set_file_manager(self, fileManager):
+        self.fileManager = fileManager
+
     def scrap(self, date_from, limit=-1, lang="en"):
         """
         Function to scrap tweet between dates and save them
