@@ -4,9 +4,12 @@ from gui.controller.MainController import MainController
 
 from unittest.mock import Mock
 
-from PyQt5.QtCore import QSettings
+from PyQt5.QtCore import QSettings, QDate
 
 from service.visualization.PlotConfiguration import PlotConfiguration
+
+import datetime
+import pandas as pd
 
 def test_maincontroller_constructor(qtbot, mocker):
     # Given
@@ -180,3 +183,48 @@ def test_delete_plot_on_non_existent(mocker):
     result = controller.delete_plot(10)
 
     assert len(controller.plot_configurations) == 3
+
+
+def test_start_auto_scrap(mocker):
+    model = Mock()
+    model.max_threads = 12
+    model.auto_scraping = False
+    controller = MainController(model)
+
+    mocker.patch('PyQt5.QtCore.QThreadPool.start')
+
+    with pytest.raises(Exception):
+        controller.startAutoScrapWorker()
+
+def test_start_scrap_worker(mocker):
+    model = Mock()
+    model.max_threads = 12
+    model.auto_scraping = False
+    controller = MainController(model)
+
+    mocker.patch('PyQt5.QtCore.QThreadPool.start')
+    try:
+        controller.startScrapWorker()
+    except Exception:
+        pytest.fail("Should not fail")
+
+@pytest.mark.parametrize("order", [(True),(False)])
+def test_start_message_sample(mocker, order):
+    model = Mock()
+    model.max_threads = 12
+    model.auto_scraping = False
+    controller = MainController(model)
+
+    now = QDate(2010, 5, 2)
+    
+    data = pd.DataFrame({'Text':['Test', 'Tost'], 'NumLikes': [23, 25]})
+    
+    mocker.patch('service.scraper.sentiment.analyzer.Analyzer.get_sentiment', return_value=0.8)
+    mocker.patch('pandas.read_csv', return_value=data)
+
+    result = controller.get_message_sample_with_sentiment(now, 'nltk', random=order)
+    
+    if order:
+        assert result == [('test', 0.8), ('tost', 0.8)]
+    else:
+        assert result == [('tost', 0.8), ('test', 0.8)]

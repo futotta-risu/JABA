@@ -178,16 +178,17 @@ class MainController(QObject):
 
         tweet_df = pd.read_csv(tweet_file_name, sep=';')
 
+        samples = min(50, len(tweet_df))
         if random:
-            tweet_list = tweet_df.sample(n=50)
+            tweet_list = tweet_df.sample(n=samples)
         else:
-            tweet_list = tweet_df.sort_values('NumLikes', ascending=False).head(n=50)
+            tweet_list = tweet_df.sort_values('NumLikes', ascending=False).head(n=samples)
 
         tweet_list = tweet_list["Text"]
 
         analyzer = Analyzer()
 
-        tweets_text = [(clean_tweet(tweet_list.iloc[i])) for i in range(50)]
+        tweets_text = [(clean_tweet(tweet_list.iloc[i])) for i in range(samples)]
         return [(text, analyzer.get_sentiment(text)) for text in tweets_text]
 
     def create_plot(self, config):
