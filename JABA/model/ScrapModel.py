@@ -2,7 +2,7 @@ class ScrapModel:
     '''
         Scrap model base for other models.
     '''
-    
+
     name = ""
     column_names = None
 
