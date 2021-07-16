@@ -1,5 +1,5 @@
 # Just Another Bitcoin Analyzer (JABA)
-![main](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg) 
+![main](https://github.com/futotta-risu/JABA/actions/workflows/build.yml/badge.svg) ![codecov](https://codecov.io/gh/futotta-risu/JABA/branch/main/graph/badge.svg?token=DQCIGLEJKQ)
 
 Dashboard for scrapping & tracking the twitter sentiment related with Bitcoin.
 
