@@ -22,7 +22,9 @@ from service.scraper.sentiment.analyzer import Analyzer
 from service.scraper.cleaner import clean_tweet
 
 from service.visualization.PlotService import PlotService
-from gui.view.plot_config import PlotConfigure
+from gui.view.AddPlotView import AddPlotView
+from gui.controller.AddPlotController import AddPlotController
+from gui.model.AddPlotModel import AddPlotModel
 
 from loguru import logger
 
@@ -204,7 +206,9 @@ class MainController(QObject):
         return id, config.name, widget
 
     def open_configure(self):
-        config_window = PlotConfigure(self)
+        ap_model = AddPlotModel()
+        ap_controller = AddPlotController(ap_model)
+        config_window = AddPlotView(self, ap_controller, ap_model)
         config_window.show()
         config_window.exec_()
 

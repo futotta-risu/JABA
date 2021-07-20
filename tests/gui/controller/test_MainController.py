@@ -104,10 +104,10 @@ def test_save_plot_config(mocker):
 def test_open_configure(mocker):
     config = PlotConfiguration('name', 'ini', 'fin', 'map', 'var', 'ind', 'data')
     
-    mocker.patch('gui.view.plot_config.PlotConfigure.show')
-    mocker.patch('gui.view.plot_config.PlotConfigure.exec_')
-    mocker.patch('gui.view.plot_config.PlotConfigure.is_saved', return_value=True)
-    mock_p = mocker.patch('gui.view.plot_config.PlotConfigure.getPlotConfiguration', return_value=config)
+    mocker.patch('gui.view.AddPlotView.AddPlotView.show')
+    mocker.patch('gui.view.AddPlotView.AddPlotView.exec_')
+    mocker.patch('gui.view.AddPlotView.AddPlotView.is_saved', return_value=True)
+    mock_p = mocker.patch('gui.view.AddPlotView.AddPlotView.getPlotConfiguration', return_value=config)
 
     model = Mock()
     model.max_threads = 12
@@ -124,8 +124,8 @@ def test_open_configure_no_saved(mocker):
 
     mocker.patch('PyQt5.QtWidgets.QDialog.show')
     mocker.patch('PyQt5.QtWidgets.QDialog.exec_')
-    mocker.patch('gui.view.plot_config.PlotConfigure.is_saved', return_value=False)
-    mock_p = mocker.patch('gui.view.plot_config.PlotConfigure.getPlotConfiguration', return_value=config)
+    mocker.patch('gui.view.AddPlotView.AddPlotView.is_saved', return_value=False)
+    mock_p = mocker.patch('gui.view.AddPlotView.AddPlotView.getPlotConfiguration', return_value=config)
 
     model = Mock()
     model.max_threads = 12

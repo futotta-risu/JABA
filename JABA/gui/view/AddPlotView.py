@@ -26,32 +26,41 @@ class QFormLabel(QLabel):
     def __init__(self, text):
         super(QFormLabel, self).__init__(text)
         self.setObjectName("FormLabel")
+        self.setAlignment(QtCore.Qt.AlignCenter)
 
 
-class PlotConfigure(QDialog):
-    def __init__(self, parent):
-        super(PlotConfigure, self).__init__()
+class AddPlotView(QDialog):
+    def __init__(self, parent, controller, model):
+        super(AddPlotView, self).__init__()
+
+        self._controller = controller
+        self._model = model
 
         self.initial_frame = pd.DataFrame()
         self.final_frame = self.initial_frame.copy(deep=True)
 
         self.__saved = False
         self.__configuration = None
-        self.map_list = []
 
         self.attrs_types = {}
         self.attrs_widgets = {}
 
-        self.loadWidget()
-        self.__load_data_model()
+        self._load_window_properties()
+        self._load_window_components()
+        self._init_window()
 
+        self.__load_data_model()
         self.__load_frame_map()
 
-    def loadWidget(self):
+    def _init_window(self):
+        pass
+
+    def _load_window_properties(self):
+        self.setStyleSheet(main_style)
+
+    def _load_window_components(self):
 
         self.main_layout = QVBoxLayout()
-
-        self.setStyleSheet(main_style)
 
         self.bottom_pane_l = QHBoxLayout()
         self.bottom_pane_w = QWidget()
@@ -106,35 +115,30 @@ class PlotConfigure(QDialog):
         self.model_desc_w = QCoolContainer()
         self.model_desc_w.setLayout(self.model_desc_l)
 
-        self.model_desc_label = QFormLabel("Model Description")
-        self.model_desc_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.model_desc_l.addWidget(self.model_desc_label)
+        self.model_desc_l.addWidget(QFormLabel("Model Description"))
 
         self.model_desc_name_l = QHBoxLayout()
         self.model_desc_name_w = QWidget()
         self.model_desc_name_w.setLayout(self.model_desc_name_l)
-        self.initial_frame_label = QFormLabel("Initial Frame")
-        self.initial_frame_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.final_frame_label = QFormLabel("Final Frame")
-        self.final_frame_label.setAlignment(QtCore.Qt.AlignCenter)
+
         self.model_desc_name_l.setContentsMargins(0, 0, 0, 0)
 
-        self.model_desc_name_l.addWidget(self.initial_frame_label)
-        self.model_desc_name_l.addWidget(self.final_frame_label)
+        self.model_desc_name_l.addWidget(QFormLabel("Initial Frame"))
+        self.model_desc_name_l.addWidget(QFormLabel("Final Frame"))
 
         self.model_desc_inner_l = QHBoxLayout()
         self.model_desc_inner_w = QWidget()
         self.model_desc_inner_w.setLayout(self.model_desc_inner_l)
         self.model_desc_inner_l.setContentsMargins(5, 0, 5, 5)
 
-        self.model_initial_desc_l = QGridLayout()
+        self.model_initial_desc_l = QFormLayout()
         self.model_initial_desc_w = QWidget()
         self.model_initial_desc_w.setLayout(self.model_initial_desc_l)
         self.model_desc_inner_l.addWidget(self.model_initial_desc_w)
 
         self.model_initial_desc_w.setObjectName("InnerModelDescription1m83b9s")
 
-        self.model_final_desc_l = QGridLayout()
+        self.model_final_desc_l = QFormLayout()
         self.model_final_desc_w = QWidget()
         self.model_final_desc_w.setLayout(self.model_final_desc_l)
         self.model_desc_inner_l.addWidget(self.model_final_desc_w)
@@ -160,9 +164,7 @@ class PlotConfigure(QDialog):
         self.mapping_hist_p_l = QVBoxLayout()
         self.mapping_hist_p_w.setLayout(self.mapping_hist_p_l)
 
-        self.mapping_hist_label = QFormLabel("Mapping History")
-        self.mapping_hist_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.mapping_hist_p_l.addWidget(self.mapping_hist_label)
+        self.mapping_hist_p_l.addWidget(QFormLabel("Mapping History"))
 
         self.mapping_hist_l = QVBoxLayout()
         self.mapping_hist_w = QWidget()
@@ -200,42 +202,44 @@ class PlotConfigure(QDialog):
 
         self.setLayout(self.main_layout)
 
+    
+
+
+    def __delete_from_parent(self, widget):
+        for i in reversed(range(widget.count())):
+            widget.itemAt(i).widget().setParent(None)
+
     def __load_map_history(self):
+        self.__delete_from_parent(self.mapping_hist_l)
 
-        for i in reversed(range(self.mapping_hist_l.count())):
-            self.mapping_hist_l.itemAt(i).widget().setParent(None)
-
-        for fmap in self.map_list:
+        for fmap in self._model.map_list:
             self.mapping_hist_l.addWidget(QLabel(fmap.getName()))
 
     def __load_frame_descriptions(self):
         self.__refresh_combo()
 
+        self.__delete_from_parent(self.model_initial_desc_l)
+        self.__delete_from_parent(self.model_final_desc_l)
+
+        # TODO Maybe new function and use this
+        # Also, I could try to only update final_frame instead of both
         intial_types = self.initial_frame.dtypes.reset_index(name="type")
 
         intial_types["type"] = intial_types["type"].astype("str")
 
-        for i in reversed(range(self.model_initial_desc_l.count())):
-            self.model_initial_desc_l.itemAt(i).widget().setParent(None)
+        
 
         for index, row in intial_types.iterrows():
-            self.model_initial_desc_l.addWidget(QLabel(str(row["index"])),
-                                                index + 1, 1)
-            self.model_initial_desc_l.addWidget(QLabel(str(row["type"])),
-                                                index + 1, 2)
+            index_t, data_t = str(row["index"]), str(row["type"])
+            self.model_initial_desc_l.addRow(QLabel(index_t), QLabel(data_t))
 
         final_types = self.final_frame.dtypes.reset_index(name="type")
 
         final_types["type"] = final_types["type"].astype("str")
 
-        for i in reversed(range(self.model_final_desc_l.count())):
-            self.model_final_desc_l.itemAt(i).widget().setParent(None)
-
         for index, row in final_types.iterrows():
-            self.model_final_desc_l.addWidget(QLabel(str(row["index"])),
-                                              index + 1, 1)
-            self.model_final_desc_l.addWidget(QLabel(str(row["type"])),
-                                              index + 1, 2)
+            index_t, data_t = str(row["index"]), str(row["type"])
+            self.model_final_desc_l.addRow(QLabel(index_t), QLabel(data_t))
 
     def __load_frame_map(self):
 
@@ -283,8 +287,8 @@ class PlotConfigure(QDialog):
         self.attrs_types = strategy.getAttrsWithTypes(map_function)
         self.attrs_widgets = {}
 
-        for i in reversed(range(self.attr_edit_l.count())):
-            self.attr_edit_l.itemAt(i).widget().setParent(None)
+        
+        self.__delete_from_parent(self.attr_edit_l)
 
         for key in self.attrs_types:
             if self.attrs_types[key][0] == 'Text':
@@ -306,18 +310,19 @@ class PlotConfigure(QDialog):
         args = self.__get_attrs()
         args["variable"] = self.variable_pick.currentText()
 
-        self.final_frame, fmap = strategy.apply(map_function, self.final_frame,
-                                                args)
+        self.final_frame, fmap = strategy.apply(map_function, self.final_frame, args)
 
-        self.map_list += [fmap]
+        self._model.add_map(fmap)
 
         self.__load_frame_descriptions()
         self.__load_map_history()
 
     def __load_data_model(self):
-        self.initial_frame = createModelFrame(
-            self.data_model_combobox.currentText())
+        data_model = self.data_model_combobox.currentText()
+
+        self.initial_frame = createModelFrame(data_model)
         self.final_frame = self.initial_frame.copy(deep=True)
+
         self.__load_frame_descriptions()
 
     def getPlotConfiguration(self):
@@ -332,7 +337,7 @@ class PlotConfigure(QDialog):
             self.name_edit.text(),
             self.initial_frame,
             self.final_frame,
-            self.map_list,
+            self._model.map_list,
             self.data_model_combobox.currentText(),
             self.index_combo.currentText(),
             self.data_combo.currentText(),
